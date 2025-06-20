@@ -5,7 +5,6 @@ import random
 Username = ""
 Companion = ""
 player = None  # Will be initialized with PlayerData()
-health = ""
 
 Bull=("""
       
@@ -285,7 +284,6 @@ def Chapter_1():
         print("You died of loneliness and despair.")
         Death()
         return
-        time.sleep(5)
 
 def Chapter_2():
     global Companion, Username, health
@@ -466,14 +464,18 @@ def Chapter_4():
             print(f"{Companion} tells you that there are five keys in total, each hidden in a different dungeon across Faron. I don't know the exact locations, but I have heard rumors of their existence.")
             time.sleep(5)
             print(f"You thank {Companion} for the information and continue down the path.")
+            print(f"The path ahead changes to a lush green tropical forest but you and {Companion} are determined to find the other keys and rescue the princess.")
+            Chapter_5()
             break
         elif askquestion.lower() == "continue":
             print("You decide to continue down the path, playing with the key you found.")
             print("The key feels warm in your hand, and you can sense its power.")
+            print(f"The path ahead changes to a lush green tropical forest but you and {Companion} are determined to find the other keys and rescue the princess.")
+            Chapter_5()
             break
         else:
-            print("Invalid choice.")
-    print(f"The path ahead changes to a lush green tropical forest but you and {Companion} are determined to find the other keys and rescue the princess.")
+            print("Invalid choice, Try again")
+        
 
 
 
@@ -1319,6 +1321,7 @@ def Chapter_12():
         print("You have no choice but to go back towards the village.")
         time.sleep(5)
         print(f"You arrived back at the village and sat down")
+        Chapter_12Part2()
         time.sleep(5)
     
 def Chapter_12Part2():
@@ -1401,8 +1404,8 @@ def Chapter_13():
     print("When you wake up you notice, that companion disappeared. In front of you is 5 tunnels")
     while True:
      tunnelchoice = int(input("Which tunnel would you proceed down: "))
-     match tunnelchoice.lower().strip():
-        case(1):
+     match tunnelchoice:
+        case 1:
             print("You walk into the darkness of the tunnel...")
             time.sleep(5)
             print("You reach a dead end...")
@@ -1411,7 +1414,7 @@ def Chapter_13():
             time.sleep(5)
             Death()
             break
-        case(2):
+        case 2:
             print("You walk into the darkness of the tunnel...")
             time.sleep(5)
             print("In the end, you reach a fountain...")
@@ -1421,7 +1424,7 @@ def Chapter_13():
             print("The fountain water was poisoned.")
             Death()
             break
-        case(3):
+        case 3:
             print("You walk into the darkness of the tunnel...")
             time.sleep(5)
             print(f"You notice, a shadow up ahead, it could be {Companion}...")
@@ -1436,14 +1439,15 @@ def Chapter_13():
             time.sleep(5)
             Death()
             break
-        case(4):
+        case 4:
             print("You walk into the darkness of the tunnel...")
             time.sleep(5)
             print(f"You notice a shadow up ahead, it could be {Companion}...")
             time.sleep(5)
             print(f"Hey, come {Username}! {Companion} yells")
-        case(5):
-            print("You")
+        case 5:
+            print("You walk into the darkness of the tunnel...")
+            time.sleep(5)
         case _:
             print("Enter a valid number")
             return
