@@ -378,14 +378,41 @@ def Chapter_3():
             print("You bravely stand your ground and prepare to fight the golem.")
             time.sleep(5)
             print("It charges at you, swinging its massive fists.")
-            golemchoice = input("You can either type 'Dodge' to dodge its attack or type 'Attack' to attack it: ")
-            if golemchoice.lower() == "dodge":
+        elif golem_choice.lower() == "reason":
+            print("You try to reason with the golem, explaining that you mean no harm and are only looking for the princess.")
+            time.sleep(5)
+            print("Never do that again, the golem doesn't speak English, it does speak with fists")
+            time.sleep(5)
+            print("The golem knocks you out cold")
+            time.sleep(5)
+            Death()
+            return
+        else:
+            print("Invalid choice. The golem charges at you!")
+            time.sleep(5)
+            Death()
+            return
+        golem_choice2 = input("You can either type 'Dodge' to dodge its attack or type 'Attack' to attack it: ")
+        if golem_choice2.lower() == "dodge":
                 print("You quickly dodge the golem's attack, narrowly avoiding its powerful fists.")
                 time.sleep(5)
                 print("You counterattack, striking the golem with all your might.")
                 time.sleep(5)
                 print(f"The golem staggers back, but it is not defeated yet. You and {Companion} must work together to defeat it.")
                 time.sleep(5)
+        elif golem_choice.lower() == "attack":
+                print("You charge at the golem, swinging your weapon with all your might.")
+                time.sleep(5)
+                print("The golem retaliates with a powerful punch, sending you flying across the room.")
+                time.sleep(5)
+                Death()
+                return
+        else:
+                print("Invalid choice. The golem charges at you!")
+                Death()
+                return
+            
+def Chapter_3Part2():
                 while True:
                     golemchoice2 = input(f"You can either type 'Attack' to attack the golem again or type 'Heal' to wake up {Companion}: ")
                     if golemchoice2.lower() == "attack":
@@ -394,7 +421,8 @@ def Chapter_3():
                         print("The golem stands unfazed, cracks form but it is still standing.")
                         time.sleep(5)
                         print("You realize that you need to find a way to weaken it before you can defeat it.")
-                        break
+                        Chapter_3Part2()
+                        return
                     elif golemchoice2.lower() == "heal":
                         print(f"You use a healing potion to wake up {Companion}.")
                         time.sleep(5)
@@ -422,31 +450,7 @@ def Chapter_3():
                               "****************************\n")
                         Chapter_4()
                         return
-            elif golemchoice.lower() == "attack":
-                print("You charge at the golem, swinging your weapon with all your might.")
-                time.sleep(5)
-                print("The golem retaliates with a powerful punch, sending you flying across the room.")
-                time.sleep(5)
-                Death()
-                return
-            else:
-                print("Invalid choice. The golem charges at you!")
-                Death()
-                return
-        elif golem_choice.lower() == "reason":
-            print("You try to reason with the golem, explaining that you mean no harm and are only looking for the princess.")
-            time.sleep(5)
-            print("Never do that again, the golem doesn't speak English, it does speak with fists")
-            time.sleep(5)
-            print("The golem knocks you out cold")
-            time.sleep(5)
-            Death()
-            return
-        else:
-            print("Invalid choice. The golem charges at you!")
-            time.sleep(5)
-            Death()
-            return
+            
 
 def Chapter_4():
     global Companion
@@ -505,70 +509,78 @@ def Chapter_5():
         time.sleep(5)
         print(f"{Companion} returns after a while, looking worried.")
         time.sleep(5)
-        print(f"'{Companion} says, 'The goblin chief knows about the key, but he won't give it up easily.'")
+        print(f"'{Companion} says, 'The goblin chief knows where the dungeon is, but he won't give it up easily.'")
+        time.sleep(5)
+        print(f"You approach the chief with {Companion}")
+        time.sleep(5)
         rest_choice = input(f"Do you want to try to reason with the goblin chief or attack him? (Reason/Attack): ")
-        if rest_choice.lower() == "reason":
+        while True:
+         if rest_choice.lower() == "reason":
             print(f"You and {Companion} approach the goblin chief, trying to reason with him.")
             time.sleep(5)
             print("The goblin chief listens to your plea, but he is not convinced.")
             time.sleep(5)
-            print(f"'{Companion} says, 'We need to find another way to get the key.'")
+            print(f"'{Companion} says, 'We need to find another way to get the location.'")
             time.sleep(5)
             print("You nod in agreement and start to plan your next move.")
             time.sleep(5)
-            print("You decide to explore the camp further, hoping to find some clues about the key.")
+            print("You decide to explore the camp further, hoping to find some clues about the location.")
             time.sleep(5)
-            Chapter_5()
-        elif rest_choice.lower() == "attack":
+         elif rest_choice.lower() == "attack":
             print(f"You and {Companion} decide to attack the goblin chief.")
             time.sleep(5)
-            print("The goblin chief fights back fiercely, but you manage to defeat him after a tough battle.")
+            print("The goblin chief fights back fiercely, but you manage to defeat him after a tough battle...")
             time.sleep(5)
-            print("You search the goblin chief's hut and find a map that leads to the next dungeon.")
+            print("You search the goblin chief's hut and find a map that leads to the next dungeon...")
             time.sleep(5)
-            print(f"You and {Companion} take the map and prepare to continue your journey.")
+            print(f"You and {Companion} take the map and prepare to continue your journey...")
             Chapter_6()
+            return
+         else:
+            print("Invalid choice. Try again..")
     elif goblinchoice.lower() == "explore":
         while True:
-         print("You decide to explore the camp on your own.")
+         print("You decide to explore the camp on your own...")
          time.sleep(5)
-         print("As you look around, you notice a few goblins eyeing you suspiciously.")
+         print("As you look around, you notice a few goblins eyeing you suspiciously...")
          time.sleep(5)
-         print("Nonetheless, you continue to explore, hoping to find some clues about the key.")
+         print("Nonetheless, you continue to explore, hoping to find some clues about the key...")
          time.sleep(5)
-         print("You find a small hut with a sign that reads 'Storage Space'.")
+         print("You find a small hut with a sign that reads 'Storage Space'...")
+         time.sleep(5)
          goblinchoice2 = input("Do you want to enter the hut? (Yes/No): ")
-         if goblinchoice2.lower() == "yes":
+         while True:
+          if goblinchoice2.lower() == "yes":
             while True:
              time.sleep(5)
-             print("You enter the hut and find a chest in the corner.")
+             print("You enter the hut and find a chest in the corner...")
              time.sleep(5)
-             print("You open the chest and find a dusty yellow map inside.")
+             print("You open the chest and find a dusty yellow map inside...")
              time.sleep(5)
-             print("You take the map and return to the main camp area.")
-             print(f"You find {Companion} waiting for you, looking relieved.")
+             print("You take the map and return to the main camp area...")
+             time.sleep(5)
+             print(f"You find {Companion} waiting for you, looking relieved...")
              time.sleep(5)
              print(f"'{Companion} says, 'I was worried about you. Did you find anything useful?'")
              time.sleep(5)
-             print(f"You show {Companion} the map you found in the hut.")
+             print(f"You show {Companion} the map you found in the hut...")
              time.sleep(5)
              print(f"{Companion} examines the map and says, 'This looks like to the next dungeon It might help us find the key!'")
              Chapter_6()
              break
-         elif goblinchoice2.lower() == "no":
-             print("You decide not to enter the hut and continue exploring the camp.")
+          elif goblinchoice2.lower() == "no":
+             print("You decide not to enter the hut and continue exploring the camp...")
              time.sleep(5)
-             print("You wander around, but you don't find anything else of interest.")
+             print("You wander around, but you don't find anything else of interest...")
              time.sleep(5)
-             print(f"You return to the main camp area, where you find {Companion} waiting for you.")
+             print(f"You return to the main camp area, where you find {Companion} waiting for you...")
              time.sleep(5)
              print(f"'{Companion} says, 'Did you find anything useful?'")
              time.sleep(5)
-             print(f"You tell {Companion} that you didn't find anything, but you feel like you might have missed something important.")
+             print(f"You tell {Companion} that you didn't find anything, but you feel like you might have missed something important...")
              time.sleep(5)
-             print(f"{Companion} nods and says, 'We should keep looking. The goblins might have more information about the key.'")
-
-         else:
+             print(f"{Companion} nods and says, 'We should keep looking. The goblins might have more information about the key...'")
+          else:
             print("Invalid choice.")
 
     else:
@@ -582,181 +594,130 @@ def Chapter_6():
             "Chapter 6: The Jungle Dungeon\n"
               "***************************\n")
         time.sleep(2)
-        print(f"You and {Companion} arrive at the entrance of the lush green cavern, the second dungeon.")
+        print(f"You and {Companion} arrive at the entrance of the lush green cavern, the second dungeon...")
         time.sleep(5)
-        print("The air is thick with moisture, and you can hear the sound of dripping water echoing through the darkness.")
+        print("The air is thick with moisture, and you can hear the sound of dripping water echoing through the darkness...")
         time.sleep(5)
-        print("You light a torch and step inside, the flickering light revealing jagged rocks and narrow passages.")
+        print("You light a torch and step inside, the flickering light revealing jagged rocks and narrow passages...")
         time.sleep(5)
-        print(f"{Companion} says, 'Be careful. This place is known for its traps and dangerous creatures.'")
+        print(f"{Companion} says, 'Be careful. This place is known for its traps and dangerous creatures'...")
         time.sleep(5)
-        print("You nod and start to explore the cavern, searching for the key.")
+        print("You nod and start to explore the cavern, searching for the key...")
         time.sleep(5)
-        print("As you venture deeper, you come across a large underground lake.")
+        print("As you venture deeper, you come across a large underground lake...")
         time.sleep(5)
-        print("In the center of the lake, you see a small island with a pedestal on it.")
+        print("In the center of the lake, you see a small island with a pedestal on it...")
         time.sleep(5)
-        print("On the pedestal, you can see a glimmering blue key.")
+        print("On the pedestal, you can see a glimmering blue key...")
         time.sleep(5)
-        print(f"You and {Companion} realize that this must be the second key you are looking for.")
+        print(f"You and {Companion} realize that this must be the second key you are looking for...")
         time.sleep(5)
-        print(f"Before either of you could react, a giant beast emerges from the water, its eyes glowing with a menacing light.")
+        print(f"Before either of you could react, a giant beast emerges from the water, its eyes glowing with a menacing light...")
         time.sleep(5)
-        print("The beast is a massive serpent, its scales glistening in the torchlight.")
+        print("The beast is a massive serpent, its scales glistening in the water")
         time.sleep(5)
         print("****************************\n"
               "Serpus The Beast of the Lake \n"
               "****************************\n")
         time.sleep(5)
-        print("Before either of you could move, Serpus strikes you both in the back")
+        print("Before either of you could move, Serpus strikes you both in the back...")
         lower_health(20)
         print(f"{Companion}'s health is low")
-        time.sleep(5)  # <-- fix: was just 'time'
+        time.sleep(5)  
         serpentchoice = input("Serpus is charging up it's next attack, (Attack/Dodge)")
         if serpentchoice.lower() == "attack":
-            print("Serpus strikes you in the stomach and injures you")
+            print("Serpus strikes you in the stomach and injures you..")
             time.sleep(5)
             lower_health(20)
             print(f"{Companion}'s health is low")
             time.sleep(5)
-            print(f"You and {Companion} are both injured and need to find a way to defeat Serpus before it attacks again.")
+            print(f"You and {Companion} are both injured and need to find a way to defeat Serpus before it attacks again...")
             time.sleep(5)
-            serpentchoice2 = input(f"You can either type 'Attack' to attack Serpus or type 'Heal' to heal yourself and {Companion}: ")
-            if serpentchoice2.lower() == "attack":
-                print(f"You and {Companion} attack Serpus with all your might, striking it with your weapons.")
-                time.sleep(5)
-                print("Serpus roars in pain, but it is not defeated yet.")
-                time.sleep(5)
-                serpentchoicesemi2 = input(f"Type 'Attack' to attack Serpus again or type 'Heal' to heal yourself and {Companion}: ")
-                while True:
-                 if serpentchoicesemi2.lower() == "attack":
-                    print(f"You and {Companion} attack Serpus with all your might.")
-                    time.sleep(5)
-                    print("Serpus roars in pain, but it is not defeated yet.")
-                    time.sleep(5)
-                    print("You realize that you need to find a way to weaken it before you can defeat it.")
-                    time.sleep(5)
-                 elif serpentchoicesemi2.lower() == "heal":
-                    print(f"You use a healing potion to heal yourself and {Companion}.")
-                    time.sleep(5)
-                    print(f"{Companion} is back in the fight!")
-                    time.sleep(5)
-                    print("You both attack Serpus together, striking it with all your might.")
-                    time.sleep(5)
-                    print("Serpus roars in pain, but it is not defeated yet.")
-                    time.sleep(5)
-                    serpentchoicesemi3 = input(f"Type 'Attack' to attack Serpus again or type 'Heal' to heal yourself and {Companion}: ")
-                    if serpentchoicesemi3.lower() == "attack":
-                        print(f"You and {Companion} attack Serpus's core with all your might, striking it with your weapons.")
-                        time.sleep(5)
-                        print("Serpus roars in pain, and it crumbles to the ground, defeated.")
-                        time.sleep(5)
-                        print(f"You and {Companion} stand victorious, breathing heavily from the intense battle.")
-                        time.sleep(5)
-                        print("You search the serpent's remains and find a glimmering blue key that unlocks a hidden door in the cavern.")
-                        time.sleep(5)
-                        print(f"You and {Companion} enter the hidden door, hoping to find the next key inside.")
-                        time.sleep(5)
-                        print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
-                        time.sleep(5)
-                        print("In the center of the room, you see a pedestal with a glowing blue key.")
-                        time.sleep(5)
-                        print("****************************\n"
-                              "  2 Key Achieved 3 left. \n"
-                              "****************************\n")
-                        print(f"You and {Companion} take the key and prepare to continue your journey.")
-                        break
-            elif serpentchoice2.lower() == "heal":
-                print(f"You use a healing potion to heal yourself and {Companion}.")
-                time.sleep(5)
-                print(f"{Companion} is back in the fight!")
-                time.sleep(5)
-                print("You both attack Serpus together, striking it with all your might.")
-                time.sleep(5)
-                print("Serpus roars in pain, but it is not defeated yet.")
-                time.sleep(5)
-            else:
-                print("Invalid choice. Serpus attacks you again!")
-                Death()
-                return
+            serpusfight3()
         elif serpentchoice.lower() == "dodge":
-            print("You quickly dodge Serpus's attack, narrowly avoiding its powerful strike.")
+            print("You quickly dodge Serpus's attack, narrowly avoiding its powerful strike...")
             time.sleep(5)
-            print("You counterattack, striking Serpus with all your might.")
+            print("You counterattack, striking Serpus with all your might...")
             time.sleep(5)
-            print(f"The serpent staggers back, but it is not defeated yet. You and {Companion} must work together to defeat it.")
+            print(f"The serpent staggers back, but it is not defeated yet. You and {Companion} must work together to defeat it...")
             time.sleep(5)
-            while True:
-                serpentchoice2 = input(f"You can either type 'Attack' to attack Serpus again or type 'Heal' to heal yourself and {Companion}: ")
-                if serpentchoice2.lower() == "attack":
-                    print(f"You and {Companion} attack Serpus with all your might.")
-                    time.sleep(5)
-                    print("Serpus roars in pain, but it is not defeated yet.")
-                    time.sleep(5)
-                    print("You realize that you need to find a way to weaken it before you can defeat it.")
-                    break
-                elif serpentchoice2.lower() == "heal":
-                    print(f"You use a healing potion to heal yourself and {Companion}.")
-                    time.sleep(5)
-                    print(f"{Companion} is back in the fight!")
-                    time.sleep(5)
-                    print("You both attack Serpus together, striking it with all your might.")
-                    time.sleep(5)
-        elif serpentchoice.lower() == "dodge":
-            print("You quickly dodge Serpus's attack, narrowly avoiding its powerful strike.")
-            time.sleep(5)
-            print("You counterattack, striking Serpus with all your might.")
-            time.sleep(5)
-            print(f"The serpent staggers back, but it is not defeated yet. You and {Companion} must work together to defeat it.")
-            time.sleep(5)
-            while True:
-                serpentchoice2 = input(f"You can either type 'Attack' to attack Serpus again or type 'Heal' to heal yourself and {Companion}: ")
-                if serpentchoice2.lower() == "attack":
-                    print(f"You and {Companion} attack Serpus with all your might.")
-                    time.sleep(5)
-                    print("Serpus roars in pain, but it is not defeated yet.")
-                    time.sleep(5)
-                    print("You realize that you need to find a way to weaken it before you can defeat it.")
-                    break
-                elif serpentchoice2.lower() == "heal":
-                    print(f"You use a healing potion to heal yourself and {Companion}.")
-                    time.sleep(5)
-                    print(f"{Companion} is back in the fight!")
-                    time.sleep(5)
-                    print("You both attack Serpus together, striking it with all your might.")
-                    time.sleep(5)
-                    print("Serpus roars in pain, but it is not defeated yet.")
-                    time.sleep(5)
-                    break
-                else:
-                    print("Invalid choice. Serpus attacks you again!")
-                    Death()
-                    return
+            serpusfight2()
         else:
             print("Invalid choice. Serpus attacks you again!")
             Death()
-            return
-        print(f"You and {Companion} must find a way to defeat Serpus and claim the key.")
-        time.sleep(5)
-        print("You both attack Serpus with all your might, striking it with your weapons.")
-        time.sleep(5)
-        print("Finally, with one last powerful blow, Serpus roars in pain and sinks back into the depths of the lake.")
-        time.sleep(5)
-        print(f"You and {Companion} stand victorious, breathing heavily from the intense battle.")
-        time.sleep(5)
-        print("You search the serpent's remains and find a glimmering blue key that unlocks a hidden door in the cavern.")
-        time.sleep(5)
-        print(f"You and {Companion} enter the hidden door, hoping to find the next key inside.")
-        time.sleep(5)
-        print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
-        time.sleep(5)
-        print("In the center of the room, you see a pedestal with a glowing blue key.")
-        time.sleep(5)
-        print("****************************\n"
-              "  2 Key Achieved 3 left. \n"
-              "****************************\n")
-        print(f"You and {Companion} take the key and prepare to continue your journey.")
-        break
+
+def serpusfight2():
+            serpentchoice2 = input(f"You can either type 'Attack' to attack Serpus or type 'Heal' to heal yourself and {Companion}: ")
+            if serpentchoice2.lower() == "attack":
+                print(f"You and {Companion} attack Serpus with all your might, striking it with your weapons...")
+                time.sleep(5)
+                print("Serpus roars in pain, but it is not defeated yet...")
+                time.sleep(5)
+                serpentchoicesemi2 = input(f"Type 'Attack' to attack Serpus again or type 'Heal' to heal yourself and {Companion}: ")
+                time.sleep(5)
+                print("You both attack Serpus with all your might, striking it with your weapons...")
+                time.sleep(5)
+                print("Finally, with one last powerful blow, Serpus roars in pain and sinks back into the depths of the lake...")
+                time.sleep(5)
+                print(f"You and {Companion} stand victorious, breathing heavily from the intense battle...")
+                time.sleep(5)
+                print("You search the serpent's remains and find a glimmering blue key that unlocks a hidden door in the cavern...")
+                time.sleep(5)
+                print(f"You and {Companion} enter the hidden door, hoping to find the next key inside...")
+                time.sleep(5)
+                print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts...")
+                time.sleep(5)
+                print("In the center of the room, you see a pedestal with a glowing blue key...")
+                time.sleep(5)
+                print("****************************\n"
+                       "  2 Key Achieved 3 left. \n"
+                      "****************************\n")
+                print(f"You and {Companion} take the key and prepare to continue your journey...")
+                Chapter_7()
+            elif serpentchoicesemi2.lower() == "heal":
+                print(f"You use a healing potion to heal yourself and {Companion}...")
+                time.sleep(5)
+                print(f"{Companion} is back in the fight!")
+                time.sleep(5)
+                print("You both attack Serpus together, striking it with all your might...")
+                time.sleep(5)
+                print("Serpus roars in pain, but it is not defeated yet...")
+                time.sleep(5)
+                serpusfight3()
+            else:
+                print("Invalid choice. Serpus attacks you again!")
+                Death()
+
+def serpusfight3():
+        serpentchoicesemi3 = input(f"Type 'Attack' to attack Serpus again or type 'Heal' to heal yourself and {Companion}: ")
+        if serpentchoicesemi3.lower() == "attack":
+                print(f"You and {Companion} attack Serpus's core with all your might, striking it with your weapons...")
+                time.sleep(5)
+                print("Serpus roars in pain, and it crumbles to the ground, defeated...")
+                time.sleep(5)
+                print(f"You and {Companion} stand victorious, breathing heavily from the intense battle...")
+                time.sleep(5)
+                print("You search the serpent's remains and find a glimmering blue key that unlocks a hidden door in the cavern...")
+                time.sleep(5)
+                print(f"You and {Companion} enter the hidden door, hoping to find the next key inside...")
+                time.sleep(5)
+                print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts...")
+                time.sleep(5)
+                print("In the center of the room, you see a pedestal with a glowing blue key...")
+                time.sleep(5)
+                print("****************************\n"
+                        "  2 Key Achieved 3 left. \n"
+                      "****************************\n")
+                print(f"You and {Companion} take the key and prepare to continue your journey...")
+                Chapter_7()
+        elif serpentchoicesemi3.lower() == "heal":
+            print(f"You use a healing potion to heal yourself and {Companion}...")
+            print("Serpus lunges at you before either of you could attack...")
+            Death()
+        else:
+            print("Invalid choice. Serpus attacks you again!")
+            Death()
+
 
 def Chapter_7():
     global Companion, Username, health
@@ -808,6 +769,8 @@ def Chapter_7():
             print("You search the goblins' sacks and find a map that leads to the fire dungeon.")
             time.sleep(5)
             print(f"You and {Companion} take the map and prepare to continue your journey.")
+        else:
+            print("Invalid Choice")
 
 def Chapter_8():
     global Companion, Username, health
@@ -872,7 +835,7 @@ def Chapter_8():
                 time.sleep(5)
                 print("You both attack Flame together, striking it with all your might.")
                 time.sleep(5)
-                print("Flame roars in pain, it's scales are starting to crack under your combined assault.")
+                print("Flame roars in pain, it's hardened feathers are starting to crack under your combined assault.")
                 dragonchoicesemi3 = input(f"Type 'Attack' to attack Flame again or type 'Heal' to heal yourself and {Companion}: ")
                 if dragonchoicesemi3.lower() == "attack":
                     print(f"You and {Companion} attack Flame's core with all your might, striking it with your weapons.")
@@ -932,7 +895,7 @@ def Chapter_8():
         time.sleep(5)
         print("You counterattack, striking Flame with all your might.")
         time.sleep(5)
-        print(f"The dragon staggers back, but it is not defeated yet. You and {Companion} must work together to defeat it.")
+        print(f"The phoenix staggers back, but it is not defeated yet. You and {Companion} must work together to defeat it.")
         time.sleep(5)
         while True:
             dragonchoice2 = input(f"You can either type 'Attack' to attack Flame again or type 'Heal' to heal yourself and {Companion}: ")
