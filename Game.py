@@ -110,18 +110,19 @@ Desbio = ("""
 
 def lower_health(amount=None):
     global player
-    global health
+    if player is None:
+        print("Error: Player not initialized.")
+        Death()
+        return
     if amount is None:
         amount = random.randint(10, 100)  # Random damage
-    health -= amount
-    print(f"You took {amount} damage! Your health is now {health}.")
-    if health <= 0:
+    player["health"] -= amount
+    print(f"You took {amount} damage! Your health is now {player['health']}.")
+    if player["health"] <= 0:
         print("You have died...")
         Death()
-    if health <=10:
+    elif player["health"] <= 10:
         print("Low Health!")
-
-
 
 def increase_health(amount):
     global player
@@ -144,7 +145,8 @@ def reset_health():
 def PlayerData(name):
     return {"name": name,
             "health": 100,
-            "inventory": []}
+            "inventory": []
+            "gold": 200}
 
 def Death():
     print("You have died. Game over.")
@@ -1360,13 +1362,17 @@ def Chapter_13():
     time.sleep(5)
     print(f"You and {Companion} drop into the cavern below")
     time.sleep(5)
-    lower_health
+    lower_health(20)
     time.sleep(5)
     print(f"You and {Companion} faint")
     time.sleep(10)
     print("When you wake up you notice, that companion disappeared. In front of you is 5 tunnels")
     while True:
-     tunnelchoice = int(input("Which tunnel would you proceed down: "))
+     try:
+      tunnelchoice = int(input("Which tunnel would you proceed down: "))
+     except ValueError:
+        print("Please enter a valid number")
+        continue
      match tunnelchoice:
         case 1:
             print("You walk into the darkness of the tunnel...")
@@ -1418,9 +1424,6 @@ def Chapter_13():
 
 
 
-    
-
-    
     
 if __name__ == "__main__":
  main()
