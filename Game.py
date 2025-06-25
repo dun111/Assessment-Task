@@ -493,6 +493,25 @@ def PlayerData(name):
             "inventory": [],
             "gold": 200}
 
+def lower_gold(amount):
+    global player
+    if player is None:
+        print("Error: Player not initialized.")
+        Death()
+        return
+    player["gold"] -= amount
+    print(f"You spent {amount} gold. Your gold is now {player['gold']}.")
+
+def increase_gold(amount):
+    global player
+    if player is None:
+      print("Error, Player is not intitialized.")
+      Death()
+      return
+    player["gold"] -= amount
+    print(f"You gained {amount} gold. Your gold is now {player['gold']}")
+
+
 def Death():
     print("You have died. Game over.")
     time.sleep(2)
@@ -1351,9 +1370,11 @@ def Chapter_9():
         print("A dusty old map that seems to lead to the next dungeon.")
         time.sleep(5)
         print("You ask the shopkeeper about the map, and he tells you that it is a rare find, but he is willing to sell it to you for a fair price.")
-        mapchoice = input(f"You can buy a map for 20 gold coins which {Companion} has offered to pay. Do you want to buy it? (Yes/No): ")
+        mapchoice = input(f"You can buy a map for 20 gold coins. Do you want to buy it? (Yes/No): ")
         if mapchoice.lower() == "yes":
-            print(f"You buy the map and thank {Companion} for their help.")
+            print(f"You buy the map and give to {Companion} to analyze")
+            time.sleep(5)
+            lower_gold(20)
             time.sleep(5)
             village()
         else:
@@ -1519,7 +1540,8 @@ def Chapter_9Part2():
                 case "right":
                             print("You open the right chest and find a pile of gold coins.")
                             time.sleep(5)
-
+                            increase_gold(50)
+                            time.sleep(5)
                             print(f"{Companion} says, 'Nice find, but we still need the key.'")
                             time.sleep(5)
         case _:
