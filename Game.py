@@ -230,7 +230,7 @@ temple1 = (r"""
        --'--'     / |---------------------------| \    '--'
                 ()  |___________________________|  ()           '--'-
   --'-          /| _______________________________  |\
- --' gpyy      / |__________________________________| \ """)
+ --'          / |__________________________________| \ """)
 
 dungeon2 = (r"""
                                 /   \              /'\       _                              
@@ -438,11 +438,11 @@ capital = (r"""
                                                                    """)
 
 abandoned_village = (r"""
-                                                   /\  //\\
+                              /\  //\\
                        /\    //\\///\\\        /\
                       //\\  ///\////\\\\  /\  //\\
          /\          /  ^ \/^ ^/^  ^  ^ \/^ \/  ^ \
-        / ^\    /\  / ^   /  ^/ ^ ^ ^   ^\ ^/  ^^  \
+        / ^\    /\  / ^   /  ^/ ^ ^ ^   ^\ ^/  ^^  \. 
        /^   \  / ^\/ ^ ^   ^ / ^  ^    ^  \/ ^   ^  \       *
       /  ^ ^ \/^  ^\ ^ ^ ^   ^  ^   ^   ____  ^   ^  \     /|\
      / ^ ^  ^ \ ^  _\___________________|  |_____^ ^  \   /||o\
@@ -453,6 +453,75 @@ abandoned_village = (r"""
 / ^ ^ ^  ^  ^  ^   ||||||||||||||||||||||||||||||oooooooooo| |ooooooo  |
 ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo """)
 
+Special_sword = (r"""
+                             _
+ _         | |
+| | _______| |---------------------------------------------\
+|:-)_______|==[]============================================>
+|_|        | |---------------------------------------------/
+           |_| """)
+
+Special_shield = (r"""  
+  |`-._/\_.-`|
+  |    ||    |
+  |___o()o___|
+  |__((<>))__|
+  \   o\/o   /
+   \   ||   /
+    \  ||  /
+     '.||.'
+       ``""")
+
+Special_dagger = (r"""
+      ______________________________ ______________________
+    .'                              | (_)     (_)    (_)   \
+  .'                                |  __________________   }
+.'_.............................____|_(                  )_/
+
+""")
+
+dark_dagger = (r"""                                   |_  |
+                                                        | |
+__                      ____                            | |
+\ ````''''----....____.'\   ````''''--------------------| |--.               _____      .-.
+ :.                      `-._                           | |   `''-----''''```     ``''|`: :|
+  '::.                       `'--.._____________________| |                           | : :|
+    '::..       ----....._______________________________| |                           | : :|
+      `'-::...__________________________________________| |   .-''-..-'`-..-'`-..-''-.cjr :|
+           ```'''---------------------------------------| |--'                         `'-'
+                                                        | |
+                                                       _| |
+                                                      |___| """)
+
+Dark_Book = (r"""    
+     __...--~~~~~-._   _.-~~~~~--...__
+    //               `V'               \\ 
+   //                 |                 \\ 
+  //__...--~~~~~~-._  |  _.-~~~~~~--...__\\ 
+ //__.....----~~~~._\ | /_.~~~~----.....__\\
+====================\\|//====================
+                    `---`. """)
+
+Dark_Shield = (r"""
+  |\ _..--.._ /|
+  |############|
+   )##########(
+._/##.'//\\'.##\_.
+ .__)#((()))#(__.
+  \##'.\\//.'##/
+   \####\/####/
+   /,.######.,\
+  (  \##__##/  )
+      "(\/)"
+        )(.  """)
+
+Dark_Sword = (r"""               __________                         ._
+             ./' .v~__,/~ _____   _____     _____   )~\      _____     _____
+           ./  .(W---\| /',---.`\ |\./\     |\./|  / | \     |\./\     |\./|
+          ,|  /@)$$$$$$$$($( )#H>===========) ) )==`\`\`\| | |=====\ \ \======`\`\`\| | |-->
+/_p~~~~~~~~~~\$@|/------------/ / /-----`\`\\ | |------\ \ \-------`\`\\ | |-'
+          `|  \) 
+""")
 def lower_health(amount=None):
     global player
     if player is None:
@@ -534,6 +603,84 @@ def Restart():
     Companion = ""
     main()
 
+def Dark_DaggerStory():
+    print("Before you leave, you notice a bottle of ominous energy.")
+    time.sleep(5)
+    print("Suddenly your dagger flies out your hand and forges with the ominous energy")
+    time.sleep(5)
+    print("'You have acquired 'Darkness's Scale'")
+    time.sleep(5)
+    print(dark_dagger)
+    Learn_more3 = input("Would you like to hear about the backstory of this weapon (Yes/No)?")
+    match Learn_more3.lower().strip():
+                    case "yes":
+                        print("This dagger, now corrupted by dark energy. Has increased sharpness and toughness allowing it attack against even the strongest of enemies.")
+                        time.sleep(5)
+                        Chapter_7()
+                        return
+                    case "no":
+                        print("Ok, skipping backstory")
+                        time.sleep(5)
+                        Chapter_7()
+                        return
+                    case _:
+                        print("Invalid Option")
+                        print("Try Again")
+                        Dark_DaggerStory()
+                        return
+def Dark_SwordStory():
+    print("Before you leave, you notice a bottle of ominous energy.")
+    time.sleep(5)
+    print("Suddenly your sword flies out your hand and forges with the ominous energy")
+    time.sleep(5)
+    print("'You have acquired 'The Corrupted Sword'")
+    time.sleep(5)
+    print(Dark_Sword)
+    Learn_more2 = input("Would you like to hear about the backstory of this weapon (Yes/No)?")
+    match Learn_more2.lower().strip():
+                    case "yes":
+                        print("This sword, now corrupted by dark energy. Has increased sharpness and toughness allowing it attack against even the strongest of enemies.")
+                        time.sleep(5)
+                        Chapter_10()
+                        return
+                    case "no":
+                        print("Ok, skipping backstory")
+                        time.sleep(5)
+                        Chapter_10()
+                        return
+                    case _:
+                        print("Invalid Option")
+                        print("Try Again")
+                        Dark_SwordStory()
+                        return
+
+
+def Dark_ShieldStory():
+    print("Before you leave, you notice a bottle of ominous energy.")
+    time.sleep(5)
+    print("Suddenly your shield flies out your hand and forges with the ominous energy")
+    time.sleep(5)
+    print("'You have acquired 'The Dark Shield'")
+    time.sleep(5)
+    print(Dark_Shield)
+    Learn_more3 = input("Would you like to hear about the backstory of this weapon (Yes/No)?")
+    match Learn_more3.lower().strip():
+                    case "yes":
+                        print("This shield, now corrupted by dark energy. Has increased defence and toughness allowing it defend against even the strongest of enemies.")
+                        time.sleep(5)
+                        Chapter_12()
+                        return
+                    case "no":
+                        print("Ok, skipping backstory")
+                        time.sleep(5)
+                        Chapter_12()
+                        return
+                    case _:
+                        print("Invalid Option")
+                        print("Try Again")
+                        Dark_ShieldStory()
+                        return
+
 def main():
     global Username, player, health
     print(r"""
@@ -549,7 +696,7 @@ def main():
     Username = input("Enter your name: ")
     player = PlayerData(Username)
     while True:
-     result = input(f"Hello {Username}, Type 'Enter' to continue or just press Enter: ")
+     result = input(f"Hello {Username}, Type 'Enter' to continue or just press Enter or type 'Tutorial' for a tutorial: ")
      match result.lower().strip():
         case "enter" | '':
             print("You woke up in a strange place, with no memory of how you got there.")
@@ -577,6 +724,28 @@ def main():
                 case _:
                     print("Invalid Option")
                     print("Try Again")
+        case "tutorial":
+             print("This will restart the game!")
+             time.sleep(5)
+             print("This is a text based game")
+             time.sleep(5)
+             print("Normally, you will wait 5 seconds until the next text loads")
+             time.sleep(5)
+             print("If there is a question, type a response that is shown on the screen, or you will have to try again")
+             time.sleep(5)
+             print("If you choose a bad option, then you would most likely die to reflect what would happen in real life")
+             time.sleep(5)
+             print("There a 5 Bosses to beat as well as 3 secret bosses.")
+             time.sleep(5)
+             print("Remember, this game requires patience so don't press anything until it says so")
+             time.sleep(2)
+             print("Good Luck!")
+             main()
+             return
+        case _:
+             print("Invalid Option, Try again")
+             main()
+             return
 
 def Ryan_Chapter():
     global Companion, Username, health
@@ -593,7 +762,7 @@ def Ryan_Chapter():
         time.sleep(5)
         print("You realize that you have made a grave mistake, and your life is now forfeit.")
         time.sleep(5)
-        lower_health(90)
+        lower_health()
         print("You pass out from the pain and lose consciousness.")
         time.sleep(10)
         print("When you wake up you find yourself in a cave resting on the floor with the mysterious character standing nearby.")
@@ -602,9 +771,9 @@ def Ryan_Chapter():
         time.sleep(5)
         print("You died of loneliness and despair.")
         Death()
-        return  # Prevent further execution
+        return  
     elif RyanChoice.lower() == 'reason':
-        print("Reasoning with the mysterious character, you explain that you mean no harm and are also lost in this strange place.")
+        print("Reasoning with the mysterious character, you explain that you mean no harm and are also lost in this strange place...")
         time.sleep(10)
         print("The mysterious character agrees and joins you on your journey to get out of this foreign place.")
         time.sleep(5)
@@ -636,9 +805,15 @@ def Chapter_1():
         time.sleep(10)
         print("After a while, you find the dagger hidden under some leaves.")
         time.sleep(5)
+        print(Special_dagger)
+        time.sleep(5)
         print(f"You hand the dagger back to {Companion}, who looks relieved.")
         time.sleep(5)
-        print(f"Now that I have my dagger back, I can show you the way out. Follow me, {Username}.")
+        print(f"Here, {Username} take my dagger, I see you have no weapon. Follow me, {Username}.")
+        time.sleep(5)
+        print(f"You acquired '{Companion}'s special dagger")
+        time.sleep(5)
+        print(Special_dagger)
         time.sleep(5)
         Chapter_2()
         return
@@ -675,7 +850,7 @@ def Chapter_2():
     time.sleep(5)
     print(f"You ask {Companion} how do they know all this.")
     time.sleep(5)
-    print(f"{Companion} replies, 'I arrived a few years ago, and I have been trying to find a way out ever since. ")
+    print(f"{Companion} replies, 'I arrived a few years ago, and I have been trying to find a way out ever since.'")
     time.sleep(5)
     print("I have heard stories from the locals about the princess and the monsters that took her.'")
     time.sleep(5)
@@ -732,6 +907,14 @@ def Chapter_3():
         print("You can hear the faint sound of water dripping in the distance, echoing through the empty halls.")
         time.sleep(5)
         print(f"You and {Companion} cautiously explore the temple, searching for any signs of the princess.")
+        time.sleep(5)
+        print(f"'Here, {Username} take this sword as well as this shield, Stay cautious, I don't have a good feeling about this...' Says Companion")
+        time.sleep(5)
+        print(f"You have acquired {Companion}'s special iron sword and reinforced shield")
+        time.sleep(5)
+        print(Special_sword)
+        time.sleep(5)
+        print(Special_shield)
         time.sleep(5)
         print("Suddenly, you hear a loud roar and a giant creature appears in front of you, blocking your path.")
         time.sleep(5)
@@ -798,7 +981,6 @@ def Chapter_3Part2():
             print("The golem stands unfazed, cracks form but it is still standing.")
             time.sleep(5)
             print("You realize that you need to find a way to weaken it before you can defeat it.")
-            # Loop continues for another action
         elif golemchoice2.lower() == "heal":
             print(f"You use a healing potion to wake up {Companion}.")
             time.sleep(5)
@@ -1001,14 +1183,14 @@ def Chapter_6():
               "****************************\n")
         time.sleep(5)
         print("Before either of you could move, Serpus strikes you both in the back.")
-        lower_health(20)
+        lower_health()
         print(f"{Companion}'s health is low")
         time.sleep(5)  
         serpentchoice = input("Serpus is charging up it's next attack, (Attack/Dodge)")
         if serpentchoice.lower() == "attack":
             print("Serpus strikes you in the stomach and injures you.")
             time.sleep(5)
-            lower_health(20)
+            lower_health()
             print(f"{Companion}'s health is low")
             time.sleep(5)
             print(f"You and {Companion} are both injured and need to find a way to defeat Serpus before it attacks again.")
@@ -1053,7 +1235,8 @@ def serpusfight2():
                        "  2 Key Achieved 3 left. \n"
                       "****************************\n")
                 print(f"You and {Companion} take the key and prepare to continue your journey.")
-                Chapter_7()
+                time.sleep(5)
+                Dark_DaggerStory()
         elif serpentchoicesemi2.lower() == "heal":
                 print(f"You use a healing potion to heal yourself and {Companion}.")
                 time.sleep(5)
@@ -1081,7 +1264,8 @@ def serpusfight2():
                        "  2 Key Achieved 3 left. \n"
                       "****************************\n")
                 print(f"You and {Companion} take the key and prepare to continue your journey...")
-                Chapter_7()
+                time.sleep(5)
+                Dark_DaggerStory()
         else:
                 print("Invalid choice. Serpus attacks you again!")
                 Death()
@@ -1107,7 +1291,8 @@ def serpusfight3():
                         "  2 Key Achieved 3 left. \n"
                       "****************************\n")
                 print(f"You and {Companion} take the key and prepare to continue your journey...")
-                Chapter_7()
+                time.sleep(5)
+                Dark_DaggerStory()
         elif serpentchoicesemi3.lower() == "heal":
             print(f"You use a healing potion to heal yourself and {Companion}.")
             print("Serpus lunges at you before either of you could attack.")
@@ -1166,6 +1351,8 @@ def Chapter_7():
             print("The goblins refuse to let you pass without a fight.")
             time.sleep(5)
             print(f"You and {Companion} are forced to fight the goblins, but you are able to defeat them after a tough battle.")
+            time.sleep(5)
+            lower_health()
             time.sleep(5)
             print("You search the goblins' sacks and find a map that leads to the fire dungeon.")
             time.sleep(5)
@@ -1264,8 +1451,7 @@ def Chapter_8():
                     print("****************************\n"
                            "  3 Key Achieved 2 left. \n"
                           "****************************\n")
-                    Chapter_9()
-                    break
+                    Dark_SwordStory()                    
         elif dragonchoicesemi3.lower() == "heal":
                     print(f"You use a healing potion to heal yourself and {Companion}.")
                     time.sleep(5)
@@ -1468,7 +1654,7 @@ def Chapter_9Part2():
                     time.sleep(5)
                     print("Morjun lunges at you, slashing with icy claws.")
                     time.sleep(5)
-                    lower_health(20)
+                    lower_health()
                     time.sleep(5)
                     print("Stumbling back, you notice a rusty sword nearby.")
                     time.sleep(5)
@@ -1508,6 +1694,7 @@ def Chapter_9Part2():
                                                         print("****************************\n"
                                                                 "4 Key Achieved 1 left.\n"
                                                               "****************************\n")
+                                                        Dark_SwordStory()
                                                         break
                                                     case "right":
                                                         print("You take the right path and end in a dead end. Go back!")
@@ -1693,8 +1880,8 @@ def Chapter_11():
                           "  5 Keys Achieved None left. \n"
                           "****************************\n")
                     print("You take the key and prepare to rescue the princess.")
-                    Chapter_12()
-                    break
+                    time.sleep(5)
+                    Dark_ShieldStory()
              else:
                 print("Invalid choice. Desbio attacks you again!")
                 Death()
@@ -1748,8 +1935,8 @@ def Chapter_11():
                 print("****************************\n"
                       "  5 Keys Achieved None left. \n"
                       "****************************\n")
-                Chapter_12()
-                break
+                time.sleep(5)
+                Dark_ShieldStory()
             elif beastchoice2.lower() == "heal":
                 print(f"You use a healing potion to heal yourself and {Companion}.")
                 increase_health(50)
@@ -1847,11 +2034,11 @@ def Chapter_12Part2():
     time.sleep(5)
     print(f"Come here {Username}, says {Companion}")
     time.sleep(5)
-    print("We found another clue, I believe the final creature could be dungeon somewhere underneath Fargon, potentially underneath the Capital ")
+    print("I've analyzed the keys. I believe the final creature could be dungeon somewhere underneath Fargon, potentially underneath the Capital ")
     time.sleep(5)
     print("The Capital? You ask")
     time.sleep(5)
-    print("Yeah, according to this book, there's a capital located somewhere around here...")
+    print("Yeah, according to this book, there's a city called the capital located somewhere around here...")
     time.sleep(5)
     print("It's guarded by a forcefield, with 5 ancient machines guarding it")
     time.sleep(5)
@@ -1885,7 +2072,7 @@ def Chapter_13():
     time.sleep(5)
     print(f"You and {Companion} drop into the cavern below")
     time.sleep(5)
-    lower_health(20)
+    lower_health()
     time.sleep(5)
     print(f"You and {Companion} faint")
     time.sleep(10)
@@ -1903,6 +2090,7 @@ def Chapter_13():
             print("You reach a dead end...")
             time.sleep(5)
             print("All of a sudden a skeleton attacks you from behind...")
+            print(skeleton)
             time.sleep(5)
             Death()
             break
@@ -2529,6 +2717,8 @@ def Necron_Fight4():
         disable_choice = input("Do you want to try to cast a spell or keep attacking the dragon? (Cast/Attack): ")
         if disable_choice.lower() == "cast":
             print(f"You grab the book and quickly flip through the pages, searching for a spell that can help you defeat the dragon.")
+            time.sleep(5)
+            print(Dark_Book)
             time.sleep(5)
             print("You find a spell that seems to describe the dragon, and you quickly memorize it.")
             time.sleep(5)
