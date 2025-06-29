@@ -2168,7 +2168,14 @@ def Chapter_11():
                           "****************************\n")
                     print("You take the key and prepare to rescue the princess.")
                     time.sleep(5)
+                    save_game()
+                    time.sleep(5)
                     Dark_ShieldStory()
+                    return
+                elif beastchoicesemi3.lower() == "heal":
+                    print("Desbio lunges at you before you could move and summons a portal of darkness under you.")
+                    Death()
+                    return
              else:
                 print("Invalid choice. Desbio attacks you again!")
                 Death()
