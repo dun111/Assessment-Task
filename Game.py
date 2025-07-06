@@ -1,6 +1,7 @@
 #GameName TalesOfTime
 #StudentName EricZheng
 #GameStory: Set in Fargon where you have to defeat 6 bosses to escape along with your companion
+#GameDuration: This game should go for around an hour on average.
 
 #Imports
 import time
@@ -121,7 +122,7 @@ mysterious_character = (r"""
          ***           ***
         ***             ***
         **               **
-        **               **                  ____
+        **    o     o    **                  ____
         ***             ***             //////////
         ****           ****        ///////////////  
         *****         *****    ///////////////////
@@ -589,8 +590,8 @@ def save_game():
     }
     with open(SAVE_FILE, "w") as file:
         json.dump(data, file)
-    print("Game saved!")
-#This saves the data (Name, player stats, Companion name and current chapter onto a Json file
+    print("Waypoint set!")
+#This saves the data (Name, player stats, Companion name and current chapter into a Json file
 
 def load_game():
     global player, Username, Companion, current_chapter
@@ -601,12 +602,14 @@ def load_game():
             Username = data["Username"]
             Companion = data["Companion"]
             current_chapter = data.get("current_chapter", "main")
-        print("Game loaded!")
+        print("Waypoint loaded!")
         # Resumes at the correct chapter
         resume_game()
     except FileNotFoundError:
-        print("No saved game found.")
-#This loads the json file data
+        print("No saved waypoint found.")
+        main()
+        return
+#This loads the json file data and if there is an error will show No saved waypoint
 
 def resume_game():
     if current_chapter == "main":
@@ -693,7 +696,7 @@ def resume_game():
         The_End()
     else:
         main()
-#This function is used to go back to the player's chapter when the game saved
+#This function is used to go back to the player's chapter when the game saved by saving the current chapter into the variable "Current_chapter"
 
 def lower_health(amount=None):
     global player
@@ -759,7 +762,7 @@ def increase_gold(amount):
       print("Error, Player is not intitialized.")
       Death()
       return
-    player["gold"] -= amount
+    player["gold"] += amount
     print(f"You gained {amount} gold. Your gold is now {player['gold']}")
 #This function increases the player's gold
 
@@ -776,6 +779,7 @@ def Death():
     else:
         print("Bye! Exiting the game.")
         exit()
+#This function manages the death sequence
 
 def Restart():
     global Username, player, Companion
@@ -784,6 +788,7 @@ def Restart():
     player = None
     Companion = ""
     main()
+#This function restarts the game
 
 def Dark_DaggerStory():
     print("Before you leave, you notice a bottle of ominous energy.")
@@ -810,6 +815,7 @@ def Dark_DaggerStory():
                         print("Try Again")
                         Dark_DaggerStory()
                         return
+#This is for the upgrade of the dagger
 def Dark_SwordStory():
     print("Before you leave, you notice a bottle of ominous energy.")
     time.sleep(5)
@@ -835,6 +841,7 @@ def Dark_SwordStory():
                         print("Try Again")
                         Dark_SwordStory()
                         return
+#This is for the upgrade of the sword
 
 
 def Dark_ShieldStory():
@@ -862,7 +869,9 @@ def Dark_ShieldStory():
                         print("Try Again")
                         Dark_ShieldStory()
                         return
+#This is for the upgrade of the shield
 
+#Start of game with title screen
 def main():
     global Username, player, current_chapter
     current_chapter = "main"
@@ -876,12 +885,13 @@ def main():
  """)
     print("         Press Enter to start...")
     input()  # Wait for user to press Enter
-    Username = input("Enter your name: ")
-    player = PlayerData(Username)
     while True:
-     result = input(f"Hello {Username}, Press Enter or type 'Tutorial' for a tutorial, type 'Load' to load saved game: ")
+     result = input(f"Hello, Type Enter or type 'Tutorial' for a tutorial, type 'Load' to load saved game: ")
      match result.lower().strip():
-        case "enter" | '':
+        case "enter":
+            Username = input("Enter your name: ")
+            player = PlayerData(Username)
+            time.sleep(2)
             print("You woke up in a strange place, with no memory of how you got there.")
             time.sleep(2)
             print("You look around and see a path leading into the distance.")
@@ -899,15 +909,23 @@ def main():
             choice = input("What do you want to do (Leave/Continue)? ")
             match choice.lower().strip():
                 case "leave":
-                    print("You chose not to continue. Exiting the game.")
+                    print("You chose not to continue. You sit down waiting for something to happen.")
+                    time.sleep(5)
+                    print("Nothing happen, You die of boredom")
+                    time.sleep(5)
                     Death()
+                #This kills the player since they typed in that they want to leave
                 case "continue":
                     print("You chose to continue. Moving forward...")
                     save_game()
                     Ryan_Chapter()
+                #This continues to the next chapter
                 case _:
                     print("Invalid Option")
+                    time.sleep(5)
                     print("Try Again")
+                #This makes the player try again
+        #This is the option when the player types in enter or presses enter
         case "tutorial":
              print("This will restart the game!")
              time.sleep(5)
@@ -930,14 +948,17 @@ def main():
              print("Good Luck!")
              main()
              return
+        #This shows how to play the game and how the game works
         case "load":
              load_game()
              main()
              return
+        #This loads when the game last saved
         case _:
              print("Invalid Option, Try again")
              main()
              return
+        #This shows when the player doesn't type in an appropriate response
 
 def Ryan_Chapter():
     global Companion, Username, current_chapter, player
@@ -964,7 +985,8 @@ def Ryan_Chapter():
         time.sleep(5)
         print("You died of loneliness and despair.")
         Death()
-        return  
+        return
+    #This kills the player when they try to kill the enemy
     elif RyanChoice.lower() == 'reason':
         print("Reasoning with the mysterious character, you explain that you mean no harm and are also lost in this strange place...")
         time.sleep(10)
@@ -977,9 +999,11 @@ def Ryan_Chapter():
         save_game()
         Chapter_1()
         return
+    #This continues the game since the player wants to reason with companion which is integral to the story
     else:
         Death()
         return
+    #This shows up when the player doesn't type an appropriate response
 
 def Chapter_1():
     global Companion, Username, current_chapter, player
@@ -1004,13 +1028,14 @@ def Chapter_1():
         time.sleep(5)
         print(f"Here, {Username} take my dagger, I see you have no weapon. Follow me, {Username}.")
         time.sleep(5)
-        print(f"You acquired {Companion}'s special dagger")
+        print(f"You acquired {Companion}'s trusty dagger")
         time.sleep(5)
         print(Special_dagger)
         time.sleep(5)
         save_game()
         Chapter_2()
         return
+    #This continues the game since the player wants to help companion
     else:
         print("Too bad, I guess you don't want to leave this place...")
         time.sleep(10)
@@ -1019,6 +1044,7 @@ def Chapter_1():
         print("You died of loneliness and despair.")
         Death()
         return
+    #This kills the player since they don't want to help
 
 def Chapter_2():
     global Companion, Username, current_chapter, player
@@ -1058,9 +1084,11 @@ def Chapter_2():
     if princesschoice.lower() == "yes":
         print(f"You and {Companion} set off towards the hidden temple, determined to rescue the princess.")
         time.sleep(5)
-        Chapter_3()
         save_game()
+        time.sleep(5)
+        Chapter_3()
         return
+    #This goes to the next chapter since the player wants to progress
     else:
         print("You decide not to take the risk and continue on your current path.")
         time.sleep(5)
@@ -1076,6 +1104,7 @@ def Chapter_2():
             time.sleep(5)
             Death()
             return
+        #This kills the player as the bull kills them
         elif bullfight.lower() == "fight":
             print("You bravely stand your ground and prepare to fight the bull.")
             time.sleep(5)
@@ -1083,10 +1112,13 @@ def Chapter_2():
             time.sleep(5)
             Death()
             return
+        #This also kills the player as the bull kills them
         else:
             print("Invalid choice. The bull charges at you!")
             Death()
             return
+        #This also kills the player
+    #This goes to the bull scene where all the options kill the player
 
 def Chapter_3():
     global Companion, Username, current_chapter, player
@@ -1095,8 +1127,10 @@ def Chapter_3():
         print("***************************\n"
               "Chapter 3: The Hidden Temple\n"
               "***************************\n")
+        #Introduction to the dungeon
         time.sleep(2)
         print(temple1)
+        #This prints the ascii art for the dungeon
         print(f"You and {Companion} arrive at the hidden temple, its entrance shrouded in vines and darkness.")
         time.sleep(5)
         print("As you step inside, you feel a chill run down your spine. The air is thick with dust and the smell of decay.")
@@ -1122,7 +1156,9 @@ def Chapter_3():
         print("****************************\n"
               " Forging The Beast of Stone \n"
               "****************************\n")
+        #Introduction to the boss
         print(Golem)
+        #This prints the ascii for the golem, this repeats for all the bosses
         time.sleep(5)
         print("You have a choice to make. Do you want to fight the golem or try to reason with it? (Fight/Reason): ")
         golem_choice = input("What do you want to do? ")
@@ -1130,6 +1166,7 @@ def Chapter_3():
             print("You bravely stand your ground and prepare to fight the golem.")
             time.sleep(5)
             print("It charges at you, swinging its massive fists.")
+        #This continues to the next attack sequence
         elif golem_choice.lower() == "reason":
             print("You try to reason with the golem, explaining that you mean no harm and are only looking for the princess.")
             time.sleep(5)
@@ -1139,11 +1176,13 @@ def Chapter_3():
             time.sleep(5)
             Death()
             return
+        #This kills the player since they tried reasoning with a rock
         else:
             print("Invalid choice. The golem charges at you!")
             time.sleep(5)
             Death()
             return
+        #This kills the player since they did an invalid response
         while True:
             golem_choice2 = input("You can either type 'Dodge' to dodge its attack or type 'Attack' to attack it: ")
             if golem_choice2.lower() == "dodge":
@@ -1156,6 +1195,7 @@ def Chapter_3():
                 save_game()
                 Chapter_3Part2()
                 return
+            #This continues to the next chapter
             elif golem_choice2.lower() == "attack":
                 print("You charge at the golem, swinging your weapon with all your might.")
                 time.sleep(5)
@@ -1163,11 +1203,13 @@ def Chapter_3():
                 time.sleep(5)
                 Death()
                 return
+            #This kills the player
             else:
                 print("Invalid choice. The golem charges at you!")
                 time.sleep(5)
                 Death()
                 return
+            #This kills the player for an invalid response
 
 def Chapter_3Part2():
     global Companion, Username, current_chapter, player
@@ -1180,6 +1222,7 @@ def Chapter_3Part2():
             print("The golem stands unfazed, cracks form but it is still     standing.")
             time.sleep(5)
             print("You realize that you need to find a way to weaken it before you can defeat it.")
+        #This repeats the question again
         elif golemchoice2.lower() == "heal":
             print(f"You use a healing potion to wake up {Companion}.")
             time.sleep(5)
@@ -1208,8 +1251,10 @@ def Chapter_3Part2():
             save_game()
             Chapter_4()
             return
+        #This shows you've defeated the boss and have gained a key
         else:
             print("Invalid choice. Try again.")
+        #This repeats the question
 
 def Chapter_4():
     global Companion, Username, current_chapter, player
@@ -1233,6 +1278,7 @@ def Chapter_4():
             save_game()
             Chapter_5()
             break
+        #This continues to the next dungeon while showing a little more backstory
         elif askquestion.lower() == "continue":
             print("You decide to continue down the path, playing with the key you found.")
             time.sleep(5)
@@ -1244,8 +1290,11 @@ def Chapter_4():
             save_game()
             Chapter_5()
             break
+        #This skips the backstory but still goes to the next dungeon
         else:
             print("Invalid choice, Try again")
+        #This asks the question again in a loop until they ask a valid response
+#This is to bring a small break between the dungeons
         
 
 
@@ -1283,6 +1332,7 @@ def Chapter_5():
         time.sleep(5)
         rest_choice = input(f"Do you want to try to reason with the goblin chief or attack him? (Reason/Attack): ")
         while True:
+    #Waiting for companion to come back and the going to the chief
          if rest_choice.lower() == "reason":
             print(f"You and {Companion} approach the goblin chief, trying to reason with him.")
             time.sleep(5)
@@ -1294,6 +1344,7 @@ def Chapter_5():
             time.sleep(5)
             print("You decide to explore the camp further, hoping to find some clues about the location.")
             time.sleep(5)
+        #loops again to the goblin chief question
          elif rest_choice.lower() == "attack":
             print(f"You and {Companion} decide to attack the goblin chief.")
             time.sleep(5)
@@ -1305,22 +1356,24 @@ def Chapter_5():
             save_game()
             Chapter_6()
             return
+         #Goes to next chapter after you attack him
          else:
             print("Invalid choice. Try again")
+        #For invalid choices which then repeats
     elif goblinchoice.lower() == "explore":
         while True:
-         print("You decide to explore the camp on your own.")
-         time.sleep(5)
-         print("As you look around, you notice a few goblins eyeing you suspiciously.")
-         time.sleep(5)
-         print("Nonetheless, you continue to explore, hoping to find some clues about the key.")
-         time.sleep(5)
-         print("You find a small windmill with a sign that reads 'Storage Space'.")
-         time.sleep(5)
-         print(goblinhut)
-         goblinchoice2 = input("Do you want to enter the windmill? (Yes/No): ")
-         while True:
-          if goblinchoice2.lower() == "yes":
+          print("You decide to explore the camp on your own.")
+          time.sleep(5)
+          print("As you look around, you notice a few goblins eyeing you suspiciously.")
+          time.sleep(5)
+          print("Nonetheless, you continue to explore, hoping to find some clues about the key.")
+          time.sleep(5)
+          print("You find a small windmill with a sign that reads 'Storage Space'.")
+          time.sleep(5)
+          print(goblinhut)
+          goblinchoice2 = input("Do you want to enter the windmill? (Yes/No): ")
+          while True:
+           if goblinchoice2.lower() == "yes":
             while True:
              time.sleep(5)
              print("You enter the hut and find a chest in the corner.")
@@ -1339,7 +1392,8 @@ def Chapter_5():
              save_game()
              Chapter_6()
              break
-          elif goblinchoice2.lower() == "no":
+            #Goes to the dungeon
+           elif goblinchoice2.lower() == "no":
              print("You decide not to enter the windmill and continue exploring the camp.")
              time.sleep(5)
              print("You wander around, but you don't find anything else of interest.")
@@ -1351,8 +1405,11 @@ def Chapter_5():
              print(f"You tell {Companion} that you didn't find anything, but you feel like you might have missed something important.")
              time.sleep(5)
              print(f"{Companion} nods and says, 'We should keep looking. The goblins might have more information about the key.'")
-          else:
+             #Loops again and goes back to the question
+           else:
             print("Invalid choice.")
+          #For invalid choices
+#For exploring the goblin camp
 
     else:
         print("Invalid choice.")
@@ -1872,7 +1929,7 @@ def village():
     save_game()
     time.sleep(5)
     Chapter_9Part2()
-
+#This is for the village bit which resets the players health and sets a checkpoint
 
 def Chapter_9Part2():
     global Companion, Username, current_chapter, player
