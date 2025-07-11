@@ -876,13 +876,18 @@ def main():
     global Username, player, current_chapter
     current_chapter = "main"
     print(r"""
-  _____     _                    __   _____              
- |_   _|_ _| | ___  ___   / _ \ / _| |_   _|(_)_ __ ___   ___ 
-   | |/ _` | |/ _ \/ __| | | | | |_    | |  | | '_ ` _ \ / _ |
-   | | (_| | |  __/\__ \ | |_| |  _|   | |  | | | | | | |  __/
-   |_|\__,_|_|\___||___/  \___/|_|     |_|  |_|_| |_| |_|\___|
-   
- """)
+ _________     _       _____     ________   ______      ___   ________ 
+|  _   _  |   / \     |_   _|   |_   __  |.' ____ \   .'   `.|_   __  |
+|_/ | | \_|  / _ \      | |       | |_ \_|| (___ \_| /  .-.  \ | |_ \_|
+    | |     / ___ \     | |   _   |  _| _  _.____`.  | |   | | |  _|   
+   _| |_  _/ /   \ \_  _| |__/ | _| |__/ || \____) | \  `-'  /_| |_    
+ _|_____||____|_|____||________||________| \______.'  `.___.'|_____|   
+|  _   _  ||_   _||_   \  /   _||_   __  |                             
+|_/ | | \_|  | |    |   \/   |    | |_ \_|                             
+    | |      | |    | |\  /| |    |  _| _                              
+   _| |_    _| |_  _| |_\/_| |_  _| |__/ |                             
+  |_____|  |_____||_____||_____||________|                             
+""")
     print("         Press Enter to start...")
     input()  # Wait for user to press Enter
     while True:
@@ -1414,6 +1419,7 @@ def Chapter_5():
     else:
         print("Invalid choice.")
         return
+#If the player does not enter a valid choice
 
 def Chapter_6():
     global Companion, Username, current_chapter, player
@@ -1452,6 +1458,7 @@ def Chapter_6():
               "Serpus The Beast of the Lake \n"
               "****************************\n")
         print(serpus)
+        #Shows ascii art of the serpus
         time.sleep(5)
         print("Before either of you could move, Serpus strikes you both in the back.")
         lower_health()
@@ -1468,6 +1475,7 @@ def Chapter_6():
             time.sleep(5)
             save_game()
             serpusfight3()
+        #Goes to next the final sequence
         elif serpentchoice.lower() == "dodge":
             print("You quickly dodge Serpus's attack, narrowly avoiding its powerful strike.")
             time.sleep(5)
@@ -1477,9 +1485,11 @@ def Chapter_6():
             time.sleep(5)
             save_game()
             serpusfight2()
+        #Goes to the next sequence
         else:
             print("Invalid choice. Serpus attacks you again!")
             Death()
+        #Kills the player since they didn't respond properly
 
 def serpusfight2():
     global Companion, Username, current_chapter, player
@@ -1515,6 +1525,7 @@ def serpusfight2():
                   time.sleep(5)
                   save_game()
                   Dark_DaggerStory()
+                  #Shows the dagger upgrade story
                   return
         elif serpentchoicesemi2.lower() == "heal":
                 print(f"You use a healing potion to heal yourself and {Companion}.")
@@ -1546,14 +1557,18 @@ def serpusfight2():
                 time.sleep(5)
                 save_game()
                 Dark_DaggerStory()
+                #This shows the dagger upgrade story
                 return
         else:
-                print("Invalid choice. Serpus attacks you again!")
-                Death()
-                break
+            print("Invalid choice. Serpus attacks you again!")
+            Death()
+            break
+        #This kills the player since they entered an invalid response
+        
 
 def serpusfight3():
         global Companion, Username, current_chapter, player
+        #These are global variables for the saving function, player username, player stats, companion username allowing for these functions to work within the different chapters
         current_chapter = "serpusfight3"
         serpentchoicesemi3 = input(f"Type 'Attack' to attack Serpus again or type 'Heal' to heal yourself and {Companion}: ")
         if serpentchoicesemi3.lower() == "attack":
@@ -1578,15 +1593,17 @@ def serpusfight3():
                 time.sleep(5)
                 save_game()
                 Dark_DaggerStory()
+                #This shows the dagger upgrade story
         elif serpentchoicesemi3.lower() == "heal":
             print(f"You use a healing potion to heal yourself and {Companion}.")
             print("Serpus lunges at you before either of you could attack.")
             Death()
+        #This kills the player
         else:
             print("Invalid choice. Serpus attacks you again!")
             Death()
-
-
+        #This kills the player since they entered an invalid response
+        
 def Chapter_7():
     global Companion, Username, current_chapter, player
     current_chapter = "Chapter_7"
@@ -1620,6 +1637,7 @@ def Chapter_7():
         time.sleep(5)
         save_game()
         Chapter_8()
+        #This moves to the next chapter
     elif goblinchoice3.lower() == "reason":
         print("You try to reason with the goblins, explaining that you mean no harm and are only looking for the next key.")
         time.sleep(5)
@@ -1635,6 +1653,7 @@ def Chapter_7():
             time.sleep(5)
             save_game()
             Chapter_8()
+        #This moves to the next chapter
         elif offer.lower() == "no":
             print("The goblins refuse to let you pass without a fight.")
             time.sleep(5)
@@ -1648,12 +1667,14 @@ def Chapter_7():
             time.sleep(5)
             save_game()
             Chapter_8()
+        #This moves to the next chapter
         else:
             print("Invalid choice. You continue down the path without making a decision.")
             time.sleep(5)
             save_game()
             Chapter_8()
             return
+        #This moves to the next chapter
 
 def Chapter_8():
     global Companion, Username, current_chapter, player
@@ -1688,6 +1709,8 @@ def Chapter_8():
           "  Flame The Beast of Fire \n"
           "****************************\n")
     print(Flame)
+    #This prints the ascii art for Flame
+    #Dragon choice is used as Flame was originally a dragon but was changed to a phoenix mid way through
     time.sleep(5)
     dragonchoice1 = input("Flame starts charging up it's attack! (Attack/Dodge): ")
     time.sleep(5)
@@ -1709,6 +1732,7 @@ def Chapter_8():
             time.sleep(5)
             dragonchoicesemi2 = input(f"Type 'Attack' to attack Flame again or type 'Heal' to heal yourself and {Companion}: ")
             while True:
+            #A loop is used to allow the player to restart at select points
              if dragonchoicesemi2.lower() == "attack":
                 print(f"You and {Companion} attack Flame with all your might.")
                 time.sleep(5)
@@ -1717,6 +1741,8 @@ def Chapter_8():
                 print("Flame spews out lava, and melts you and Companion")
                 time.sleep(5)
                 Death()
+                break
+            #This kills the player
              elif dragonchoicesemi2.lower() == "heal":
                 print(f"You use a healing potion to heal yourself and {Companion}.")
                 increase_health(50)
@@ -1751,6 +1777,7 @@ def Chapter_8():
                     time.sleep(5)
                     Chapter_9()
                     break
+                #This moves to the next chapter
                 elif dragonchoicesemi3.lower() == "heal":
                     print(f"You use a healing potion to heal yourself and {Companion}.")
                     time.sleep(5)
@@ -1766,10 +1793,12 @@ def Chapter_8():
                     print("Flame attacks you before you can attack again!")
                     Death()
                     return
+                #This kills the player
                 else:
                     print("Invalid choice. Flame attacks you again!")
                     Death()
                     return
+                #This kills the player since they didn't provide an appropriate response
              else:
                 print(f"Invalid option, Flame spews hot lava all over you and {Companion}.")
                 time.sleep(5)
@@ -1791,11 +1820,13 @@ def Chapter_8():
                 time.sleep(5)
                 Death()
                 return
+            #This kills the player
         else:
             print(f"Invalid option, Flame spews hot lava all over you and {Companion}.")
             time.sleep(5)
             Death()
             return
+        #This kills the player as they entered the wrong input
     elif dragonchoice1.lower() == "dodge":
         print("You quickly dodge Flame's attack, narrowly avoiding its powerful strike.")
         time.sleep(5)
@@ -3538,6 +3569,31 @@ def credits():
         print("For when there is darkness, there is light...")
         time.sleep(5)
         print("Thank you again. For playing this game")
+
+def THE_END():
+    ENDING = (r"""
+ .-') _    ('-. .-.   ('-.          ('-.       .-') _  _ .-') _  
+(  OO) )  ( OO )  / _(  OO)       _(  OO)     ( OO ) )( (  OO) ) 
+/     '._ ,--. ,--.(,------.     (,------.,--./ ,--,'  \     .'_ 
+|'--...__)|  | |  | |  .---'      |  .---'|   \ |  |\  ,`'--..._)
+'--.  .--'|   .|  | |  |          |  |    |    \|  | ) |  |  \  '
+   |  |   |       |(|  '--.      (|  '--. |  .     |/  |  |   ' |
+   |  |   |  .-.  | |  .--'       |  .--' |  |\    |   |  |   / :
+   |  |   |  | |  | |  `---.      |  `---.|  | \   |   |  '--'  /
+   `--'   `--' `--' `------'      `------'`--'  `--'   `-------'  """)
+    for char in ENDING:
+     print(ENDING)
+    keyboard = (r"""
+ ____ ____ ____ ____ ____ ____ ____ _________ ____ ____ 
+||C |||R |||E |||A |||T |||E |||D |||       |||B |||Y ||
+||__|||__|||__|||__|||__|||__|||__|||_______|||__|||__||
+|/__\|/__\|/__\|/__\|/__\|/__\|/__\|/_______\|/__\|/__\|
+ ____ ____ ____ ____                                    
+||E |||R |||I |||C ||                                   
+||__|||__|||__|||__||                                   
+|/__\|/__\|/__\|/__\|                                    """)
+    for char in keyboard:
+     print(keyboard)
 
 
 if __name__ == "__main__":
