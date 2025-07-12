@@ -1777,6 +1777,7 @@ def Chapter_8():
                     time.sleep(5)
                     Chapter_9()
                     break
+                #This shows the sword upgrade story
                 #This moves to the next chapter
                 elif dragonchoicesemi3.lower() == "heal":
                     print(f"You use a healing potion to heal yourself and {Companion}.")
@@ -1862,20 +1863,24 @@ def Chapter_8():
                 time.sleep(5)
                 Chapter_9()
                 break
+            #This shows the sword upgrade story
             elif dragonchoice2.lower() == "heal":
                 print(f"You use a healing potion to heal yourself and {Companion}")
                 time.sleep(5)
                 print("But before either of you could attack again. Flame attacks you both.")
                 Death()
                 return
+            #This kills the player
             else:
                 print("Invalid choice. Flame attacks you again!")
                 Death()
                 return
+            #This kills the player due to invalid input
     else:
         print("Invalid choice. Flame attacks you again!")
         Death()
         return
+    #This kills the player due to invalid input
    
 def Chapter_9():
     global Companion, Username, current_chapter, player
@@ -1917,6 +1922,7 @@ def Chapter_9():
             time.sleep(5)
             village()
             return
+        #This stops at the village after buying the map
         else:
             print("You decide not to buy the map and continue down the path without it.")
             time.sleep(5)
@@ -1924,6 +1930,7 @@ def Chapter_9():
             time.sleep(5)
             village()
             return
+        #This stops at the village without buying
     elif village_choice.lower() == "no":
         print(f"You and {Companion} decide to continue down the path without stopping at the village.")
         time.sleep(5)
@@ -1933,6 +1940,7 @@ def Chapter_9():
         time.sleep(5)
         Chapter_9Part2()
         return
+    #This skips the village without reseting health and faces the boss without a full health bar
     else:
         print("Invalid choice. You continue down the path without stopping at the village.")
         time.sleep(5)
@@ -1942,6 +1950,7 @@ def Chapter_9():
         time.sleep(5)
         Chapter_9Part2()
         return
+    #This is for invalid input
     
 def village():
     global Companion, Username, current_chapter, player
@@ -1987,6 +1996,7 @@ def Chapter_9Part2():
             time.sleep(5)
             print("As you continue, the ground shakes and you are buried under a pile of snow.")
             Death()
+        #Death due to avalanche
         case "right":
             print(f"You and {Companion} decide to go right towards the icy cave.")
             time.sleep(5)
@@ -2000,6 +2010,7 @@ def Chapter_9Part2():
             time.sleep(5)
             print("Searching the chamber, you discover 2 small chests hidden behind a pile of ice.")
             time.sleep(5)
+        #No death
             frozen_cave = input("Do you want to open the left chest or the right chest? (Left/Right): ")
             while True:
              match frozen_cave.lower().strip():
@@ -2063,7 +2074,6 @@ def Chapter_9Part2():
                                                         time.sleep(5)
                                                         print("In the clearing, a pedestal holds a glowing ice key.")
                                                         time.sleep(5)
-                                
                                                         print("****************************\n"
                                                                 "4 Key Achieved 1 left.\n"
                                                               "****************************\n")
@@ -2072,21 +2082,26 @@ def Chapter_9Part2():
                                                         time.sleep(5)
                                                         Chapter_10()
                                                         break
+                                                    #Achieves key and continues to next chapter
                                                     case "right":
                                                         print("You take the right path and end in a dead end. Go back!")
                                                         time.sleep(5)
+                                                    #Repeats until they choose left
                                                     case _:
                                                         print("Invalid choice. Returning to cavern.")
                                                         time.sleep(5)
                                                         return
+                                                    #Goes back to question
                                                 break
                                             case "return":
                                                 print(f"You and {Companion} return to the cavern.")
                                                 break
+                                            #Goes back to cavern and repeats
                                             case _:
                                                 print("Invalid choice. Returning to cavern.")
                                                 time.sleep(5)
                                                 return
+                                            #Goes back to cavern and repeats
                                     case "heal":
                                         print(f"You use a healing potion to heal yourself.")
                                         time.sleep(5)
@@ -2096,19 +2111,23 @@ def Chapter_9Part2():
                                         time.sleep(5)
                                         Death()
                                         return
+                                    #Death
                                     case _:
                                         print("Invalid choice.")
                                         break
-                        
+                                    #Repeats the question
                         case "escape":
                             print("You try escaping but Morjun possesses you.")
                             time.sleep(5)
                             Death()
                             return
+                        #Death
                         case _:
-                            print("Invalid choice. Continuing down without a decision.")
+                            print("Invalid choice. You trip over a rock.")
                             time.sleep(5)
+                            Death()
                             return
+                        #Gets killed by a rock
                 case "right":
                             print("You open the right chest and find a pile of gold coins.")
                             time.sleep(5)
@@ -2116,12 +2135,15 @@ def Chapter_9Part2():
                             time.sleep(5)
                             print(f"{Companion} says, 'Nice find, but we still need the key.'")
                             time.sleep(5)
+                        #Collects coins then loops the question
                 case _:
                      print("Choose a valid option")
+                     #Loops the question
         case _:
-            print("Invalid choice. Returning to previous state.")
+            print("Invalid choice. Choose again.")
             time.sleep(5)
             return
+        #Loops
 
 
 def Chapter_10():
@@ -2161,6 +2183,7 @@ def Chapter_10():
         time.sleep(5)
         Chapter_11()
         time.sleep(5)
+    #Continues to next chapter
     elif trollchoice3.lower() == "reason":
         print("You try to reason with the trolls, explaining that you mean no harm and are only looking for the final key.")
         time.sleep(5)
@@ -2168,6 +2191,7 @@ def Chapter_10():
         time.sleep(5)
         Death()
         return
+    #Death due to language barrier
     
 def Chapter_11():
     global Companion, Username, current_chapter, player
@@ -2198,6 +2222,7 @@ def Chapter_11():
           "****************************\n")
     time.sleep(5)
     print(Desbio)
+    #Prints ascii for boss
     time.sleep(5)
     beastchoice1 = input("Before either of you could move, Desbio strikes you both in the back, (Attack/Dodge): ")
     time.sleep(5)
@@ -2206,7 +2231,8 @@ def Chapter_11():
     if beastchoice1.lower() == "attack":
         print("Desbio lunges at you, its claws slashing through the air.")
         time.sleep(5)
-        lower_health(20)
+        lower_health()
+        #Lowers health randomly
         print(f"{Companion}'s health is low")
         time.sleep(5)
         print(f"You and {Companion} are both injured and need to find a way to defeat Desbio before it attacks again.")
@@ -2219,6 +2245,7 @@ def Chapter_11():
             time.sleep(5)
             beastchoicesemi2 = input(f"Type 'Attack' to attack Desbio again or type 'Heal' to heal yourself and {Companion}: ")
             while True:
+            #These are for loops
              if beastchoicesemi2.lower() == "attack":
                 print(f"You and {Companion} attack Desbio with all your might.")
                 time.sleep(5)
@@ -2229,6 +2256,7 @@ def Chapter_11():
              elif beastchoicesemi2.lower() == "heal":
                 print(f"You use a healing potion to heal yourself and {Companion}.")
                 increase_health(50)
+                #Increases health
                 time.sleep(5)
                 print(f"{Companion} is back in the fight!")
                 time.sleep(5)
@@ -2259,15 +2287,20 @@ def Chapter_11():
                     save_game()
                     time.sleep(5)
                     Dark_ShieldStory()
+                    time.sleep(5)
+                    Chapter_12()
                     return
+                #Shows the shield upgrade story and continues
                 elif beastchoicesemi3.lower() == "heal":
                     print("Desbio lunges at you before you could move and summons a portal of darkness under you.")
                     Death()
                     return
+                #Death
              else:
                 print("Invalid choice. Desbio attacks you again!")
                 Death()
                 return
+             #Death due to invalid option
         elif beastchoicesemi3.lower() == "heal":
                     print(f"You use a healing potion to heal yourself and {Companion}.")
                     time.sleep(5)
@@ -2284,10 +2317,12 @@ def Chapter_11():
                     print("Desbio attacks you before you can attack again!")
                     Death()
                     return
+        #Death
         else:
-                    print("Invalid choice. Desbio attacks you again!")
-                    Death()
-                    return
+            print("Invalid choice. Desbio attacks you again!")
+            Death()
+            return
+        #Death due to invalid option
     elif beastchoice1.lower() == "dodge":
         print("You quickly dodge Desbio's attack, narrowly avoiding its powerful strike.")
         time.sleep(5)
@@ -2318,7 +2353,13 @@ def Chapter_11():
                       "  5 Keys Achieved None left. \n"
                       "****************************\n")
                 time.sleep(5)
+                save_game()
+                time.sleep(5)
                 Dark_ShieldStory()
+                time.sleep(5)
+                Chapter_12()
+                return
+            #Shows the shield upgrade story and continues to the next chapter
             elif beastchoice2.lower() == "heal":
                 print(f"You use a healing potion to heal yourself and {Companion}.")
                 increase_health(50)
@@ -2335,14 +2376,17 @@ def Chapter_11():
                 time.sleep(5)
                 Death()
                 break
+            #Gets killed
             else:
                 print("Invalid choice. Desbio attacks you again!")
                 Death()
                 return
+            #Gets killed by invalid option
     else:
         print("Invalid choice. Desbio attacks you again!")
         Death()
         return
+    #Gets killed by invalid option
 
 def Chapter_12():
     global Companion, Username, current_chapter, player
@@ -2370,6 +2414,7 @@ def Chapter_12():
     if MajorChoice.lower() == "stay":
         print(f"Ok, {Username} let's stay, we can gather info later! Says {Companion}")
         Chapter_12Part2()
+        return
     else:
         print("Ok, let's go, I'm kinda tired though...")
         time.sleep(5)
@@ -2380,6 +2425,8 @@ def Chapter_12():
         print(f"You arrived back at the village and sat down")
         Chapter_12Part2()
         time.sleep(5)
+        return
+    #Continues to next chapter
     
 def Chapter_12Part2():
     global Companion, Username, current_chapter, player
