@@ -2296,6 +2296,9 @@ def Chapter_11():
                     Death()
                     return
                 #Death
+                else:
+                    Death()
+                    return
              else:
                 print("Invalid choice. Desbio attacks you again!")
                 Death()
@@ -2415,6 +2418,7 @@ def Chapter_12():
         print(f"Ok, {Username} let's stay, we can gather info later! Says {Companion}")
         Chapter_12Part2()
         return
+    #Continues to the next chapter
     else:
         print("Ok, let's go, I'm kinda tired though...")
         time.sleep(5)
@@ -2426,7 +2430,7 @@ def Chapter_12():
         Chapter_12Part2()
         time.sleep(5)
         return
-    #Continues to next chapter
+    #Continues to next chapter and returns to the village
     
 def Chapter_12Part2():
     global Companion, Username, current_chapter, player
@@ -2440,6 +2444,7 @@ def Chapter_12Part2():
     stick1 = input("Under a tree you find a piece. Type 'One' to pick up: ")
     if stick1.lower() == "one":
         print("Collected")
+        #This shows the collecting stick sequence
     else:
         print("Not collected")
     stick2 = input("Under a piece of bark you find a piece. Type 'Two' to pick up: ")
@@ -2484,6 +2489,7 @@ def Chapter_12Part2():
     time.sleep(10)
     reset_health()
     Chapter_13()
+    #This resets the players health to 100 and continues to the next chapter
     
 def Chapter_13():
     global Companion, Username, current_chapter, player
@@ -2514,11 +2520,12 @@ def Chapter_13():
     print("When you wake up you notice, that companion disappeared. In front of you is 5 tunnels")
     while True:
      try:
-      tunnelchoice = int(input("Which tunnel would you proceed down: "))
+      tunnelchoice = int(input("Which tunnel would you proceed down (1-5): "))
      except ValueError:
         print("Please enter a valid number")
         continue
      match tunnelchoice:
+         #This matches the players input with a result
         case 1:
             print("You walk into the darkness of the tunnel...")
             time.sleep(5)
@@ -2575,6 +2582,7 @@ def Chapter_13():
             time.sleep(5)
             Chapter_14()
             break
+         #This goes to the next chapter
         case 5:
             print("You walk into the darkness of the tunnel...")
             time.sleep(5)
@@ -2626,9 +2634,11 @@ def Chapter_13():
             time.sleep(5)
             Death()
             break
+         #This kills the player
         case _:
             print("Enter a valid number")
             return
+        #This loops until the player enters a valid number
 
 def Chapter_14():
     global Companion, Username, current_chapter, player
@@ -2686,6 +2696,7 @@ def Chapter_14():
           "*****************************\n")
     time.sleep(5)
     Guardian1()
+#This goes to the first guardian fight
 
 def Guardian1():
     global Companion, Username, current_chapter, player
@@ -2727,12 +2738,15 @@ def Guardian1():
             print(f"You and {Companion} enter the hidden door, hoping to find more clues about the final beast.")
             time.sleep(5)
             Chapter_15()
+        #This goes to chapter 15
         elif disable_choice.lower() == "attack":
             print(f"You and {Companion} keep attacking the guardian, but it is too strong.")
             time.sleep(5)
             print("The guardian strikes you down, and you fall to the ground, defeated.")
             time.sleep(5)
             Death()
+            return
+        #This kills the player
     elif guardian_choice.lower() == "disable":
         print(f"You and {Companion} search the room for a way to disable the machines.")
         time.sleep(5)
@@ -2747,6 +2761,7 @@ def Guardian1():
         print(f"You and {Companion} enter the hidden door, hoping to find more clues about the final beast.")
         time.sleep(5)
         Chapter_15()
+    #This goes to the nest chapter
 
 def Chapter_15():
     global Companion, Username, current_chapter, player
@@ -2778,6 +2793,7 @@ def Chapter_15():
           "****************************\n")
     time.sleep(5)
     Guardian2()
+#This goes to the next stage of the battle
 
 def Guardian2():
     global Companion, Username, current_chapter, player
@@ -2831,6 +2847,7 @@ def Guardian2():
         print(f"You and {Companion} enter the hidden door, hoping to find more clues about the final beast.")
         time.sleep(5)
         Final_machine()
+    #Th
 
 def Final_machine():
     global Companion, Username, current_chapter, player
@@ -2855,6 +2872,7 @@ def Final_machine():
     time.sleep(5)
     print(f"With the forcefield down, you and {Companion} rush out of the machine rooms and make your way to the heart of the capital.")
     Chapter_16()
+#This goes to the next chapter after disabling the forcefield
     
 
 def Chapter_16():
@@ -2902,6 +2920,7 @@ def Chapter_16():
     time.sleep(5)
     save_game()
     Necron_Fight()
+#This starts the boss fight
 
 def Necron_Fight():
     global Companion, Username, current_chapter, player
@@ -2929,16 +2948,19 @@ def Necron_Fight():
             print("With your health restored, you feel ready to take on the beast again.")
             time.sleep(5)
             Necron_Fight2()
+        #Goes to the second part of the fight
         elif disable_choice.lower() == "attack":
             print(f"You and {Companion} keep attacking the beast, but it is too strong.")
             time.sleep(5)
             print("The beast strikes you down, and you fall to the ground, defeated.")
             time.sleep(5)
             Death()
+        #Deatg
         else:
             print("Invalid choice. You continue to attack the beast without healing.")
             time.sleep(5)
             Necron_Fight2()
+        #Goes to the second part of the fight without heal
     elif beast_choice.lower() == "heal":
         print(f"You and {Companion} search the cavern for a way to heal yourselves.")
         time.sleep(5)
@@ -2947,11 +2969,13 @@ def Necron_Fight():
         print("With your health restored, you feel ready to take on the beast again.")
         time.sleep(5)
         Necron_Fight2()
+    #Goees to second part of the fight
     else:
         print("Invalid choice. Necron casts a dark spell, and you feel your strength draining away.")
         time.sleep(5)
         Death()
         return
+    #Death
 
 def Necron_Fight2():
     global Companion, Username, current_chapter, player
@@ -2976,6 +3000,7 @@ def Necron_Fight2():
             print("With this knowledge, you feel ready to take on the machines.")
             time.sleep(5)
             Machines1()
+        #Goes to next part
         elif disable_choice2.lower() == "attack":
             print(f"You and {Companion} keep attacking the beast, but it is too strong.")
             time.sleep(5)
@@ -2983,6 +3008,7 @@ def Necron_Fight2():
             time.sleep(5)
             Death()
             return
+        #Death
     elif beast_choice2.lower() == "heal":
         print(f"You and {Companion} search the cavern for a way to heal yourselves.")
         time.sleep(5)
@@ -2991,6 +3017,7 @@ def Necron_Fight2():
         print("With your health restored, you feel ready to take on the beast again.")
         time.sleep(5)
         Necron_Fight3()
+    #Starts next sequence of the boss fight
 
 def Necron_Fight3():
     global Companion, Username, current_chapter, player
@@ -3028,6 +3055,7 @@ def Necron_Fight3():
             print("The beast strikes you down, and you fall to the ground, defeated.")
             time.sleep(5)
             Death()
+        #Gets killed
     elif beast_choice3.lower() == "destroy":
         print(f"You  search the cavern for a way to destroy the machines while {Companion} distracts Necrom.")
         time.sleep(5)
@@ -3038,6 +3066,7 @@ def Necron_Fight3():
         print("With this knowledge, you feel ready to take on the machines.")
         time.sleep(5)
         Machines1()
+    #Goes to the next chapter
 
 
 def Machines1():
@@ -3629,7 +3658,7 @@ def THE_END():
    |  |   |  | |  | |  `---.      |  `---.|  | \   |   |  '--'  /
    `--'   `--' `--' `------'      `------'`--'  `--'   `-------'  """)
     for char in ENDING:
-     print(ENDING)
+        print(char, end="")
     keyboard = (r"""
  ____ ____ ____ ____ ____ ____ ____ _________ ____ ____ 
 ||C |||R |||E |||A |||T |||E |||D |||       |||B |||Y ||
@@ -3640,7 +3669,7 @@ def THE_END():
 ||__|||__|||__|||__||                                   
 |/__\|/__\|/__\|/__\|                                    """)
     for char in keyboard:
-     print(keyboard)
+        print(char, end="")
 
 
 if __name__ == "__main__":
