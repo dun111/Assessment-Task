@@ -1,8 +1,11 @@
+"""
+TalesOfTime: A text-based adventure game where you defeat 5 bosses 
+and 3 secret bosses to save Fargon
+"""
 #GameName TalesOfTime
 #StudentName EricZheng
-#GameStory: Set in Fargon where you have to defeat 6 bosses to escape along with your companion
 #GameDuration: This game should go for around an hour on average.
-
+# Uses Upper_Case naming style for constants and snake_case for functions and variables
 #Imports
 import time
 import random
@@ -10,12 +13,13 @@ import json
 #Imports time for time control and time.sleep, random for the random health decrease and json to make json file to save progress
 
 # Global variables to be used throughout the game
-Username = ""
-Companion = ""
-player = None  # Will be initialized with PlayerData()
+username = ""
+companion = ""
+player = None  # Will be initialized with playerdata()
+current_chapter = ""
 
 #Ascii art
-Bull = (r"""
+BULL = (r"""
       
              _.-````'-,_
    _,.,_ ,-'`           `'-.,_
@@ -32,7 +36,7 @@ Bull = (r"""
       
 """)
 #Saves ascii as a raw string and use ''' for the art. Repeats for the rest
-Flame = (r"""    
+FLAME = (r"""    
          
                   __~a~_
                   ~~;  ~_
@@ -52,7 +56,7 @@ Flame = (r"""
 
 """)
 
-Golem = (r"""
+GOLEM = (r"""
          
 ⠀⠀⠀⠀⠀⠀⢀⡀⣴⡄⢸⣀⣀⣈⣿⣿⣁⣀⣀⡇⢠⣦⣄⡀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠴⠾⠿⠿⠛⠃⠀⠛⠛⠛⠛⠛⠛⠛⠛⠀⠘⠛⠿⠿⠷⠦⠀⠀⠀⠀
@@ -70,7 +74,7 @@ Golem = (r"""
 """)
 
 
-Wraith = (r"""
+WRAITH = (r"""
           
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠀⠀⠀⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⢠⢠⣿⣿⣿⣦⡀⠀⠀⠀⠀⠀⠄⠀⠀⠄⠀⠀⠀⠀⠀⠀
@@ -90,7 +94,7 @@ Wraith = (r"""
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀
 """)
 
-Desbio = (r"""
+DESBIO = (r"""
 
   .:'                                  `:.
  ::'                                    `::
@@ -116,7 +120,7 @@ Desbio = (r"""
 
 """)
 
-mysterious_character = (r"""
+MYSTERIOUS_CHARACTER = (r"""
                                     
            *************
           *****     *****
@@ -141,7 +145,7 @@ mysterious_character = (r"""
                          """)
 
 
-necron_secondform = (r"""
+NECRON_SECOND_FORM = (r"""
                       <>=======() 
 (/\___   /|\\          ()==========<>_
       \_/ | \\        //|\   ______/ \)
@@ -158,7 +162,7 @@ necron_secondform = (r"""
                  ______/ /
                  '------' """)
 
-necron = (r"""
+NECRON = (r"""
                            \ __
 --==/////////////[})))==*
                  / \ '          ,|
@@ -188,7 +192,7 @@ necron = (r"""
                                     \~\
                                      ~~ """)
 
-creditroll = (r"""
+credit_roll = (r"""
                      .''.      .        *''*    :_\/_:     .
       :_\/_:   _\(/_  .:.*_\/_*   : /\ :  .'.:.'.
   .''.: /\ :    /)\   ':'* /\ *  : '..'.  -=:o:=-
@@ -197,7 +201,7 @@ creditroll = (r"""
   '..'  ':::' === * /\ *     .'/.\'.  ' ._____
 """)
 
-temple1 = (r"""
+DUNGEON_1 = (r"""
 
                )\         O_._._._A_._._._O         /(
                 \`--.___,'=================`.___,--'/
@@ -228,7 +232,7 @@ temple1 = (r"""
   --'-          /| _______________________________  |\
  --'          / |__________________________________| \ """)
 
-dungeon2 = (r"""
+DUNGEON_2 = (r"""
                                 /   \              /'\       _                              
 *\_..           /'.,/     \_         .,'   \     / \_                            
 *    \         /            \      _/       \_  /    \     _                     
@@ -251,7 +255,7 @@ dungeon2 = (r"""
 *                                                    \          |            \"    """)
 
 
-goblinhut = (r"""
+GOBLIN_HUT = (r"""
                               ,-_                  (`  ).
                  |-_'-,              (     ).
                  |-_'-'           _(        '`.
@@ -267,7 +271,7 @@ goblinhut = (r"""
         /____|'-_|___\
  _..,____]__|_\-_'|_[___,.._
 '                          ``'--,..,.    """)
-small_village = (r"""
+SMALL_VILLAGE = (r"""
                  ~         ~~          __
        _T      .,,.    ~--~ ^^
  ^^   // \                    ~
@@ -279,8 +283,8 @@ __/_  /   \ ______/ ''   /'\_,__
 :' |  | []  -|   ''--:.;[,.'\,/
 '  |[]|,.--'' '',   ''-,.    |
   ..    ..-''    ;       ''. ' """)
-
-dungeon3 = (r"""
+# Using upper case naming style for constants
+DUNGEON_3 = (r"""
             ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⢿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀⠀⠀
@@ -300,7 +304,7 @@ dungeon3 = (r"""
 ⠀⣿⣿⣿⣿⣶⣶⣶⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⢋⣡⠀
 ⠀⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⠛⠛⠛⠛⠛⠛⠀ """)
 
-dungeon_4 = (r"""
+DUNGEON_4 = (r"""
                .                  .-.    .  _   *     _   .
            *          /   \     ((       _/ \       *    .
          _    .   .--'\/\_ \     `      /    \  *    ___
@@ -316,7 +320,7 @@ dungeon_4 = (r"""
 `::::::8%@@%:::::@%&8:`.=~~-.~~-.~~=..~'8::::::::&@8:::::&8:::::'
  `::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::.' """)
 
-dungeon_5 =  (r"""
+DUNGEON_5 =  (r"""
                              .          .           .     .                .       .
   .      .      *           .       .          .                       .
                  .       .   . *            
@@ -338,7 +342,7 @@ WWWWWWWWWWWWWIIIIIIii;;::..;..;\WWWWWWWWIIII;::; :::::::::.....::       \
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%XXXXXXXXXXXXXXXXXXXX
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%XXXXXXXXXXXXXXXXXXXXXXXXXX """)
 
-trolls = (r"""
+TROLL = (r"""
        .-'.'.'.'.'.'.`-.
      .'.'.'.'.'.'.'.'.'.`.
     /.'.'               '.\
@@ -359,7 +363,7 @@ trolls = (r"""
          \           .'
            `-..___..-` """)
 
-skeleton = (r"""
+SKELETON = (r"""
                               _.--""-._
   .                         ."         ".
  / \    ,^.         /(     Y             |      )\
@@ -399,7 +403,7 @@ skeleton = (r"""
                                              |lllj
                                              |||||  """)
 
-chest = (r"""
+CHEST = (r"""
         /\____;;___\
        | /         /
        `. ())oo() .
@@ -409,7 +413,7 @@ chest = (r"""
       %  \|%________|
   %%%%                """)
 
-capital = (r"""
+CAPITAL = (r"""
                       / \\\
                       |n| |
                     )(|_|-'X
@@ -433,7 +437,7 @@ capital = (r"""
                             `--------------------------
                                                                    """)
 
-abandoned_village = (r"""
+ABANDONED_VILLAGE = (r"""
                               /\  //\\
                        /\    //\\///\\\        /\
                       //\\  ///\////\\\\  /\  //\\
@@ -449,7 +453,7 @@ abandoned_village = (r"""
 / ^ ^ ^  ^  ^  ^   ||||||||||||||||||||||||||||||oooooooooo| |ooooooo  |
 ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo """)
 
-Special_sword = (r"""
+SPECIAL_SWORD = (r"""
                              _
  _         | |
 | | _______| |---------------------------------------------\
@@ -457,7 +461,7 @@ Special_sword = (r"""
 |_|        | |---------------------------------------------/
            |_| """)
 
-Special_shield = (r"""  
+SPECIAL_SHIELD = (r"""  
   |`-._/\_.-`|
   |    ||    |
   |___o()o___|
@@ -468,7 +472,7 @@ Special_shield = (r"""
      '.||.'
        ``""")
 
-Special_dagger = (r"""
+SPECIAL_DAGGER = (r"""
       ______________________________ ______________________
     .'                              | (_)     (_)    (_)   \
   .'                                |  __________________   }
@@ -476,7 +480,7 @@ Special_dagger = (r"""
 
 """)
 
-dark_dagger = (r"""                                   |_  |
+DARK_DAGGER = (r"""                                   |_  |
                                                         | |
 __                      ____                            | |
 \ ````''''----....____.'\   ````''''--------------------| |--.               _____      .-.
@@ -489,7 +493,7 @@ __                      ____                            | |
                                                        _| |
                                                       |___| """)
 
-Dark_Book = (r"""    
+DARK_BOOK = (r"""    
      __...--~~~~~-._   _.-~~~~~--...__
     //               `V'               \\ 
    //                 |                 \\ 
@@ -498,7 +502,7 @@ Dark_Book = (r"""
 ====================\\|//====================
                     `---`. """)
 
-Dark_Shield = (r"""
+DARK_SHIELD = (r"""
   |\ _..--.._ /|
   |############|
    )##########(
@@ -511,7 +515,7 @@ Dark_Shield = (r"""
       "(\/)"
         )(.  """)
 
-Dark_Sword = (r"""               __________                         ._
+DARK_SWORD = (r"""               __________                         ._
              ./' .v~__,/~ _____   _____     _____   )~\      _____     _____
            ./  .(W---\| /',---.`\ |\./\     |\./|  / | \     |\./\     |\./|
           ,|  /@)$$$$$$$$($( )#H>===========) ) )==`\`\`\| | |=====\ \ \======`\`\`\| | |-->
@@ -519,7 +523,7 @@ Dark_Sword = (r"""               __________                         ._
           `|  \) 
 """)
 
-serpus = (r"""
+SERPUS = (r"""
                            .......................:....                                                       
               ..-=%--=---=-:..*...=*=......... .                                                    
              ..:*****+##%%%:*+==@..-*+*.#....-......                                                
@@ -573,26 +577,25 @@ SAVE_FILE = "TalesOfTimeSave.json"
 #This gives the save file a name
 
 def save_game():
-    global player, Username, Companion, current_chapter
     data = {
         "player": player,
-        "Username": Username,
-        "Companion": Companion,
+        "username": username,
+        "companion": companion,
         "current_chapter": current_chapter
     }
     with open(SAVE_FILE, "w") as file:
         json.dump(data, file)
     print("Waypoint set!")
-#This saves the data (Name, player stats, Companion name and current chapter into a Json file
+#This saves the data (Name, player stats, companion name and current chapter into a Json file
 
-def load_game():
-    global player, Username, Companion, current_chapter
+def Load_Game():
+    global player, username, companion, current_chapter
     try:
         with open(SAVE_FILE, "r") as file:
             data = json.load(file)
             player = data["player"]
-            Username = data["Username"]
-            Companion = data["Companion"]
+            username = data["username"]
+            companion = data["companion"]
             current_chapter = data.get("current_chapter", "main")
         print("Waypoint loaded!")
         # Resumes at the correct chapter
@@ -606,95 +609,94 @@ def load_game():
 def resume_game():
     if current_chapter == "main":
         main()
-    elif current_chapter == "Companion_Chapter":
-        Companion_Chapter()
-    elif current_chapter == "Chapter_1":
-        Chapter_1()
-    elif current_chapter == "Chapter_2":
-        Chapter_2()
-    elif current_chapter == "Chapter_3":
-        Chapter_3()
-    elif current_chapter == "Chapter_3Part2":
-        Chapter_3Part2()
-    elif current_chapter == "Chapter_4":
-        Chapter_4()
-    elif current_chapter == "Chapter_5":
-        Chapter_5()
-    elif current_chapter == "Chapter_6":
-        Chapter_6()
-    elif current_chapter == "serpusfight2":
-        serpusfight2()
-    elif current_chapter == "serpusfight3":
-        serpusfight3()
-    elif current_chapter == "Chapter_7":
-        Chapter_7()
-    elif current_chapter == "Chapter_8":
-        Chapter_8()
-    elif current_chapter == "Chapter_9":
-        Chapter_9()
+    elif current_chapter == "companion_chapter":
+        companion_chapter()
+    elif current_chapter == "chapter_1":
+        chapter_1()
+    elif current_chapter == "chapter_2":
+        chapter_2()
+    elif current_chapter == "chapter_3":
+        chapter_3()
+    elif current_chapter == "chapter_3part2":
+        chapter_3part2()
+    elif current_chapter == "chapter_4":
+        chapter_4()
+    elif current_chapter == "chapter_5":
+        chapter_5()
+    elif current_chapter == "chapter_6":
+        chapter_6()
+    elif current_chapter == "serpus_fight2":
+        serpus_fight2()
+    elif current_chapter == "serpus_fight3":
+        serpus_fight3()
+    elif current_chapter == "chapter_7":
+        chapter_7()
+    elif current_chapter == "chapter_8":
+        chapter_8()
+    elif current_chapter == "chapter_9":
+        chapter_9()
     elif current_chapter == "village":
         village()
-    elif current_chapter == "Chapter_9Part2":
-        Chapter_9Part2()
-    elif current_chapter == "Chapter_10":
-        Chapter_10()
-    elif current_chapter == "Chapter_11":
-        Chapter_11()
-    elif current_chapter == "Chapter_12":
-        Chapter_12()
-    elif current_chapter == "Chapter_12Part2":
-        Chapter_12Part2()
-    elif current_chapter == "Chapter_13":
-        Chapter_13()
-    elif current_chapter == "Chapter_14":
-        Chapter_14()
-    elif current_chapter == "Guardian1":
-        Guardian1()
-    elif current_chapter == "Chapter_15":
-        Chapter_15()
-    elif current_chapter == "Guardian2":
-        Guardian2()
-    elif current_chapter == "Final_machine":
-        Final_machine()
-    elif current_chapter == "Chapter_16":
-        Chapter_16()
-    elif current_chapter == "Necron_Fight":
-        Necron_Fight()
-    elif current_chapter == "Necron_Fight2":
-        Necron_Fight2()
-    elif current_chapter == "Necron_Fight3":
-        Necron_Fight3()
-    elif current_chapter == "Machines1":
-        Machines1()
-    elif current_chapter == "Machines2":
-        Machines2()
-    elif current_chapter == "Machines3":
-        Machines3()
-    elif current_chapter == "Machines4":
-        Machines4()
-    elif current_chapter == "Machines5":
-        Machines5()
-    elif current_chapter == "Necron_Fight4":
-        Necron_Fight4()
-    elif current_chapter == "companionfight":
-        companionfight()
-    elif current_chapter == "Chapter_17":
-        Chapter_17()
-    elif current_chapter == "Chapter_18":
-        Chapter_18()
-    elif current_chapter == "Chapter_19":
-        Chapter_19()
-    elif current_chapter == "The_End":
-        The_End()
+    elif current_chapter == "chapter_9part2":
+        chapter_9part2()
+    elif current_chapter == "chapter_10":
+        chapter_10()
+    elif current_chapter == "chapter_11":
+        chapter_11()
+    elif current_chapter == "chapter_12":
+        chapter_12()
+    elif current_chapter == "chapter_12part2":
+        chapter_12part2()
+    elif current_chapter == "chapter_13":
+        chapter_13()
+    elif current_chapter == "chapter_14":
+        chapter_14()
+    elif current_chapter == "guardian1":
+        guardian1()
+    elif current_chapter == "chapter_15":
+        chapter_15()
+    elif current_chapter == "guardian2":
+        guardian2()
+    elif current_chapter == "final_machine":
+        final_machine()
+    elif current_chapter == "chapter_16":
+        chapter_16()
+    elif current_chapter == "necron_fight":
+        necron_fight()
+    elif current_chapter == "necron_fight2":
+        necron_fight2()
+    elif current_chapter == "necron_fight3":
+        necron_fight3()
+    elif current_chapter == "machines1":
+        machines1()
+    elif current_chapter == "machines2":
+        machines2()
+    elif current_chapter == "machines3":
+        machines3()
+    elif current_chapter == "machines4":
+        machines4()
+    elif current_chapter == "machines5":
+        machines5()
+    elif current_chapter == "necron_fight4":
+        necron_fight4()
+    elif current_chapter == "companion_fight":
+        companion_fight()
+    elif current_chapter == "chapter_17":
+        chapter_17()
+    elif current_chapter == "chapter_18":
+        chapter_18()
+    elif current_chapter == "chapter_19":
+        chapter_19()
+    elif current_chapter == "the_end":
+        the_end()
     else:
         main()
 #This function is used to go back to the player's chapter when the game saved by saving the current chapter into the variable "Current_chapter"
 
-def lower_health(amount=None):
-    global player
+def decrease_health(amount=None):
     if player is None:
         print("Error: Player not initialized.")
-        Death()
+        death()
         return
     if amount is None:
         amount = random.randint(10, 80)
@@ -703,32 +705,30 @@ def lower_health(amount=None):
     print(f"You took {reduced} damage! (Reduced by defence) Your health is now {player['health']}.")
     if player["health"] <= 0:
         print("You have died...")
-        Death()
+        death()
     elif player["health"] <= 10:
         print("Low Health!")
 #This function lower's the player's health randomly between 10 and 80
 
 def increase_health(amount):
-    global player
     if player is None:
         print("Error: Player not initialized.")
-        Death()
+        death()
         return
     player["health"] += amount
     print(f"Your health is now {player['health']}")
 #This function increases the player's health
 
 def reset_health():
-    global player
     if player is None:
         print("Error: Player not initialized.")
-        Death()
+        death()
         return
     player["health"] = 100
     print("Your health has been reset to 100.")
 #This function resets the players health
 
-def PlayerData(name):
+def playerdata(name):
     return {"name": name,
             "health": 100,
             "gold": 200,
@@ -738,33 +738,31 @@ def PlayerData(name):
 #This function shows the player's stats. Still in work
 
 
-def lower_gold(amount):
-    global player
+def decrease_gold(amount):
     if player is None:
         print("Error: Player not initialized.")
-        Death()
+        death()
         return
     player["gold"] -= amount
     print(f"You spent {amount} gold. Your gold is now {player['gold']}.")
 #This function lowers the players gold
 
 def increase_gold(amount):
-    global player
     if player is None:
-      print("Error, Player is not intitialized.")
-      Death()
-      return
+        print("Error, Player is not intitialized.")
+        death()
+        return
     player["gold"] += amount
     print(f"You gained {amount} gold. Your gold is now {player['gold']}")
 #This function increases the player's gold
 
-def Death():
+def death():
     print("You have died. Game over.")
     time.sleep(2)
     print("Do you want to restart the game? (Yes/No): ")
     choice = input().strip().lower()
     if choice == "yes":
-        Restart()
+        restart()
     elif choice == "no":
         print("Thank you for playing!")
         exit()
@@ -773,99 +771,102 @@ def Death():
         exit()
 #This function manages the death sequence
 
-def Restart():
-    global Username, player, Companion
-    print("Restarting the game...")
-    Username = ""
+def restart():
+    global username, companion, player
+    print("restarting the game...")
+    username = ""
     player = None
-    Companion = ""
+    companion = ""
     main()
 #This function restarts the game
 
-def Dark_DaggerStory():
+def dark_dagger_story():
     print("Before you leave, you notice a bottle of ominous energy.")
     time.sleep(5)
     print("Suddenly your dagger flies out your hand and forges with the ominous energy")
     time.sleep(5)
     print("'You have acquired 'Darkness's Scale'")
     time.sleep(5)
-    print(dark_dagger)
-    Learn_more3 = input("Would you like to hear about the backstory of this weapon (Yes/No)?")
-    match Learn_more3.lower().strip():
-                    case "yes":
-                        print("This dagger, now corrupted by dark energy. Has increased sharpness and toughness allowing it attack against even the strongest of enemies.")
-                        time.sleep(5)
-                        Chapter_7()
-                        return
-                    case "no":
-                        print("Ok, skipping backstory")
-                        time.sleep(5)
-                        Chapter_7()
-                        return
-                    case _:
-                        print("Invalid Option")
-                        print("Try Again")
-                        Dark_DaggerStory()
-                        return
+    print(DARK_DAGGER)
+    learn_more1 = input("Would you like to hear about the backstory of this weapon (Yes/No)?")
+    match learn_more1.lower().strip():
+        case "yes":
+            print("This dagger, now corrupted by dark energy. Has increased sharpness and toughness allowing it attack against even the strongest of enemies.")
+            time.sleep(5)
+            chapter_7()
+            return
+        case "no":
+            print("Ok, skipping backstory")
+            time.sleep(5)
+            chapter_7()
+            return
+        case _:
+            print("Invalid Option")
+            print("Try Again")
+            dark_dagger_story()
+            return
 #This is for the upgrade of the dagger
-def Dark_SwordStory():
+
+def dark_sword_story():
     print("Before you leave, you notice a bottle of ominous energy.")
     time.sleep(5)
     print("Suddenly your sword flies out your hand and forges with the ominous energy")
     time.sleep(5)
     print("'You have acquired 'The Corrupted Sword'")
     time.sleep(5)
-    print(Dark_Sword)
-    Learn_more2 = input("Would you like to hear about the backstory of this weapon (Yes/No)?")
-    match Learn_more2.lower().strip():
-                    case "yes":
-                        print("This sword, now corrupted by dark energy. Has increased sharpness and toughness allowing it attack against even the strongest of enemies.")
-                        time.sleep(5)
-                        Chapter_10()
-                        return
-                    case "no":
-                        print("Ok, skipping backstory")
-                        time.sleep(5)
-                        Chapter_10()
-                        return
-                    case _:
-                        print("Invalid Option")
-                        print("Try Again")
-                        Dark_SwordStory()
-                        return
+    print(DARK_SWORD)
+    learn_more2 = input("Would you like to hear about the backstory of this weapon (Yes/No)?")
+    match learn_more2.lower().strip():
+        case "yes":
+            print("This sword, now corrupted by dark energy. Has increased sharpness and toughness allowing it attack against even the strongest of enemies.")
+            time.sleep(5)
+            chapter_10()
+            return
+        case "no":
+            print("Ok, skipping backstory")
+            time.sleep(5)
+            chapter_10()
+            return
+        case _:
+            print("Invalid Option")
+            print("Try Again")
+            dark_sword_story()
+            return
 #This is for the upgrade of the sword
 
 
-def Dark_ShieldStory():
+def dark_shield_story():
     print("Before you leave, you notice a bottle of ominous energy.")
     time.sleep(5)
     print("Suddenly your shield flies out your hand and forges with the ominous energy")
     time.sleep(5)
     print("'You have acquired 'The Dark Shield'")
     time.sleep(5)
-    print(Dark_Shield)
-    Learn_more3 = input("Would you like to hear about the backstory of this weapon (Yes/No)?")
-    match Learn_more3.lower().strip():
-                    case "yes":
-                        print("This shield, now corrupted by dark energy. Has increased defence and toughness allowing it defend against even the strongest of enemies.")
-                        time.sleep(5)
-                        Chapter_12()
-                        return
-                    case "no":
-                        print("Ok, skipping backstory")
-                        time.sleep(5)
-                        Chapter_12()
-                        return
-                    case _:
-                        print("Invalid Option")
-                        print("Try Again")
-                        Dark_ShieldStory()
-                        return
+    print(DARK_SHIELD)
+    learn_more3 = input("Would you like to hear about the backstory of this weapon (Yes/No)?")
+    match learn_more3.lower().strip():
+        case "yes":
+            print("This shield, now corrupted by dark energy. " \
+                  "Has increased defence and toughness allowing it defend " \
+                  "against even the strongest of enemies.")
+            time.sleep(5)
+            chapter_12()
+            return
+        case "no":
+            print("Ok, skipping backstory")
+            time.sleep(5)
+            chapter_12()
+            return
+        case _:
+            print("Invalid Option")
+            print("Try Again")
+            dark_shield_story()
+            return
 #This is for the upgrade of the shield
 
 #Start of game with title screen
 def main():
-    global Username, player, current_chapter
+    global username, player, current_chapter
     current_chapter = "main"
     print(r"""
  _________     _       _____     ________   ______      ___   ________ 
@@ -883,88 +884,97 @@ def main():
     print("         Press Enter to start...")
     input()  # Wait for user to press Enter
     while True:
-     result = input(f"Hello, Type Enter or type 'Tutorial' for a tutorial, type 'Load' to load saved game: ")
-     match result.lower().strip():
-        case "enter":
-            Username = input("Enter your name: ")
-            player = PlayerData(Username)
-            time.sleep(2)
-            print("You woke up in a strange place, with no memory of how you got there.")
-            time.sleep(2)
-            print("You look around and see a path leading into the distance.")
-            time.sleep(2)
-            print("You decide to follow it, hoping to find some answers.")
-            time.sleep(2)
-            print("As you walk, you notice the surroundings changing. The path becomes narrower, "
-                  "and the trees around you grow taller and denser. You feel a sense of unease but continue on.")
-            time.sleep(2)
-            print('Suddenly, you hear a rustling sound behind you. You turn around quickly, but there is nothing there. ')
-            time.sleep(2)
-            print('You shake your head, trying to dismiss the feeling of being watched.')
-            time.sleep(2)
-            print('You can leave or continue on your journey.')
-            choice = input("What do you want to do (Leave/Continue)? ")
-            match choice.lower().strip():
-                case "leave":
-                    print("You chose not to continue. You sit down waiting for something to happen.")
-                    time.sleep(5)
-                    print("Nothing happen, You die of boredom")
-                    time.sleep(5)
-                    Death()
+        result = input("Hello, Type Enter or type 'Tutorial' for a tutorial, " \
+        "type 'Load' to load saved game: ")
+        match result.lower().strip():
+            case "enter":
+                username = input("Enter your name: ")
+                player = playerdata(username)
+                time.sleep(2)
+                print("You woke up in a strange place, with no memory of how you got there.")
+                time.sleep(2)
+                print("You look around and see a path leading into the distance.")
+                time.sleep(2)
+                print("You decide to follow it, hoping to find some answers.")
+                time.sleep(2)
+                print("As you walk, you notice the surroundings changing. The path becomes narrower, "
+                      "and the trees around you grow taller and denser. " \
+                      "You feel a sense of unease but continue on.")
+                time.sleep(2)
+                print('Suddenly, you hear a rustling sound behind you. ' \
+                      'You turn around quickly, but there is nothing there. ')
+                time.sleep(2)
+                print('You shake your head, trying to dismiss the feeling of being watched.')
+                time.sleep(2)
+                print('You can leave or continue on your journey.')
+                choice = input("What do you want to do (Leave/Continue)? ")
+                match choice.lower().strip():
+                    case "leave":
+                        print("You chose not to continue. " \
+                              "You sit down waiting for something to happen.")
+                        time.sleep(5)
+                        print("Nothing happen, You die of boredom")
+                        time.sleep(5)
+                        death()
                 #This kills the player since they typed in that they want to leave
-                case "continue":
-                    print("You chose to continue. Moving forward...")
-                    save_game()
-                    Companion_Chapter()
+                    case "continue":
+                        print("You chose to continue. Moving forward...")
+                        save_game()
+                        companion_chapter()
                 #This continues to the next chapter
-                case _:
-                    print("Invalid Option")
-                    time.sleep(5)
-                    print("Try Again")
+                    case _:
+                        print("Invalid Option")
+                        time.sleep(5)
+                        print("Try Again")
                 #This makes the player try again
         #This is the option when the player types in enter or presses enter
-        case "tutorial":
-             print("This will restart the game!")
-             time.sleep(5)
-             print("This is a text based game.")
-             time.sleep(5)
-             print("Normally, you will wait 5 seconds until the next text loads.")
-             time.sleep(5)
-             print("If there is a question, type a response that is shown on the screen, or you will have to try again.")
-             time.sleep(5)
-             print("If you choose a bad option, then you would most likely die to reflect what would happen in real life.")
-             time.sleep(5)
-             print("There a 5 Bosses to beat as well as 3 secret bosses.")
-             time.sleep(5)
-             print("Remember, this game requires patience so don't press anything until it says so!")
-             time.sleep(2)
-             print("Also, the game will autosave progress onto a JSON file after you complete a chapter. So if you die, you can still go back to your progress!")
-             time.sleep(5)
-             print("To do that type 'Load' on the Welcome text. That will bring back your progress!")
-             time.sleep(2)
-             print("Good Luck!")
-             main()
-             return
+            case "tutorial":
+                print("This will restart the game!")
+                time.sleep(5)
+                print("This is a text based game.")
+                time.sleep(5)
+                print("Normally, you will wait 5 seconds until the next text loads.")
+                time.sleep(5)
+                print("If there is a question, " \
+                      "type a response that is shown on the screen, "
+                      "or you will have to try again.")
+                time.sleep(5)
+                print("If you choose a bad option, " \
+                      "then you would most likely die to reflect what would happen in real life.")
+                time.sleep(5)
+                print("There a 5 Bosses to beat as well as 3 secret bosses.")
+                time.sleep(5)
+                print("Remember, this game requires patience so don't press anything until it says so!")
+                time.sleep(2)
+                print("Also, the game will autosave progress onto a JSON file after you complete a chapter." 
+                      "So if you die, you can still go back to your progress!")
+                time.sleep(5)
+                print("THIS DOESN'T SAVE ANY PROGRESS IF YOU HAVENT FINISHED THE FIRST CHAPTER")
+                time.sleep(5)
+                print("To do that type 'Load' on the Welcome text. That will bring back your progress!")
+                time.sleep(2)
+                print("Good Luck!")
+                main()
+                return
         #This shows how to play the game and how the game works
-        case "load":
-             load_game()
-             main()
-             return
+            case "load":
+                Load_Game()
+                return
         #This loads when the game last saved
-        case _:
-             print("Invalid Option, Try again")
-             main()
-             return
+            case _:
+                print("Invalid Option, Try again")
+                main()
+                return
         #This shows when the player doesn't type in an appropriate response
 
-def Companion_Chapter():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Companion_Chapter"
+def companion_chapter():
+    global companion, current_chapter
+    current_chapter = "companion_chapter"
     time.sleep(2)
     print("Suddenly, out of the blue, a mysterious character jumps out from a bush holding a dagger ready to attack you.")
     time.sleep(5)
-    CompanionChoice = input("You can either type 'Kill' to kill him or type 'Reason' to reason with him: ")
-    if CompanionChoice.lower() == 'kill':
+    companion_choice = input("You can either type 'Kill' to kill him or type 'Reason' to reason with him: ")
+    if companion_choice.lower() == 'kill':
         print("You tried killing the mysterious character but they proceed to strike you in the stomach.")
         time.sleep(5)
         print("You fall to the ground, bleeding out and unable to move...")
@@ -973,7 +983,7 @@ def Companion_Chapter():
         time.sleep(5)
         print("You realize that you have made a grave mistake, and your life is now forfeit.")
         time.sleep(5)
-        lower_health()
+        decrease_health()
         print("You pass out from the pain and lose consciousness.")
         time.sleep(10)
         print("When you wake up you find yourself in a cave resting on the floor with the mysterious character standing nearby.")
@@ -981,10 +991,10 @@ def Companion_Chapter():
         print("He notices you are awake and runs off into the darkness, leaving you alone in the cave.")
         time.sleep(5)
         print("You died of loneliness and despair.")
-        Death()
+        death()
         return
     #This kills the player when they try to kill the enemy
-    elif CompanionChoice.lower() == 'reason':
+    elif companion_choice.lower() == 'reason':
         print("Reasoning with the mysterious character, you explain that you mean no harm and are also lost in this strange place...")
         time.sleep(10)
         print("The mysterious character agrees and joins you on your journey to get out of this foreign place.")
@@ -992,98 +1002,98 @@ def Companion_Chapter():
         print("The mysterious character is now your companion.")
         time.sleep(5)
         print("Before continuing, you ask the mysterious character his name.")
-        Companion = input("Enter Companion's name: ")
+        companion = input("Enter companion's name: ")
         save_game()
-        Chapter_1()
+        chapter_1()
         return
     #This continues the game since the player wants to reason with companion which is integral to the story
     else:
-        Death()
+        death()
         return
     #This shows up when the player doesn't type an appropriate response
 
-def Chapter_1():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_1"
+def chapter_1():
+    global  current_chapter
+    current_chapter = "chapter_1"
     print(f"***************************\n"
-         f"Chapter 1: {Companion}'s Dilemma\n"
+         f"Chapter 1: {companion}'s Dilemma\n"
            "***************************\n")
     time.sleep(2)
-    print(f'You and {Companion} continue down the path, discussing your situation.')
+    print(f'You and {companion} continue down the path, discussing your situation.')
     time.sleep(5)
-    print(f"'You know, I know a way out of here, but I need your help first,' says {Companion}.")
+    print(f"'You know, I know a way out of here, but I need your help first,' says {companion}.")
     time.sleep(5)
-    DaggerChoice = input(f"During our little scuffle, I lost my dagger. Can you help me find it? (Yes/No): ")
-    if DaggerChoice.lower() == "yes":
+    Dagger_choice = input("During our little scuffle, I lost my dagger. Can you help me find it? (Yes/No): ")
+    if Dagger_choice.lower() == "yes":
         print("Thank you! I knew I could count on you.")
         time.sleep(2)
-        print(f"You and {Companion} start searching the area for the lost dagger.")
+        print(f"You and {companion} start searching the area for the lost dagger.")
         time.sleep(10)
         print("After a while, you find the dagger hidden under some leaves.")
         time.sleep(5)
-        print(f"You hand the dagger back to {Companion}, who looks relieved.")
+        print(f"You hand the dagger back to {companion}, who looks relieved.")
         time.sleep(5)
-        print(f"Here, {Username} take my dagger, I see you have no weapon. Follow me, {Username}.")
+        print(f"Here, {username} take my dagger, I see you have no weapon. Follow me, {username}.")
         time.sleep(5)
-        print(f"You acquired {Companion}'s trusty dagger")
+        print(f"You acquired {companion}'s trusty dagger")
         time.sleep(5)
-        print(Special_dagger)
+        print(SPECIAL_DAGGER)
         time.sleep(5)
         save_game()
-        Chapter_2()
+        chapter_2()
         return
     #This continues the game since the player wants to help companion
     else:
         print("Too bad, I guess you don't want to leave this place...")
         time.sleep(10)
-        print(f"{Companion} turns away and walks off into the darkness, leaving you alone.")
+        print(f"{companion} turns away and walks off into the darkness, leaving you alone.")
         time.sleep(5)
         print("You died of loneliness and despair.")
-        Death()
+        death()
         return
     #This kills the player since they don't want to help
 
-def Chapter_2():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_2"
-    print(f"***************************\n"
+def chapter_2():
+    global current_chapter
+    current_chapter = "chapter_2"
+    print("***************************\n"
        "Chapter 2: The Lost Princess of Faron\n"
-          f"***************************\n")
+          "***************************\n")
     time.sleep(5)
-    print(f"Ok, so you see, This place is called Faron, it used to be a beautiful place, ruled by a princess called Violet. {Companion} says.")
+    print(f"Ok, so you see, This place is called Faron, it used to be a beautiful place, ruled by a princess called Violet. {companion} says.")
     time.sleep(5)
     print("But now, it's just a shadow of its former self, plagued by dark creatures and monsters.")
     time.sleep(5)
-    print(f"As you and {Companion} walk, you can feel the weight of the history around you.")
+    print(f"As you and {companion} walk, you can feel the weight of the history around you.")
     time.sleep(5)
     print("You see ruins of old buildings, broken statues, and remnants of a once-thriving civilization in the distance.")
     time.sleep(5)
-    print(f"You ask {Companion} about Princess Violet and what happened to her.")
+    print(f"You ask {companion} about Princess Violet and what happened to her.")
     time.sleep(5)
-    print(f"{Companion} looks sad and says, 'The princess was taken by the monsters that consumed this place.")
+    print(f"{companion} looks sad and says, 'The princess was taken by the monsters that consumed this place.")
     time.sleep(5)
     print("She was the last hope for Faron, but now she's gone.")
     time.sleep(5)
     print("You feel a sense of determination to find a way to save Faron and its lost princess.")
     time.sleep(5)
-    print(f"You ask {Companion} how do they know all this.")
+    print(f"You ask {companion} how do they know all this.")
     time.sleep(5)
-    print(f"{Companion} replies, 'I arrived a few years ago, and I have been trying to find a way out ever since.'")
+    print(f"{companion} replies, 'I arrived a few years ago, and I have been trying to find a way out ever since.'")
     time.sleep(5)
     print("I have heard stories from the locals about the princess and the monsters that took her.'")
     time.sleep(5)
-    print(f"You ask {Companion} where the princess is at now?")
+    print(f"You ask {companion} where the princess is at now?")
     time.sleep(5)
-    print(f"{Companion} replies, 'I don't know, but I have heard rumors of a hidden temple deep in the forest. "
+    print(f"{companion} replies, 'I don't know, but I have heard rumors of a hidden temple deep in the forest. "
           "It's said that the princess is trapped there, guarded by powerful creatures.'")
     time.sleep(5)
-    princesschoice = input("You have a choice to make. Do you want to go to the temple and try to rescue the princess? (Yes/No): ")
-    if princesschoice.lower() == "yes":
-        print(f"You and {Companion} set off towards the hidden temple, determined to rescue the princess.")
+    path_choice = input("You have a choice to make. Do you want to go to the temple and try to rescue the princess? (Yes/No): ")
+    if path_choice.lower() == "yes":
+        print(f"You and {companion} set off towards the hidden temple, determined to rescue the princess.")
         time.sleep(5)
         save_game()
         time.sleep(5)
-        Chapter_3()
+        chapter_3()
         return
     #This goes to the next chapter since the player wants to progress
     else:
@@ -1091,70 +1101,70 @@ def Chapter_2():
         time.sleep(5)
         print("All of a sudden, you hear a loud roar and a bull appears out of nowhere.")
         time.sleep(5)
-        print(Bull)
+        print(BULL)
         time.sleep(5)
-        bullfight = input("You can either type 'Run' to run away or type 'Fight' to fight the bull: ")
-        if bullfight.lower() == "run":
+        bull_fight = input("You can either type 'Run' to run away or type 'Fight' to fight the bull: ")
+        if bull_fight.lower() == "run":
             print("You turn and run as fast as you can, escaping the bull's charge.")
             time.sleep(5)
             print("Unfortunately, you run into a dead end and the bull catches up to you.")
             time.sleep(5)
-            Death()
+            death()
             return
         #This kills the player as the bull kills them
-        elif bullfight.lower() == "fight":
+        elif bull_fight.lower() == "fight":
             print("You bravely stand your ground and prepare to fight the bull.")
             time.sleep(5)
             print("You regret your choice")
             time.sleep(5)
-            Death()
+            death()
             return
         #This also kills the player as the bull kills them
         else:
             print("Invalid choice. The bull charges at you!")
-            Death()
+            death()
             return
         #This also kills the player
     #This goes to the bull scene where all the options kill the player
 
-def Chapter_3():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_3"
+def chapter_3():
+    global current_chapter
+    current_chapter = "chapter_3"
     while True:
         print("***************************\n"
               "Chapter 3: The Hidden Temple\n"
               "***************************\n")
         #Introduction to the dungeon
         time.sleep(2)
-        print(temple1)
+        print(DUNGEON_1)
         #This prints the ascii art for the dungeon
-        print(f"You and {Companion} arrive at the hidden temple, its entrance shrouded in vines and darkness.")
+        print(f"You and {companion} arrive at the hidden temple, its entrance shrouded in vines and darkness.")
         time.sleep(5)
         print("As you step inside, you feel a chill run down your spine. The air is thick with dust and the smell of decay.")
         time.sleep(5)
         print("You can hear the faint sound of water dripping in the distance, echoing through the empty halls.")
         time.sleep(5)
-        print(f"You and {Companion} cautiously explore the temple, searching for any signs of the princess.")
+        print(f"You and {companion} cautiously explore the temple, searching for any signs of the princess.")
         time.sleep(5)
-        print(f"'Here, {Username} take this sword as well as this shield, Stay cautious, I don't have a good feeling about this...' Says {Companion}")
+        print(f"'Here, {username} take this sword as well as this shield, Stay cautious, I don't have a good feeling about this...' Says {companion}")
         time.sleep(5)
-        print(f"You have acquired {Companion}'s special iron sword and reinforced shield")
+        print(f"You have acquired {companion}'s special iron sword and reinforced shield")
         time.sleep(5)
-        print(Special_sword)
+        print(SPECIAL_SHIELD)
         time.sleep(5)
-        print(Special_shield)
+        print(SPECIAL_SHIELD)
         time.sleep(5)
         print("Suddenly, you hear a loud roar and a giant creature appears in front of you, blocking your path.")
         time.sleep(5)
         print("The creature is a massive stone golem, its eyes glowing with an eerie light.")
         time.sleep(5)
-        print(f"All of a sudden, the golem charges at {Companion} and knocks them to the wall")
+        print(f"All of a sudden, the golem charges at {companion} and knocks them to the wall")
         time.sleep(5)
         print("****************************\n"
               " Forging The Beast of Stone \n"
               "****************************\n")
         #Introduction to the boss
-        print(Golem)
+        print(GOLEM)
         #This prints the ascii for the golem, this repeats for all the bosses
         time.sleep(5)
         print("You have a choice to make. Do you want to fight the golem or try to reason with it? (Fight/Reason): ")
@@ -1171,13 +1181,13 @@ def Chapter_3():
             time.sleep(5)
             print("The golem knocks you out cold")
             time.sleep(5)
-            Death()
+            death()
             return
         #This kills the player since they tried reasoning with a rock
         else:
             print("Invalid choice. The golem charges at you!")
             time.sleep(5)
-            Death()
+            death()
             return
         #This kills the player since they did an invalid response
         while True:
@@ -1187,10 +1197,10 @@ def Chapter_3():
                 time.sleep(5)
                 print("You counterattack, striking the golem with all your might.")
                 time.sleep(5)
-                print(f"The golem staggers back, but it is not defeated yet. You and {Companion} must work together to defeat it.")
+                print(f"The golem staggers back, but it is not defeated yet. You and {companion} must work together to defeat it.")
                 time.sleep(5)
                 save_game()
-                Chapter_3Part2()
+                chapter_3part2()
                 return
             #This continues to the next chapter
             elif golem_choice2.lower() == "attack":
@@ -1198,32 +1208,32 @@ def Chapter_3():
                 time.sleep(5)
                 print("The golem retaliates with a powerful punch, sending you flying across the room.")
                 time.sleep(5)
-                Death()
+                death()
                 return
             #This kills the player
             else:
                 print("Invalid choice. The golem charges at you!")
                 time.sleep(5)
-                Death()
+                death()
                 return
             #This kills the player for an invalid response
 
-def Chapter_3Part2():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_3Part2"
+def chapter_3part2():
+    global current_chapter
+    current_chapter = "chapter_3part2"
     while True:
-        golemchoice2 = input(f"You can either type 'Attack' to attack the golem again or type 'Heal' to wake up {Companion}: ")
-        if golemchoice2.lower() == "attack":
-            print(f"You and {Companion} attack the golem with all your might.")
+        golem_choice3 = input(f"You can either type 'Attack' to attack the golem again or type 'Heal' to wake up {companion}: ")
+        if golem_choice3.lower() == "attack":
+            print(f"You and {companion} attack the golem with all your might.")
             time.sleep(5)
-            print("The golem stands unfazed, cracks form but it is still     standing.")
+            print("The golem stands unfazed, cracks form but it is still standing.")
             time.sleep(5)
             print("You realize that you need to find a way to weaken it before you can defeat it.")
         #This repeats the question again
-        elif golemchoice2.lower() == "heal":
-            print(f"You use a healing potion to wake up {Companion}.")
+        elif golem_choice3.lower() == "heal":
+            print(f"You use a healing potion to wake up {companion}.")
             time.sleep(5)
-            print(f"{Companion} is back in the fight!")
+            print(f"{companion} is back in the fight!")
             print("You both attack the golem together, striking it with all your might.")
             time.sleep(5)
             print("The golem staggers back, its stone body cracking under your combined assault.")
@@ -1232,11 +1242,11 @@ def Chapter_3Part2():
             time.sleep(5)
             print("Finally, with one last powerful blow, the golem crumbles to the ground, defeated.")
             time.sleep(5)
-            print(f"You and {Companion} stand victorious, breathing heavily from the intense battle.")
+            print(f"You and {companion} stand victorious, breathing heavily from the intense battle.")
             time.sleep(5)
             print("You search the golem's remains and find a rusty grey key that unlocks a hidden door in the temple.")
             time.sleep(5)
-            print(f"You and {Companion} enter the hidden door, hoping to find the princess inside.")
+            print(f"You and {companion} enter the hidden door, hoping to find the princess inside.")
             time.sleep(5)
             print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
             time.sleep(5)
@@ -1246,46 +1256,46 @@ def Chapter_3Part2():
                   "  1 Key Achieved 4 left. \n"
                   "****************************\n")
             save_game()
-            Chapter_4()
+            chapter_4()
             return
         #This shows you've defeated the boss and have gained a key
         else:
             print("Invalid choice. Try again.")
         #This repeats the question
 
-def Chapter_4():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_4"
+def chapter_4():
+    global  current_chapter
+    current_chapter = "chapter_4"
     while True:
         print("***************************\n"
               "Chapter 4: The Path Ahead\n"
               "***************************\n")
         time.sleep(2)
-        print(f"You and {Companion} exit the temple past the pile of rubble and continue down a path.")
+        print(f"You and {companion} exit the temple past the pile of rubble and continue down a path.")
         time.sleep(5)
-        askquestion = input(f"You can ask {Companion} a question about the other keys or continue down the path playing with the key. (Ask/Continue): ")
-        if askquestion.lower() == "ask":
-            print(f"You ask {Companion} about the other keys.")
+        key_question = input(f"You can ask {companion} a question about the other keys or continue down the path playing with the key. (Ask/Continue): ")
+        if key_question.lower() == "ask":
+            print(f"You ask {companion} about the other keys.")
             time.sleep(5)
-            print(f"'There are 5 keys in total, but I don't know the exact locations, but I have heard rumors of their existence' says {Companion}")
+            print(f"'There are 5 keys in total, but I don't know the exact locations, but I have heard rumors of their existence' says {companion}")
             time.sleep(5)
-            print(f"You thank {Companion} for the information and continue down the path.")
+            print(f"You thank {companion} for the information and continue down the path.")
             time.sleep(5)
-            print(f"The path ahead changes to a lush green tropical forest but you and {Companion} are determined to find the other keys and rescue the princess.")
+            print(f"The path ahead changes to a lush green tropical forest but you and {companion} are determined to find the other keys and rescue the princess.")
             save_game()
-            Chapter_5()
+            chapter_5()
             break
         #This continues to the next dungeon while showing a little more backstory
-        elif askquestion.lower() == "continue":
+        elif key_question.lower() == "continue":
             print("You decide to continue down the path, playing with the key you found.")
             time.sleep(5)
             print("The key feels warm in your hand, and you can sense its power.")
             time.sleep(5)
-            print(f"The path ahead changes to a lush green tropical forest but you and {Companion} are determined to find the other keys and rescue the princess.")
+            print(f"The path ahead changes to a lush green tropical forest but you and {companion} are determined to find the other keys and rescue the princess.")
             save_game()
             time.sleep(5)
             save_game()
-            Chapter_5()
+            chapter_5()
             break
         #This skips the backstory but still goes to the next dungeon
         else:
@@ -1296,115 +1306,114 @@ def Chapter_4():
 
 
 
-def Chapter_5():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_5"
+def chapter_5():
+    global current_chapter
+    current_chapter = "chapter_5"
     print("***************************\n"
           "Chapter 5: The Goblin Camp\n"
           "***************************\n")
     time.sleep(2)
-    print(f"You and {Companion} arrive at the goblin camp, a makeshift settlement hidden deep in the forest.")
+    print(f"You and {companion} arrive at the goblin camp, a makeshift settlement hidden deep in the forest.")
     time.sleep(5)
     print("As you enter, you can feel the tension in the air. The goblins eye you suspiciously, their weapons at the ready.")
     time.sleep(5)
     print("You know that this will be a difficult challenge, but you are determined to find the next key.")
     time.sleep(5)
-    print(f"{Companion} whispers, 'We need to be careful. The goblins are known for their traps and ambushes.'")
+    print(f"{companion} whispers, 'We need to be careful. The goblins are known for their traps and ambushes.'")
     time.sleep(5)
     print("You nod in agreement and start to plan your approach.")
     time.sleep(5)
-    print(f"{Companion} whispers, 'Stay here, I'll go talk to the camp chief and see if they know anything about the key.'")
+    print(f"{companion} whispers, 'Stay here, I'll go talk to the camp chief and see if they know anything about the key.'")
     time.sleep(5)
-    print(f"{Companion} disappears around the corner of a hut, leaving you alone in the camp.")
+    print(f"{companion} disappears around the corner of a hut, leaving you alone in the camp.")
     time.sleep(5)
-    goblinchoice = input(f"Now you have a choice to make. Do you want to wait for {Companion} to return or explore the camp on your own? (Wait/Explore): ")
-    if goblinchoice.lower() == "wait":
-        print(f"You decide to wait for {Companion} to return.")
+    goblin_choice = input(f"Now you have a choice to make. Do you want to wait for {companion} to return or explore the camp on your own? (Wait/Explore): ")
+    if goblin_choice.lower() == "wait":
+        print(f"You decide to wait for {companion} to return.")
         time.sleep(5)
-        print(f"{Companion} returns after a while, looking worried.")
+        print(f"{companion} returns after a while, looking worried.")
         time.sleep(5)
-        print(f"'{Companion} says, 'The goblin chief knows where the dungeon is, but he won't give it up easily.'")
+        print(f"'{companion} says, 'The goblin chief knows where the dungeon is, but he won't give it up easily.'")
         time.sleep(5)
-        print(f"You approach the chief with {Companion}")
+        print(f"You approach the chief with {companion}")
         time.sleep(5)
-        rest_choice = input(f"Do you want to try to reason with the goblin chief or attack him? (Reason/Attack): ")
+        goblin_choice2 = input("Do you want to try to reason with the goblin chief or attack him? (Reason/Attack): ")
         while True:
     #Waiting for companion to come back and the going to the chief
-         if rest_choice.lower() == "reason":
-            print(f"You and {Companion} approach the goblin chief, trying to reason with him.")
-            time.sleep(5)
-            print("The goblin chief listens to your plea, but he is not convinced.")
-            time.sleep(5)
-            print(f"'{Companion} says, 'We need to find another way to get the location.'")
-            time.sleep(5)
-            print("You nod in agreement and start to plan your next move.")
-            time.sleep(5)
-            print("You decide to explore the camp further, hoping to find some clues about the location.")
-            time.sleep(5)
+            if goblin_choice2.lower() == "reason":
+                print(f"You and {companion} approach the goblin chief, trying to reason with him.")
+                time.sleep(5)
+                print("The goblin chief listens to your plea, but he is not convinced.")
+                time.sleep(5)
+                print(f"'{companion} says, 'We need to find another way to get the location.'")
+                time.sleep(5)
+                print("You nod in agreement and start to plan your next move.")
+                time.sleep(5)
+                print("You decide to explore the camp further, hoping to find some clues about the location.")
+                time.sleep(5)
         #loops again to the goblin chief question
-         elif rest_choice.lower() == "attack":
-            print(f"You and {Companion} decide to attack the goblin chief.")
-            time.sleep(5)
-            print("The goblin chief fights back fiercely, but you manage to defeat him after a tough battle.")
-            time.sleep(5)
-            print("You search the goblin chief's hut and find a map that leads to the next dungeon.")
-            time.sleep(5)
-            print(f"You and {Companion} take the map and prepare to continue your journey.")
-            save_game()
-            Chapter_6()
-            return
+            elif goblin_choice2.lower() == "attack":
+                print(f"You and {companion} decide to attack the goblin chief.")
+                time.sleep(5)
+                print("The goblin chief fights back fiercely, but you manage to defeat him after a tough battle.")
+                time.sleep(5)
+                print("You search the goblin chief's hut and find a map that leads to the next dungeon.")
+                time.sleep(5)
+                print(f"You and {companion} take the map and prepare to continue your journey.")
+                save_game()
+                chapter_6()
+                return
          #Goes to next chapter after you attack him
-         else:
-            print("Invalid choice. Try again")
+            else:
+                print("Invalid choice. Try again")
         #For invalid choices which then repeats
-    elif goblinchoice.lower() == "explore":
+    elif goblin_choice() == "explore":
         while True:
-          print("You decide to explore the camp on your own.")
-          time.sleep(5)
-          print("As you look around, you notice a few goblins eyeing you suspiciously.")
-          time.sleep(5)
-          print("Nonetheless, you continue to explore, hoping to find some clues about the key.")
-          time.sleep(5)
-          print("You find a small windmill with a sign that reads 'Storage Space'.")
-          time.sleep(5)
-          print(goblinhut)
-          goblinchoice2 = input("Do you want to enter the windmill? (Yes/No): ")
-          while True:
-           if goblinchoice2.lower() == "yes":
-            while True:
-             time.sleep(5)
-             print("You enter the hut and find a chest in the corner.")
-             time.sleep(5)
-             print("You open the chest and find a dusty yellow map inside.")
-             time.sleep(5)
-             print("You take the map and return to the main camp area.")
-             time.sleep(5)
-             print(f"You find {Companion} waiting for you, looking relieved.")
-             time.sleep(5)
-             print(f"'{Companion} says, 'I was worried about you. Did you find anything useful?'")
-             time.sleep(5)
-             print(f"You show {Companion} the map you found in the hut.")
-             time.sleep(5)
-             print(f"{Companion} examines the map and says, 'This looks like to the next dungeon It might help us find the key!'")
-             save_game()
-             Chapter_6()
-             break
+            print("You decide to explore the camp on your own.")
+            time.sleep(5)
+            print("As you look around, you notice a few goblins eyeing you suspiciously.")
+            time.sleep(5)
+            print("Nonetheless, you continue to explore, hoping to find some clues about the key.")
+            time.sleep(5)
+            print("You find a small windmill with a sign that reads 'Storage Space'.")
+            time.sleep(5)
+            print(GOBLIN_HUT)
+            goblin_choice3 = input("Do you want to enter the windmill? (Yes/No): ")
+            if goblin_choice3.lower() == "yes":
+                while True:
+                    time.sleep(5)
+                    print("You enter the hut and find a chest in the corner.")
+                    time.sleep(5)
+                    print("You open the chest and find a dusty yellow map inside.")
+                    time.sleep(5)
+                    print("You take the map and return to the main camp area.")
+                    time.sleep(5)
+                    print(f"You find {companion} waiting for you, looking relieved.")
+                    time.sleep(5)
+                    print(f"'{companion} says, 'I was worried about you. Did you find anything useful?'")
+                    time.sleep(5)
+                    print(f"You show {companion} the map you found in the hut.")
+                    time.sleep(5)
+                    print(f"{companion} examines the map and says, 'This looks like to the next dungeon It might help us find the key!'")
+                    save_game()
+                    chapter_6()
+                    break
             #Goes to the dungeon
-           elif goblinchoice2.lower() == "no":
-             print("You decide not to enter the windmill and continue exploring the camp.")
-             time.sleep(5)
-             print("You wander around, but you don't find anything else of interest.")
-             time.sleep(5)
-             print(f"You return to the main camp area, where you find {Companion} waiting for you.")
-             time.sleep(5)
-             print(f"'{Companion} says, 'Did you find anything useful?'")
-             time.sleep(5)
-             print(f"You tell {Companion} that you didn't find anything, but you feel like you might have missed something important.")
-             time.sleep(5)
-             print(f"{Companion} nods and says, 'We should keep looking. The goblins might have more information about the key.'")
+            elif goblin_choice3.lower() == "no":
+                print("You decide not to enter the windmill and continue exploring the camp.")
+                time.sleep(5)
+                print("You wander around, but you don't find anything else of interest.")
+                time.sleep(5)
+                print(f"You return to the main camp area, where you find {companion} waiting for you.")
+                time.sleep(5)
+                print(f"'{companion} says, 'Did you find anything useful?'")
+                time.sleep(5)
+                print(f"You tell {companion} that you didn't find anything, but you feel like you might have missed something important.")
+                time.sleep(5)
+                print(f"{companion} nods and says, 'We should keep looking. The goblins might have more information about the key.'")
              #Loops again and goes back to the question
-           else:
-            print("Invalid choice.")
+            else:
+                print("Invalid choice.")
           #For invalid choices
 #For exploring the goblin camp
 
@@ -1413,23 +1422,23 @@ def Chapter_5():
         return
 #If the player does not enter a valid choice
 
-def Chapter_6():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_6"
+def chapter_6():
+    global current_chapter
+    current_chapter = "chapter_6"
     while True:
         print("***************************\n"
             "Chapter 6: The Crystal Dungeon\n"
               "***************************\n")
         time.sleep(2)
-        print(dungeon2)
+        print(DUNGEON_2)
         time.sleep(2)
-        print(f"You and {Companion} arrive at the entrance of the lush green cavern, the second dungeon.")
+        print(f"You and {companion} arrive at the entrance of the lush green cavern, the second dungeon.")
         time.sleep(5)
         print("The air is thick with moisture, and you can hear the sound of dripping water echoing through the darkness.")
         time.sleep(5)
         print("You light a torch and step inside, the flickering light revealing jagged rocks and narrow passages.")
         time.sleep(5)
-        print(f"{Companion} says, 'Be careful. This place is known for its traps and dangerous creatures'.")
+        print(f"{companion} says, 'Be careful. This place is known for its traps and dangerous creatures'.")
         time.sleep(5)
         print("You nod and start to explore the cavern, searching for the key.")
         time.sleep(5)
@@ -1439,170 +1448,170 @@ def Chapter_6():
         time.sleep(5)
         print("On the pedestal, you can see a glimmering blue key.")
         time.sleep(5)
-        print(f"You and {Companion} realize that this must be the second key you are looking for.")
+        print(f"You and {companion} realize that this must be the second key you are looking for.")
         time.sleep(5)
-        print(f"Before either of you could react, a giant beast emerges from the water, its eyes glowing with a menacing light.")
+        print("Before either of you could react, a giant beast emerges from the water, its eyes glowing with a menacing light.")
         time.sleep(5)
         print("The beast is a massive serpent, its scales glistening in the water")
         time.sleep(5)
         print("****************************\n"
               "Serpus The Beast of the Lake \n"
               "****************************\n")
-        print(serpus)
+        print(SERPUS)
         #Shows ascii art of the serpus
         time.sleep(5)
         print("Before either of you could move, Serpus strikes you both in the back.")
-        lower_health()
-        print(f"{Companion}'s health is low")
+        decrease_health()
+        print(f"{companion}'s health is low")
         time.sleep(5)  
-        serpentchoice = input("Serpus is charging up it's next attack, (Attack/Dodge): ")
-        #User's input is stored as serpentchoice
-        if serpentchoice.lower() == "attack":
+        serpent_choice = input("Serpus is charging up it's next attack, (Attack/Dodge): ")
+        #User's input is stored as serpent_choice
+        if serpent_choice.lower() == "attack":
             print("Serpus strikes you in the stomach and injures you.")
             time.sleep(5)
-            lower_health()
-            print(f"{Companion}'s health is low")
+            decrease_health()
+            print(f"{companion}'s health is low")
             time.sleep(5)
-            print(f"You and {Companion} are both injured and need to find a way to defeat Serpus before it attacks again.")
+            print(f"You and {companion} are both injured and need to find a way to defeat Serpus before it attacks again.")
             time.sleep(5)
             save_game()
-            serpusfight3()
+            serpus_fight3()
         #Goes to next the final sequence
-        elif serpentchoice.lower() == "dodge":
+        elif serpent_choice.lower() == "dodge":
             print("You quickly dodge Serpus's attack, narrowly avoiding its powerful strike.")
             time.sleep(5)
             print("You counterattack, striking Serpus with all your might.")
             time.sleep(5)
-            print(f"The serpent staggers back, but it is not defeated yet. You and {Companion} must work together to defeat it.")
+            print(f"The serpent staggers back, but it is not defeated yet. You and {companion} must work together to defeat it.")
             time.sleep(5)
             save_game()
-            serpusfight2()
+            serpus_fight2()
         #Goes to the next sequence
         else:
             print("Invalid choice. Serpus attacks you again!")
-            Death()
+            death()
         #Kills the player since they didn't respond properly
 
-def serpusfight2():
-    global Companion, Username, current_chapter, player
-    current_chapter = "serpusfight2"
+def serpus_fight2():
+    global current_chapter
+    current_chapter = "serpus_fight2"
     while True:
-        serpentchoice2 = input(f"You can either type 'Attack' to attack Serpus or type 'Heal' to heal yourself and {Companion}: ")
+        serpent_choice2 = input(f"You can either type 'Attack' to attack Serpus or type 'Heal' to heal yourself and {companion}: ")
         #User's input is stored as serpentchoice2
-        if serpentchoice2.lower() == "attack":
-                print(f"You and {Companion} attack Serpus with all your might, striking it with your weapons.")
-                time.sleep(5)
-                time.sleep(5)
-                print("Finally, with one last powerful blow, Serpus roars in pain and sinks back into the depths of the lake.")
-                time.sleep(5)
-                print(f"You and {Companion} stand victorious, breathing heavily from the intense battle.")
-                time.sleep(5)
-                print("You search the serpent's remains and find a glimmering blue key that unlocks a hidden door in the cavern.")
-                time.sleep(5)
-                print(f"You and {Companion} enter the hidden door, hoping to find the next key inside.")
-                time.sleep(5)
-                print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
-                time.sleep(5)
-                print("In the center of the room, you see a pedestal with a glowing blue key.")
-                time.sleep(5)
-                print("****************************\n"
-                       "  2 Key Achieved 3 left. \n"
-                      "****************************\n")
-                print(f"You and {Companion} take the key and prepare to continue your journey.")
-                time.sleep(5)
-                save_game()
-                Dark_DaggerStory()
-                #Shows the dagger upgrade story
-                return
-        elif serpentchoice2.lower() == "heal":
-                print(f"You use a healing potion to heal yourself and {Companion}.")
-                time.sleep(5)
-                print(f"{Companion} is back in the fight!")
-                time.sleep(5)
-                print("You both attack Serpus together, striking it with all your might.")
-                time.sleep(5)
-                print("Serpus slithers back, its slimy scales cracking under your combined assault.")
-                time.sleep(5)
-                print("You both continue to attack Serpus, striking it with all your might.")
-                time.sleep(5)
-                print("Finally, with one last powerful blow, Serpus collapses to the ground, defeated.")
-                time.sleep(5)
-                print(f"You and {Companion} stand victorious, breathing heavily from the intense battle.")
-                time.sleep(5)
-                print("You search Serpus's remains and find a mysterious blue key that unlocks a hidden door in the temple.")
-                time.sleep(5)
-                print(f"You and {Companion} enter the hidden door, hoping to find the princess inside.")
-                time.sleep(5)
-                print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
-                time.sleep(5)
-                print("In the center of the room, you see a pedestal with a glowing blue key.")
-                time.sleep(5)
-                print("****************************\n"
-                       "  2 Key Achieved 3 left. \n"
-                      "****************************\n")
-                print(f"You and {Companion} take the key and prepare to continue your journey...")
-                time.sleep(5)
-                save_game()
-                Dark_DaggerStory()
-                #This shows the dagger upgrade story
-                return
+        if serpent_choice2.lower() == "attack":
+            print(f"You and {companion} attack Serpus with all your might, striking it with your weapons.")
+            time.sleep(5)
+            print("Finally, with one last powerful blow, Serpus roars in pain and sinks back into the depths of the lake.")
+            time.sleep(5)
+            print(f"You and {companion} stand victorious, breathing heavily from the intense battle.")
+            time.sleep(5)
+            print("You search the serpent's remains and find a glimmering blue key that unlocks a hidden door in the cavern.")
+            time.sleep(5)
+            print(f"You and {companion} enter the hidden door, hoping to find the next key inside.")
+            time.sleep(5)
+            print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
+            time.sleep(5)
+            print("In the center of the room, you see a pedestal with a glowing blue key.")
+            time.sleep(5)
+            print("****************************\n"
+                   "  2 Key Achieved 3 left. \n"
+                  "****************************\n")
+            print(f"You and {companion} take the key and prepare to continue your journey.")
+            time.sleep(5)
+            save_game()
+            dark_dagger_story()
+            #Shows the dagger upgrade story
+            return
+        elif serpent_choice2.lower() == "heal":
+            print(f"You use a healing potion to heal yourself and {companion}.")
+            time.sleep(5)
+            print(f"{companion} is back in the fight!")
+            time.sleep(5)
+            print("You both attack Serpus together, striking it with all your might.")
+            time.sleep(5)
+            print("Serpus slithers back, its slimy scales cracking under your combined assault.")
+            time.sleep(5)
+            print("You both continue to attack Serpus, striking it with all your might.")
+            time.sleep(5)
+            print("Finally, with one last powerful blow, Serpus collapses to the ground, defeated.")
+            time.sleep(5)
+            print(f"You and {companion} stand victorious, breathing heavily from the intense battle.")
+            time.sleep(5)
+            print("You search Serpus's remains and find a mysterious blue key that unlocks a hidden door in the temple.")
+            time.sleep(5)
+            print(f"You and {companion} enter the hidden door, hoping to find the princess inside.")
+            time.sleep(5)
+            print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
+            time.sleep(5)
+            print("In the center of the room, you see a pedestal with a glowing blue key.")
+            time.sleep(5)
+            print("****************************\n"
+                   "  2 Key Achieved 3 left. \n"
+                  "****************************\n")
+            print(f"You and {companion} take the key and prepare to continue your journey...")
+            time.sleep(5)
+            save_game()
+            dark_dagger_story()
+            #This shows the dagger upgrade story
+            return
         else:
             print("Invalid choice. Serpus attacks you again!")
-            Death()
+            death()
             break
         #This kills the player since they entered an invalid response
         
 
-def serpusfight3():
-        global Companion, Username, current_chapter, player
-        #These are global variables for the saving function, player username, player stats, companion username allowing for these functions to work within the different chapters
-        current_chapter = "serpusfight3"
-        serpentchoicesemi3 = input(f"Type 'Attack' to attack Serpus again or type 'Heal' to heal yourself and {Companion}: ")
-        if serpentchoicesemi3.lower() == "attack":
-                print(f"You and {Companion} attack Serpus's core with all your might, striking it with your weapons.")
-                time.sleep(5)
-                print("Serpus roars in pain, and it smashes into the ground, defeated.")
-                time.sleep(5)
-                print(f"You and {Companion} stand victorious, breathing heavily from the intense battle.")
-                time.sleep(5)
-                print("You search the serpent's remains and find a glimmering blue key that unlocks a hidden door in the cavern.")
-                time.sleep(5)
-                print(f"You and {Companion} enter the hidden door, hoping to find the next key inside.")
-                time.sleep(5)
-                print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
-                time.sleep(5)
-                print("In the center of the room, you see a pedestal with a glowing blue key.")
-                time.sleep(5)
-                print("****************************\n"
-                        "  2 Key Achieved 3 left. \n"
-                      "****************************\n")
-                print(f"You and {Companion} take the key and prepare to continue your journey...")
-                time.sleep(5)
-                save_game()
-                Dark_DaggerStory()
-                #This shows the dagger upgrade story
-        elif serpentchoicesemi3.lower() == "heal":
-            print(f"You use a healing potion to heal yourself and {Companion}.")
-            print("Serpus lunges at you before either of you could attack.")
-            Death()
+def serpus_fight3():
+    global current_chapter
+    #These are global variables for the saving function, player username, player stats, companion username allowing for these functions to work within the different chapters
+    current_chapter = "serpus_fight3"
+    serpent_choice3 = input(f"Type 'Attack' to attack Serpus again or type 'Heal' to heal yourself and {companion}: ")
+    if serpent_choice3.lower() == "attack":
+        print(f"You and {companion} attack Serpus's core with all your might, striking it with your weapons.")
+        time.sleep(5)
+        print("Serpus roars in pain, and it smashes into the ground, defeated.")
+        time.sleep(5)
+        print(f"You and {companion} stand victorious, breathing heavily from the intense battle.")
+        time.sleep(5)
+        print("You search the serpent's remains and find a glimmering blue key that unlocks a hidden door in the cavern.")
+        time.sleep(5)
+        print(f"You and {companion} enter the hidden door, hoping to find the next key inside.")
+        time.sleep(5)
+        print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
+        time.sleep(5)
+        print("In the center of the room, you see a pedestal with a glowing blue key.")
+        time.sleep(5)
+        print("****************************\n"
+              "  2 Key Achieved 3 left. \n"
+              "****************************\n")
+        print(f"You and {companion} take the key and prepare to continue your journey...")
+        time.sleep(5)
+        save_game()
+        dark_dagger_story()
+        chapter_7()
+            #This shows the dagger upgrade story
+    elif serpent_choice3.lower() == "heal":
+        print(f"You use a healing potion to heal yourself and {companion}.")
+        print("Serpus lunges at you before either of you could attack.")
+        death()
         #This kills the player
-        else:
-            print("Invalid choice. Serpus attacks you again!")
-            Death()
+    else:
+        print("Invalid choice. Serpus attacks you again!")
+        death()
         #This kills the player since they entered an invalid response
         
-def Chapter_7():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_7"
+def chapter_7():
+    global current_chapter
+    current_chapter = "chapter_7"
     print("***************************\n"
     "Chapter 7: The Path to the Fire Dungeon\n"
           "***************************\n")
     time.sleep(2)
-    print(f"You and {Companion} exit the jungle cavern and continue down the path, the lush greenery giving way to rocky terrain.")
+    print(f"You and {companion} exit the jungle cavern and continue down the path, the lush greenery giving way to rocky terrain.")
     time.sleep(5)
     print("The air grows hotter, and you can feel the heat radiating from the ground.")
     time.sleep(5)
-    print(f"{Companion} says, 'The next key is said to be hidden in a fire dungeon, deep within the mountains according to the map.'")
+    print(f"{companion} says, 'The next key is said to be hidden in a fire dungeon, deep within the mountains according to the map.'")
     time.sleep(5)
     print("You nod in agreement, determined to find the next key and rescue the princess.") 
     time.sleep(5)
@@ -1610,73 +1619,79 @@ def Chapter_7():
     time.sleep(5)
     print("The goblins are armed with crude weapons and look ready for a fight.")
     time.sleep(5)
-    print(f"{Companion} whispers, 'We need to be careful. The goblins are known for their traps and ambushes.'")
+    print(f"{companion} whispers, 'We need to be careful. The goblins are known for their traps and ambushes.'")
     time.sleep(5)
-    goblinchoice3 = input("Do you want to fight the goblins or try to reason with them? (Fight/Reason): ")
-    if goblinchoice3.lower() == "fight":
-        print(f"You and {Companion} charge at the goblins, weapons drawn.")
+    goblin_offer = input("Do you want to fight the goblins or try to reason with them? (Fight/Reason): ")
+    if goblin_offer.lower() == "fight":
+        print(f"You and {companion} charge at the goblins, weapons drawn.")
         time.sleep(5)
-        print(f"The goblins fight back fiercely, but you and {Companion} are able to defeat them after a tough battle.")
+        print(f"The goblins fight back fiercely, but you and {companion} are able to defeat them after a tough battle.")
         time.sleep(5)
         print("You search the goblins' remains and find a map that leads to the fire dungeon.")
         time.sleep(5)
-        print(f"You and {Companion} take the map and prepare to continue your journey.")
+        print(f"You and {companion} take the map and prepare to continue your journey.")
         time.sleep(5)
         save_game()
-        Chapter_8()
+        chapter_8()
         #This moves to the next chapter
-    elif goblinchoice3.lower() == "reason":
+    elif goblin_offer.lower() == "reason":
         print("You try to reason with the goblins, explaining that you mean no harm and are only looking for the next key.")
         time.sleep(5)
         print("The goblins listen to your words, but they are still wary of you.")
         time.sleep(5)
-        print(f"{Companion} suggests that you offer them something in exchange for safe passage.")
+        print(f"{companion} suggests that you offer them something in exchange for safe passage.")
         time.sleep(5)
-        offer = input("Do you want to offer them some of your supplies? (Yes/No): ")
-        if offer.lower() == "yes":
+        goblin_offer2 = input("Do you want to offer them some of your supplies? (Yes/No): ")
+        if goblin_offer2.lower() == "yes":
             print("You offer the goblins some of your supplies, and they accept your offer.")
             time.sleep(5)
-            print(f"The goblins allow you and {Companion} to pass safely, and you continue on your journey.")
+            print(f"The goblins allow you and {companion} to pass safely, and you continue on your journey.")
             time.sleep(5)
             save_game()
-            Chapter_8()
+            chapter_8()
         #This moves to the next chapter
-        elif offer.lower() == "no":
+        elif goblin_offer.lower() == "no":
             print("The goblins refuse to let you pass without a fight.")
             time.sleep(5)
-            print(f"You and {Companion} are forced to fight the goblins, but you are able to defeat them after a tough battle.")
+            print(f"You and {companion} are forced to fight the goblins, but you are able to defeat them after a tough battle.")
             time.sleep(5)
-            lower_health()
+            decrease_health()
             time.sleep(5)
             print("You search the goblins' sacks and find a map that leads to the fire dungeon.")
             time.sleep(5)
-            print(f"You and {Companion} take the map and prepare to continue your journey.")
+            print(f"You and {companion} take the map and prepare to continue your journey.")
             time.sleep(5)
             save_game()
-            Chapter_8()
+            chapter_8()
         #This moves to the next chapter
         else:
             print("Invalid choice. You continue down the path without making a decision.")
             time.sleep(5)
             save_game()
-            Chapter_8()
+            chapter_8()
             return
+    else:
+        print("Invalid choice. You continue down the path without making a decision.")
+        time.sleep(5)
+        save_game()
+        chapter_8()
+        return
         #This moves to the next chapter
 
-def Chapter_8():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_8"
+def chapter_8():
+    global current_chapter
+    current_chapter = "chapter_8"
     print("***************************\n"
           "Chapter 8: The Fire Dungeon\n"
           "***************************\n")
     time.sleep(2)
-    print(dungeon3)
+    print(DUNGEON_3)
     time.sleep(2)
-    print(f"You and {Companion} arrive at the entrance of the fire dungeon, a dark cave filled with molten lava and fire.")
+    print(f"You and {companion} arrive at the entrance of the fire dungeon, a dark cave filled with molten lava and fire.")
     time.sleep(5)
     print("The heat is intense, and you can feel the sweat pouring down your face.")
     time.sleep(5)
-    print(f"{Companion} says, 'Be careful. This place is known for its lava creatures'")
+    print(f"{companion} says, 'Be careful. This place is known for its lava creatures'")
     time.sleep(5)
     print("You nod and start to explore the dungeon, searching for the key.")
     time.sleep(5)
@@ -1686,156 +1701,155 @@ def Chapter_8():
     time.sleep(5)
     print("On the pedestal, you can see a glowing red key.")
     time.sleep(5)
-    print(f"You and {Companion} realize that this must be the third key you are looking for.")
+    print(f"You and {companion} realize that this must be the third key you are looking for.")
     time.sleep(5)
-    print(f"Before either of you could react, a giant beast emerges from the lava, its eyes glowing with a menacing light.")
+    print("Before either of you could react, a giant beast emerges from the lava," 
+          "its eyes glowing with a menacing light.")
     time.sleep(5)
     print("The beast is a massive fire phoenix, its body made of pure flame.")
     time.sleep(5)
     print("****************************\n"
-          "  Flame The Beast of Fire \n"
+          "  flame The Beast of Fire \n"
           "****************************\n")
-    print(Flame)
-    #This prints the ascii art for Flame
-    #Dragon choice is used as Flame was originally a dragon but was changed to a phoenix mid way through
+    print(FLAME)
+    #This prints the ascii art for flame
+    #Dragon choice is used as flame was originally a dragon but was changed to a phoenix mid way through
     time.sleep(5)
-    dragonchoice1 = input("Flame starts charging up it's attack! (Attack/Dodge): ")
+    phoenix_choice = input("flame starts charging up it's attack! (Attack/Dodge): ")
     time.sleep(5)
-    lower_health()
+    decrease_health()
     time.sleep(5)
-    if dragonchoice1.lower() == "attack":
-        print("Flame breathes fire at you, before either of you could attack scorching your skin and leaving you in pain.")
+    if phoenix_choice.lower() == "attack":
+        print("flame breathes fire at you, before either of you could attack scorching your skin and leaving you in pain.")
         time.sleep(5)
-        lower_health()
-        print(f"{Companion}'s health is low")
+        decrease_health()
+        print(f"{companion}'s health is low")
         time.sleep(5)
-        print(f"You and {Companion} are both injured and need to find a way to defeat Flame before it attacks again.")
+        print(f"You and {companion} are both injured and need to find a way to defeat flame before it attacks again.")
         time.sleep(5)
-        dragonchoice2 = input(f"You can either type 'Attack' to attack Flame or type 'Heal' to heal yourself and {Companion}: ")
-        if dragonchoice2.lower() == "attack":
-            print(f"You and {Companion} attack Flame with all your might, striking it with your weapons.")
+        phoenix_choice2 = input(f"You can either type 'Attack' to attack flame or type 'Heal' to heal yourself and {companion}: ")
+        if phoenix_choice2.lower() == "attack":
+            print(f"You and {companion} attack flame with all your might, striking it with your weapons.")
             time.sleep(5)
-            print("Flame roars in pain, but it is not defeated yet.")
+            print("flame roars in pain, but it is not defeated yet.")
             time.sleep(5)
-            dragonchoicesemi2 = input(f"Type 'Attack' to attack Flame again or type 'Heal' to heal yourself and {Companion}: ")
+            phoenix_choice3 = input(f"Type 'Attack' to attack flame again or type 'Heal' to heal yourself and {companion}: ")
             while True:
             #A loop is used to allow the player to restart at select points
-             if dragonchoicesemi2.lower() == "attack":
-                print(f"You and {Companion} attack Flame with all your might.")
-                time.sleep(5)
-                print("Flame roars in pain, but it is not defeated yet.")
-                time.sleep(5)
-                print("Flame spews out lava, and melts you and Companion")
-                time.sleep(5)
-                Death()
-                break
-            #This kills the player
-             elif dragonchoicesemi2.lower() == "heal":
-                print(f"You use a healing potion to heal yourself and {Companion}.")
-                increase_health(50)
-                time.sleep(5)
-                print(f"{Companion} is back in the fight!")
-                time.sleep(5)
-                print("You both attack Flame together, striking it with all your might.")
-                time.sleep(5)
-                print("Flame roars in pain, it's hardened feathers are starting to crack under your combined assault.")
-                dragonchoicesemi3 = input(f"Type 'Attack' to attack Flame again or type 'Heal' to heal yourself and {Companion}: ")
-                if dragonchoicesemi3.lower() == "attack":
-                    print(f"You and {Companion} attack Flame's core with all your might, striking it with your weapons.")
+                if phoenix_choice3.lower() == "attack":
+                    print(f"You and {companion} attack flame with all your might.")
                     time.sleep(5)
-                    print("Flame roars in pain, and it crumbles to the ground, defeated.")
+                    print("flame roars in pain, but it is not defeated yet.")
                     time.sleep(5)
-                    print(f"You and {Companion} stand victorious, breathing heavily from the intense battle.")
+                    print("flame spews out lava, and melts you and companion")
                     time.sleep(5)
-                    print("You search the dragon's remains and find a glowing red key that unlocks a hidden door in the dungeon.")
-                    time.sleep(5)
-                    print(f"You and {Companion} enter the hidden door, hoping to find the next key inside.")
-                    time.sleep(5)
-                    print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
-                    time.sleep(5)
-                    print("In the center of the room, you see a pedestal with a glowing red key.")
-                    time.sleep(5)
-                    print("****************************\n"
-                           "  3 Key Achieved 2 left. \n"
-                          "****************************\n")
-                    save_game()
-                    time.sleep(5)
-                    Dark_SwordStory()
-                    time.sleep(5)
-                    Chapter_9()
+                    death()
                     break
+                #This kills the player
+                elif phoenix_choice3.lower() == "heal":
+                    print(f"You use a healing potion to heal yourself and {companion}.")
+                    increase_health(50)
+                    time.sleep(5)
+                    print(f"{companion} is back in the fight!")
+                    time.sleep(5)
+                    print("You both attack flame together, striking it with all your might.")
+                    time.sleep(5)
+                    print("flame roars in pain, it's hardened feathers are starting to crack under your combined assault.")
+                    phoenix_choice4 = input(f"Type 'Attack' to attack flame again or type 'Heal' to heal yourself and {companion}: ")
+                    if phoenix_choice4.lower() == "attack":
+                        print(f"You and {companion} attack flame's core with all your might, striking it with your weapons.")
+                        time.sleep(5)
+                        print("flame roars in pain, and it crumbles to the ground, defeated.")
+                        time.sleep(5)
+                        print(f"You and {companion} stand victorious, breathing heavily from the intense battle.")
+                        time.sleep(5)
+                        print("You search the dragon's remains and find a glowing red key that unlocks a hidden door in the dungeon.")
+                        time.sleep(5)
+                        print(f"You and {companion} enter the hidden door, hoping to find the next key inside.")
+                        time.sleep(5)
+                        print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
+                        time.sleep(5)
+                        print("In the center of the room, you see a pedestal with a glowing red key.")
+                        time.sleep(5)
+                        print("****************************\n"
+                               "  3 Key Achieved 2 left. \n"
+                              "****************************\n")
+                        save_game()
+                        time.sleep(5)
+                        dark_sword_story()
+                        time.sleep(5)
+                        chapter_9()
+                        break
                 #This shows the sword upgrade story
                 #This moves to the next chapter
-                elif dragonchoicesemi3.lower() == "heal":
-                    print(f"You use a healing potion to heal yourself and {Companion}.")
+                elif phoenix_choice3.lower() == "heal":
+                    print(f"You use a healing potion to heal yourself and {companion}.")
                     time.sleep(5)
-                    print(f"{Companion} is back in the fight!")
+                    print(f"{companion} is back in the fight!")
                     time.sleep(5)
-                    print("Flame attacks you before you can attack again!")
+                    print("flame attacks you before you can attack again!")
                     time.sleep(5)
-                    print(f"You and {Companion} are both injured and need to find a way to defeat Flame before it attacks again.")
-                    lower_health(50)
+                    print(f"You and {companion} are both injured and need to find a way to defeat flame before it attacks again.")
+                    decrease_health(50)
                     time.sleep(5)
-                    print(f"{Companion}'s health is low")
+                    print(f"{companion}'s health is low")
                     time.sleep(5)
-                    print("Flame attacks you before you can attack again!")
-                    Death()
+                    print("flame attacks you before you can attack again!")
+                    death()
                     return
                 #This kills the player
                 else:
-                    print("Invalid choice. Flame attacks you again!")
-                    Death()
+                    print("Invalid choice. flame attacks you again!")
+                    death()
                     return
                 #This kills the player since they didn't provide an appropriate response
-             else:
-                print(f"Invalid option, Flame spews hot lava all over you and {Companion}.")
+            else:
+                print(f"Invalid option, flame spews hot lava all over you and {companion} Try again.")
                 time.sleep(5)
-                Death()
-                return
-        elif dragonchoice2.lower() == "heal":
-                print(f"You use a healing potion to heal yourself and {Companion}.")
-                increase_health(50)
-                time.sleep(5)
-                print(f"{Companion} is back in the fight!")
-                time.sleep(5)
-                print("You both attack Flame together, striking it with all your might.")
-                time.sleep(5)
-                print("Flame roars in pain, but it's feathers harden under your combined assault")
-                time.sleep(5)
-                print("Flame attacks you before you can attack again!")
-                time.sleep(5)
-                print(f"Flame charges up another burst of fire, and spews directly at you and {Companion}")
-                time.sleep(5)
-                Death()
-                return
+        elif phoenix_choice2.lower() == "heal":
+            print(f"You use a healing potion to heal yourself and {companion}.")
+            increase_health(50)
+            time.sleep(5)
+            print(f"{companion} is back in the fight!")
+            time.sleep(5)
+            print("You both attack flame together, striking it with all your might.")
+            time.sleep(5)
+            print("flame roars in pain, but it's feathers harden under your combined assault")
+            time.sleep(5)
+            print("flame attacks you before you can attack again!")
+            time.sleep(5)
+            print(f"flame charges up another burst of fire, and spews directly at you and {companion}")
+            time.sleep(5)
+            death()
+            return
             #This kills the player
         else:
-            print(f"Invalid option, Flame spews hot lava all over you and {Companion}.")
+            print(f"Invalid option, flame spews hot lava all over you and {companion}.")
             time.sleep(5)
-            Death()
+            death()
             return
         #This kills the player as they entered the wrong input
-    elif dragonchoice1.lower() == "dodge":
-        print("You quickly dodge Flame's attack, narrowly avoiding its powerful strike.")
+    elif phoenix_choice.lower() == "dodge":
+        print("You quickly dodge flame's attack, narrowly avoiding its powerful strike.")
         time.sleep(5)
-        print("You counterattack, striking Flame with all your might.")
+        print("You counterattack, striking flame with all your might.")
         time.sleep(5)
-        print(f"The phoenix staggers back, but it is not defeated yet. You and {Companion} must work together to defeat it.")
+        print(f"The phoenix staggers back, but it is not defeated yet. You and {companion} must work together to defeat it.")
         time.sleep(5)
         while True:
-            dragonchoice2 = input(f"You can either type 'Attack' to attack Flame again or type 'Heal' to heal yourself and {Companion}: ")
-            if dragonchoice2.lower() == "attack":
-                print(f"You and {Companion} attack Flame with all your might.")
+            phoenix_choice5 = input(f"You can either type 'Attack' to attack flame again or type 'Heal' to heal yourself and {companion}: ")
+            if phoenix_choice5.lower() == "attack":
+                print(f"You and {companion} attack flame with all your might.")
                 time.sleep(5)
-                print(f"You and {Companion} attack Flame's core with all your might, striking it with your weapons.")
+                print(f"You and {companion} attack flame's core with all your might, striking it with your weapons.")
                 time.sleep(5)
-                print("Flame roars in pain, and it crumbles to the ground, defeated.")
+                print("flame roars in pain, and it crumbles to the ground, defeated.")
                 time.sleep(5)
-                print(f"You and {Companion} stand victorious, breathing heavily from the intense battle.")
+                print(f"You and {companion} stand victorious, breathing heavily from the intense battle.")
                 time.sleep(5)
                 print("You search the dragon's remains and find a glowing red key that unlocks a hidden door in the dungeon.")
                 time.sleep(5)
-                print(f"You and {Companion} enter the hidden door, hoping to find the next key inside.")
+                print(f"You and {companion} enter the hidden door, hoping to find the next key inside.")
                 time.sleep(5)
                 print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
                 time.sleep(5)
@@ -1846,52 +1860,57 @@ def Chapter_8():
                       "****************************\n")
                 save_game()
                 time.sleep(5)
-                Dark_SwordStory()
+                dark_sword_story()
                 #Displays the sword upgrade story
                 time.sleep(5)
-                Chapter_9()
+                chapter_9()
                 break
             #This shows the sword upgrade story
-            elif dragonchoice2.lower() == "heal":
-                print(f"You use a healing potion to heal yourself and {Companion}")
+            elif phoenix_choice5.lower() == "heal":
+                print(f"You use a healing potion to heal yourself and {companion}")
                 time.sleep(5)
-                print("But before either of you could attack again. Flame attacks you both.")
-                Death()
+                print("But before either of you could attack again. flame attacks you both.")
+                death()
                 return
             #This kills the player
             else:
-                print("Invalid choice. Flame attacks you again!")
-                Death()
+                print("Invalid choice. flame attacks you again!")
+                death()
                 return
             #This kills the player due to invalid input
+        else:
+            print("Invalid choice. flame attacks you again!")
+            death()
+            return
+        #This kills the player due to invalid input
     else:
-        print("Invalid choice. Flame attacks you again!")
-        Death()
+        print("Invalid choice. flame attacks you again!")
+        death()
         return
     #This kills the player due to invalid input
    
-def Chapter_9():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_9"
+def chapter_9():
+    global  current_chapter
+    current_chapter = "chapter_9"
     print('***************************\n'
     "Chapter 9: The Path to the Ice Dungeon\n"
           '***************************\n')
     time.sleep(2)
-    print(f"You and {Companion} exit the fire dungeon and continue down a path, the heat giving way to a more relaxed meadow atmosphere.")
+    print(f"You and {companion} exit the fire dungeon and continue down a path, the heat giving way to a more relaxed meadow atmosphere.")
     time.sleep(5)
     print("You spot a small village in the distance, and you can decide to stop there to rest and gather supplies.")
     time.sleep(5)
-    print(small_village)
+    print(SMALL_VILLAGE)
     time.sleep(5)
     village_choice = input("Do you want to stop at the village? (Yes/No): ")
     if village_choice.lower() == "yes":
-        print(f"You and {Companion} decide to stop at the village.")
+        print(f"You and {companion} decide to stop at the village.")
         time.sleep(5)
         print("Before you you approach the villagers, you notice a small shop selling potions and supplies.")
         time.sleep(5)
         print("You decide to enter the shop and see what they have to offer.")
         time.sleep(5)
-        print(f"{Companion} says, 'Hello, shopkeeper! Do you have any potions or supplies that could help us on our journey?'")
+        print(f"{companion} says, 'Hello, shopkeeper! Do you have any potions or supplies that could help us on our journey?'")
         time.sleep(5)
         print("The shopkeeper nods and shows you a selection of potions and supplies.")
         time.sleep(5)
@@ -1900,12 +1919,12 @@ def Chapter_9():
         print("A dusty old map that seems to lead to the next dungeon.")
         time.sleep(5)
         print("You ask the shopkeeper about the map, and he tells you that it is a rare find, but he is willing to sell it to you for a fair price.")
-        mapchoice = input(f"You can buy a map for 20 gold coins. Do you want to buy it? (Yes/No): ")
+        map_choice = input("You can buy a map for 20 gold coins. Do you want to buy it? (Yes/No): ")
         #User input is stored as mapchoice
-        if mapchoice.lower() == "yes":
-            print(f"You buy the map and give to {Companion} to analyze")
+        if map_choice.lower() == "yes":
+            print(f"You buy the map and give to {companion} to analyze")
             time.sleep(5)
-            lower_gold(20)
+            decrease_gold(20)
             time.sleep(5)
             save_game()
             time.sleep(5)
@@ -1921,13 +1940,13 @@ def Chapter_9():
             return
         #This stops at the village without buying
     elif village_choice.lower() == "no":
-        print(f"You and {Companion} decide to continue down the path without stopping at the village.")
+        print(f"You and {companion} decide to continue down the path without stopping at the village.")
         time.sleep(5)
         save_game()
         time.sleep(5)
         save_game()
         time.sleep(5)
-        Chapter_9Part2()
+        chapter_9part2()
         return
     #This skips the village without reseting health and faces the boss without a full health bar
     else:
@@ -1937,16 +1956,16 @@ def Chapter_9():
         time.sleep(5)
         save_game()
         time.sleep(5)
-        Chapter_9Part2()
+        chapter_9part2()
         return
     #This is for invalid input
     
 def village():
-    global Companion, Username, current_chapter, player
+    global current_chapter
     current_chapter = "village"
     print("As you enter the village, you are greeted by friendly villagers who offer you food and shelter.")
     time.sleep(5)
-    print(f"{Companion} says, 'This is a nice place to rest and gather supplies before we continue our journey.'")
+    print(f"{companion} says, 'This is a nice place to rest and gather supplies before we continue our journey.'")
     time.sleep(5)
     print("You spend some time in the village, resting and preparing for the next part of your journey.")
     time.sleep(5)
@@ -1957,244 +1976,241 @@ def village():
     time.sleep(5)
     save_game()
     time.sleep(5)
-    Chapter_9Part2()
+    chapter_9part2()
 #This is for the village bit which resets the players health and sets a checkpoint
 
-def Chapter_9Part2():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_9Part2"
+def chapter_9part2():
+    global current_chapter
+    current_chapter = "chapter_9part2"
     print("***************************\n"
      "Chapter 9 Part 2: The Journey Continues\n"
           "***************************\n")
     time.sleep(2)
-    print(f"You and {Companion} follow the map's directions, navigating through the mountains.")
+    print(f"You and {companion} follow the map's directions, navigating through the mountains.")
     time.sleep(5)
-    print(dungeon_4)
+    print(DUNGEON_4)
     time.sleep(5)
     print("After a long journey, you arrive at a crossroad.")
     time.sleep(5)
-    print(f"{Companion} says, 'Where do we go now?'")
+    print(f"{companion} says, 'Where do we go now?'")
     crossroad_choice = input("Do you want to go left (snowy mountains) or right (icy cave)? (Left/Right): ")
     match crossroad_choice.lower().strip():
         case "left":
-            print(f"You and {Companion} decide to go left towards the snowy mountains.")
+            print(f"You and {companion} decide to go left towards the snowy mountains.")
             time.sleep(5)
             print("The temperature drops and you can see your breath in the cold air.")
             time.sleep(5)
-            print(f"{Companion} says, 'We must be close to the ice dungeon.'")
+            print(f"{companion} says, 'We must be close to the ice dungeon.'")
             time.sleep(5)
             print("As you continue, the ground shakes and you are buried under a pile of snow.")
-            Death()
-        #Death due to avalanche
+            death()
+        #death due to avalanche
         case "right":
-            print(f"You and {Companion} decide to go right towards the icy cave.")
+            print(f"You and {companion} decide to go right towards the icy cave.")
             time.sleep(5)
             print("Entering the cave, the temperature drops further and icicles hang from the ceiling.")
             time.sleep(5)
-            print(f"{Companion} says, 'This must be the ice dungeon. We need to be careful.'")
+            print(f"{companion} says, 'This must be the ice dungeon. We need to be careful.'")
             time.sleep(5)
             print("You explore the cave and find a locked underground chamber; you need a key to open it.")
             time.sleep(5)
-            print(f"{Companion} says, 'We must find the key to unlock this door.'")
+            print(f"{companion} says, 'We must find the key to unlock this door.'")
             time.sleep(5)
             print("Searching the chamber, you discover 2 small chests hidden behind a pile of ice.")
             time.sleep(5)
         #No death
-            frozen_cave = input("Do you want to open the left chest or the right chest? (Left/Right): ")
+            ice_chest_choice = input("Do you want to open the left chest or the right chest? (Left/Right): ")
             while True:
-             match frozen_cave.lower().strip():
-                case "left":
-                    print("You open the left chest and find a shiny key inside!")
-                    time.sleep(5)
-                    print(f"{Companion} says, 'This must be the door key!'")
-                    time.sleep(5)
-                    print("You insert the key into the lock and the door creaks open, revealing the next part of the dungeon.")
-                    time.sleep(5)
-                    print(f"You and {Companion} step through, ready for further challenges.")
-                    time.sleep(5)
-                    print("An icicle hits you on the head, and you black out.")
-                    time.sleep(5)
-                    print(f"When you wake up, you're in a giant icy cavern and {Companion} is missing as well as your sword.")
-                    time.sleep(5)
-                    print("A dirty rag in the corner starts moving, and a ghoulish creature emerges.")
-                    time.sleep(5)
-                    print("*****************************\n"
-                              "Morjun the Ice Wraith\n"
-                          "*****************************\n")
-                    time.sleep(5)
-                    print(Wraith)
-                    time.sleep(5)
-                    print("Morjun lunges at you, slashing with icy claws.")
-                    time.sleep(5)
-                    lower_health()
-                    time.sleep(5)
-                    print("Stumbling back, you notice a rusty sword nearby.")
-                    time.sleep(5)
-                    fightcavern = input("Do you want to pick up the sword and fight Morjun or try to escape the cavern? (Fight/Escape): ")
-                    match fightcavern.lower().strip():
-                        case "fight":
-                            print("You pick up the sword and prepare to fight Morjun.")
-                            time.sleep(5)
-                            print("You dodge Morjun's attack and strike, hitting it in the side.")
-                            time.sleep(5)
-                            while True:
-                                fightcavern2 = input("Do you want to attack again or heal yourself? (Attack/Heal): ")
-                                match fightcavern2.lower().strip():
-                                    case "attack":
-                                        print("You attack Morjun with all your might, and it falls to the ground, defeated.")
-                                        time.sleep(5)
-                                        print(f"You search Morjun's remains and find a glowing ice key that unlocks a door.")
-                                        time.sleep(5)
-                                        print(f"You open a door and spot {Companion} in a cage.")
-                                        time.sleep(5)
-                                        print(f"You free {Companion} from the cage and carry them out of the cavern.")
-                                        time.sleep(5)
-                                        print(f"You and {Companion} step out of the cavern through another door into a dimly lit maze.")
-                                        time.sleep(5)
-                                        mazeorcavern = input("Would you like to explore the maze or return to the cavern? (Explore/Return): ")
-                                        match mazeorcavern.lower().strip():
-                                            case "explore":
-                                                print(f"You and {Companion} decide to explore the maze for a way out.")
-                                                time.sleep(5)
-                                                mazechoice = input("Do you want to go left or right? (Left/Right): ")
-                                                match mazechoice.lower().strip():
-                                                    case "left":
-                                                        print("You take the left path and find a small clearing.")
-                                                        time.sleep(5)
-                                                        print("In the clearing, a pedestal holds a glowing ice key.")
-                                                        time.sleep(5)
-                                                        print("****************************\n"
-                                                                "4 Key Achieved 1 left.\n"
-                                                              "****************************\n")
-                                                        time.sleep(5)
-                                                        save_game()
-                                                        time.sleep(5)
-                                                        Chapter_10()
-                                                        break
+                match ice_chest_choice.lower().strip():
+                    case "left":
+                        print("You open the left chest and find a shiny key inside!")
+                        time.sleep(5)
+                        print(f"{companion} says, 'This must be the door key!'")
+                        time.sleep(5)
+                        print("You insert the key into the lock and the door creaks open, revealing the next part of the dungeon.")
+                        time.sleep(5)
+                        print(f"You and {companion} step through, ready for further challenges.")
+                        time.sleep(5)
+                        print("An icicle hits you on the head, and you black out.")
+                        time.sleep(5)
+                        print(f"When you wake up, you're in a giant icy cavern and {companion} is missing as well as your sword.")
+                        time.sleep(5)
+                        print("A dirty rag in the corner starts moving, and a ghoulish creature emerges.")
+                        time.sleep(5)
+                        print("*****************************\n"
+                                  "Morjun the Ice wraith\n"
+                              "*****************************\n")
+                        time.sleep(5)
+                        print(WRAITH)
+                        time.sleep(5)
+                        print("Morjun lunges at you, slashing with icy claws.")
+                        time.sleep(5)
+                        decrease_health()
+                        time.sleep(5)
+                        print("Stumbling back, you notice a rusty sword nearby.")
+                        time.sleep(5)
+                        wraith_choice = input("Do you want to pick up the sword and fight Morjun or try to escape the cavern? (Fight/Escape): ")
+                        match wraith_choice.lower().strip():
+                            case "fight":
+                                print("You pick up the sword and prepare to fight Morjun.")
+                                time.sleep(5)
+                                print("You dodge Morjun's attack and strike, hitting it in the side.")
+                                time.sleep(5)
+                                while True:
+                                    wraith_choice2 = input("Do you want to attack again or heal yourself? (Attack/Heal): ")
+                                    match wraith_choice2.lower().strip():
+                                        case "attack":
+                                            print("You attack Morjun with all your might, and it falls to the ground, defeated.")
+                                            time.sleep(5)
+                                            print("You search Morjun's remains and find a glowing ice key that unlocks a door.")
+                                            time.sleep(5)
+                                            print(f"You open a door and spot {companion} in a cage.")
+                                            time.sleep(5)
+                                            print(f"You free {companion} from the cage and carry them out of the cavern.")
+                                            time.sleep(5)
+                                            print(f"You and {companion} step out of the cavern through another door into a dimly lit maze.")
+                                            time.sleep(5)
+                                            maze_choice = input("Would you like to explore the maze or return to the cavern? (Explore/Return): ")
+                                            match maze_choice.lower().strip():
+                                                case "explore":
+                                                    print(f"You and {companion} decide to explore the maze for a way out.")
+                                                    time.sleep(5)
+                                                    maze_choice2 = input("Do you want to go left or right? (Left/Right): ")
+                                                    match maze_choice2.lower().strip():
+                                                        case "left":
+                                                            print("You take the left path and find a small clearing.")
+                                                            time.sleep(5)
+                                                            print("In the clearing, a pedestal holds a glowing ice key.")
+                                                            time.sleep(5)
+                                                            print("****************************\n"
+                                                                     "4 Key Achieved 1 left.\n"
+                                                                  "****************************\n")
+                                                            time.sleep(5)
+                                                            save_game()
+                                                            time.sleep(5)
+                                                            chapter_10()
+                                                            break
                                                     #Achieves key and continues to next chapter
-                                                    case "right":
-                                                        print("You take the right path and end in a dead end. Go back!")
-                                                        time.sleep(5)
+                                                        case "right":
+                                                            print("You take the right path and end in a dead end. Go back!")
+                                                            time.sleep(5)
                                                     #Repeats until they choose left
-                                                    case _:
-                                                        print("Invalid choice. Returning to cavern.")
-                                                        time.sleep(5)
-                                                        return
+                                                        case _:
+                                                            print("Invalid choice. Returning to cavern.")
+                                                            time.sleep(5)
+                                                            return
                                                     #Goes back to question
-                                                break
-                                            case "return":
-                                                print(f"You and {Companion} return to the cavern.")
-                                                break
+                                                case "return":
+                                                    print(f"You and {companion} return to the cavern.")
                                             #Goes back to cavern and repeats
-                                            case _:
-                                                print("Invalid choice. Returning to cavern.")
-                                                time.sleep(5)
-                                                return
+                                                case _:
+                                                    print("Invalid choice. Returning to cavern.")
+                                                    time.sleep(5)
+                                                    return
                                             #Goes back to cavern and repeats
-                                    case "heal":
-                                        print(f"You use a healing potion to heal yourself.")
-                                        time.sleep(5)
-                                        increase_health(50)
-                                        time.sleep(5)
-                                        print("Unfortunately, you trip and fall leaving you in the cave forever.")
-                                        time.sleep(5)
-                                        Death()
-                                        return
-                                    #Death
-                                    case _:
-                                        print("Invalid choice.")
-                                        break
+                                        case "heal":
+                                            print("You use a healing potion to heal yourself.")
+                                            time.sleep(5)
+                                            increase_health(50)
+                                            time.sleep(5)
+                                            print("Unfortunately, you trip and fall leaving you in the cave forever.")
+                                            time.sleep(5)
+                                            death()
+                                            return
+                                        #death
+                                        case _:
+                                            print("Invalid choice.")
+                                            break
                                     #Repeats the question
-                        case "escape":
-                            print("You try escaping but Morjun possesses you.")
-                            time.sleep(5)
-                            Death()
-                            return
-                        #Death
-                        case _:
-                            print("Invalid choice. You trip over a rock.")
-                            time.sleep(5)
-                            Death()
-                            return
-                        #Gets killed by a rock
-                case "right":
-                            print("You open the right chest and find a pile of gold coins.")
-                            time.sleep(5)
-                            increase_gold(50)
-                            time.sleep(5)
-                            print(f"{Companion} says, 'Nice find, but we still need the key.'")
-                            time.sleep(5)
+                            case "escape":
+                                print("You try escaping but Morjun possesses you.")
+                                time.sleep(5)
+                                death()
+                                return
+                            #death
+                            case _:
+                                print("Invalid choice. You trip over a rock.")
+                                time.sleep(5)
+                                death()
+                                return
+                            #Gets killed by a rock
+                    case "right":
+                        print("You open the right chest and find a pile of gold coins.")
+                        time.sleep(5)
+                        increase_gold(50)
+                        time.sleep(5)
+                        print(f"{companion} says, 'Nice find, but we still need the key.'")
+                        time.sleep(5)
                         #Collects coins then loops the question
-                case _:
-                     print("Choose a valid option")
+                    case _:
+                        print("Choose a valid option")
                      #Loops the question
         case _:
             print("Invalid choice. Choose again.")
             time.sleep(5)
-            return
         #Loops
 
 
-def Chapter_10():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_10"
+def chapter_10():
+    global current_chapter
+    current_chapter = "chapter_10"
     print("***************************\n"
     "Chapter 10: The Path to the Final Dungeon\n"
           "***************************\n")
     time.sleep(2)
-    print(f"You and {Companion} exit the ice dungeon and continue towards the last dungeon, the icy terrain giving way to rocky cliffs.")
+    print(f"You and {companion} exit the ice dungeon and continue towards the last dungeon, the icy terrain giving way to rocky cliffs.")
     time.sleep(5)
     print("The air grows colder, and you can see your breath in the frigid air.")
     time.sleep(5)
-    print(f"{Companion} says, 'The final key is said to be hidden in a dark dungeon, deep within the mountains according to the map.'")
+    print(f"{companion} says, 'The final key is said to be hidden in a dark dungeon, deep within the mountains according to the map.'")
     time.sleep(5)
     print("You nod in agreement, determined to find the final key and rescue the princess.")
     time.sleep(5)
     print("As you continue down the path, you come across a group of trolls blocking your way.")
     time.sleep(5)
-    print(trolls)
+    print(TROLL)
     time.sleep(5)
     print("The trolls are armed with large clubs and look ready for a fight.")
     time.sleep(5)
-    print(f"{Companion} whispers, 'We need to be careful. The trolls are known for their brute strength and cunning traps.'")
+    print(f"{companion} whispers, 'We need to be careful. The trolls are known for their brute strength and cunning traps.'")
     time.sleep(5)
-    trollchoice3 = input("Do you want to fight the trolls or try to reason with them? (Fight/Reason): ")
-    if trollchoice3.lower() == "fight":
-        print(f"You and {Companion} charge at the trolls, weapons drawn.")
+    troll_choice = input("Do you want to fight the trolls or try to reason with them? (Fight/Reason): ")
+    if troll_choice.lower() == "fight":
+        print(f"You and {companion} charge at the trolls, weapons drawn.")
         time.sleep(5)
-        print(f"The trolls fight back fiercely, but you and {Companion} are able to defeat them after a tough battle.")
+        print(f"The trolls fight back fiercely, but you and {companion} are able to defeat them after a tough battle.")
         time.sleep(5)
         print("You search the trolls' remains and find a map that leads to the final dungeon.")
         time.sleep(5)
-        print(f"You and {Companion} take the map and prepare to continue your journey.")
+        print(f"You and {companion} take the map and prepare to continue your journey.")
         time.sleep(5)
         save_game()
         time.sleep(5)
-        Chapter_11()
+        chapter_11()
         time.sleep(5)
     #Continues to next chapter
-    elif trollchoice3.lower() == "reason":
+    elif troll_choice.lower() == "reason":
         print("You try to reason with the trolls, explaining that you mean no harm and are only looking for the final key.")
         time.sleep(5)
         print("The trolls try listening to your words, yet they don't speak English.")
         time.sleep(5)
-        Death()
+        death()
         return
-    #Death due to language barrier
+    #death due to language barrier
     
-def Chapter_11():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_11"
+def chapter_11():
+    global current_chapter
+    current_chapter = "chapter_11"
     print("***************************\n"
           "Chapter 11: The Final Dungeon\n"
           "***************************\n")
-    print(f"You and {Companion} arrive at the entrance of the final dungeon, a dark cave filled with ominous shadows.")
+    print(f"You and {companion} arrive at the entrance of the final dungeon, a dark cave filled with ominous shadows.")
     time.sleep(5)
-    print(dungeon_5)
+    print(DUNGEON_5)
     time.sleep(5)
     print("The air is thick with tension, and you can feel the weight of the final challenge ahead.")
     time.sleep(5)
-    print(f"{Companion} says, 'This is it. The final key is said to be hidden in this dungeon, guarded by a powerful monster.'")
+    print(f"{companion} says, 'This is it. The final key is said to be hidden in this dungeon, guarded by a powerful monster.'")
     time.sleep(5)
     print("You nod, determined to find the final key and rescue the princess.")
     time.sleep(5)
@@ -2207,135 +2223,135 @@ def Chapter_11():
     print("The figure is a giant shadow beast, its eyes glowing with a menacing light.")
     time.sleep(5)
     print("****************************\n"
-            "  Desbio the Dark Beast \n"
+            "  desbio the Dark Beast \n"
           "****************************\n")
     time.sleep(5)
-    print(Desbio)
+    print(DESBIO)
     #Prints ascii for boss
     time.sleep(5)
-    beastchoice1 = input("Before either of you could move, Desbio strikes you both in the back, (Attack/Dodge): ")
+    beast_choice = input("Before either of you could move, desbio strikes you both in the back, (Attack/Dodge): ")
     time.sleep(5)
-    lower_health()
+    decrease_health()
     time.sleep(5)
-    if beastchoice1.lower() == "attack":
-        print("Desbio lunges at you, its claws slashing through the air.")
+    if beast_choice.lower() == "attack":
+        print("desbio lunges at you, its claws slashing through the air.")
         time.sleep(5)
-        lower_health()
+        decrease_health()
         #Lowers health randomly
-        print(f"{Companion}'s health is low")
+        print(f"{companion}'s health is low")
         time.sleep(5)
-        print(f"You and {Companion} are both injured and need to find a way to defeat Desbio before it attacks again.")
+        print(f"You and {companion} are both injured and need to find a way to defeat desbio before it attacks again.")
         time.sleep(5)
-        beastchoice2 = input(f"You can either type 'Attack' to attack Desbio or type 'Heal' to heal yourself and {Companion}: ")
-        if beastchoice2.lower() == "attack":
-            print(f"You and {Companion} attack Desbio with all your might, striking it with your weapons.")
+        beast_choice2 = input(f"You can either type 'Attack' to attack desbio or type 'Heal' to heal yourself and {companion}: ")
+        if beast_choice2.lower() == "attack":
+            print(f"You and {companion} attack desbio with all your might, striking it with your weapons.")
             time.sleep(5)
-            print("Desbio roars in pain, but it is not defeated yet.")
+            print("desbio roars in pain, but it is not defeated yet.")
             time.sleep(5)
-            beastchoicesemi2 = input(f"Type 'Attack' to attack Desbio again or type 'Heal' to heal yourself and {Companion}: ")
+            beast_choice3 = input(f"Type 'Attack' to attack desbio again or type 'Heal' to heal yourself and {companion}: ")
             while True:
             #These are for loops
-             if beastchoicesemi2.lower() == "attack":
-                print(f"You and {Companion} attack Desbio with all your might.")
-                time.sleep(5)
-                print("Desbio roars in pain, but it is not defeated yet.")
-                time.sleep(5)
-                print("You realize that you need to find a way to weaken it before you can defeat it.")
-                time.sleep(5)
-             elif beastchoicesemi2.lower() == "heal":
-                print(f"You use a healing potion to heal yourself and {Companion}.")
-                increase_health(50)
-                #Increases health
-                time.sleep(5)
-                print(f"{Companion} is back in the fight!")
-                time.sleep(5)
-                print("You both attack Desbio together, striking it with all your might.")
-                time.sleep(5)
-                print("Desbio roars in pain, it's scales are starting to crack under your combined assault.")
-                beastchoicesemi3 = input(f"Type 'Attack' to attack Desbio again or type 'Heal' to heal yourself and {Companion}: ")
-                if beastchoicesemi3.lower() == "attack":
-                    print(f"You and {Companion} attack Desbio's core with all your might, striking it with your weapons.")
+                if beast_choice3.lower() == "attack":
+                    print(f"You and {companion} attack desbio with all your might.")
                     time.sleep(5)
-                    print("Desbio roars in pain, and it crumbles to the ground, defeated.")
+                    print("desbio roars in pain, but it is not defeated yet.")
                     time.sleep(5)
-                    print(f"You and {Companion} stand victorious, breathing heavily from the intense battle.")
+                    print("You realize that you need to find a way to weaken it before you can defeat it.")
                     time.sleep(5)
-                    print("You search the beast's remains and find a glowing black key that unlocks a hidden door in the dungeon.")
-                    time.sleep(5)
-                    print(f"You and {Companion} enter the hidden door, hoping to find the princess inside.")
-                    time.sleep(5)
-                    print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
-                    time.sleep(5)
-                    print("In the center of the room, you see a pedestal with a glowing black key.")
-                    time.sleep(5)
-                    print("****************************\n"
-                          "  5 Keys Achieved None left. \n"
-                          "****************************\n")
-                    print("You take the key and prepare to rescue the princess.")
-                    time.sleep(5)
-                    save_game()
-                    time.sleep(5)
-                    Dark_ShieldStory()
-                    time.sleep(5)
-                    Chapter_12()
-                    return
-                #Shows the shield upgrade story and continues
-                elif beastchoicesemi3.lower() == "heal":
-                    print("Desbio lunges at you before you could move and summons a portal of darkness under you.")
-                    Death()
-                    return
-                #Death
-                else:
-                    Death()
-                    return
-             else:
-                print("Invalid choice. Desbio attacks you again!")
-                Death()
-                return
-             #Death due to invalid option
-        elif beastchoicesemi3.lower() == "heal":
-                    print(f"You use a healing potion to heal yourself and {Companion}.")
-                    time.sleep(5)
+                elif beast_choice3.lower() == "heal":
+                    print(f"You use a healing potion to heal yourself and {companion}.")
                     increase_health(50)
-                    print(f"{Companion} is back in the fight!")
+                    #Increases health
                     time.sleep(5)
-                    print("Desbio attacks you before you can attack again!")
+                    print(f"{companion} is back in the fight!")
                     time.sleep(5)
-                    print(f"You and {Companion} are both injured and need to find a way to defeat Desbio before it attacks again.")
-                    lower_health(50)
+                    print("You both attack desbio together, striking it with all your might.")
                     time.sleep(5)
-                    print(f"{Companion}'s health is low")
+                    print("desbio roars in pain, it's scales are starting to crack under your combined assault.")
                     time.sleep(5)
-                    print("Desbio attacks you before you can attack again!")
-                    Death()
+                    beast_choice4 = input(f"Type 'Attack' to attack desbio again or type 'Heal' to heal yourself and {companion}: ")
+                    if beast_choice4.lower() == "attack":
+                        print(f"You and {companion} attack desbio's core with all your might, striking it with your weapons.")
+                        time.sleep(5)
+                        print("desbio roars in pain, and it crumbles to the ground, defeated.")
+                        time.sleep(5)
+                        print(f"You and {companion} stand victorious, breathing heavily from the intense battle.")
+                        time.sleep(5)
+                        print("You search the beast's remains and find a glowing black key that unlocks a hidden door in the dungeon.")
+                        time.sleep(5)
+                        print(f"You and {companion} enter the hidden door, hoping to find the princess inside.")
+                        time.sleep(5)
+                        print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
+                        time.sleep(5)
+                        print("In the center of the room, you see a pedestal with a glowing black key.")
+                        time.sleep(5)
+                        print("****************************\n"
+                             "  5 Keys Achieved None left. \n"
+                              "****************************\n")
+                        print("You take the key and prepare to rescue the princess.")
+                        time.sleep(5)
+                        save_game()
+                        dark_shield_story()
+                        time.sleep(5)
+                        chapter_12()
+                        return
+                        #Shows the shield upgrade story and continues
+                    elif beast_choice4.lower() == "heal":
+                        print("desbio lunges at you before you could move and summons a portal of darkness under you.")
+                        death()
+                        return
+                    #death
+                    else:
+                        death()
+                        return
+                else:
+                    print("Invalid choice. desbio attacks you again!")
+                    death()
                     return
-        #Death
-        else:
-            print("Invalid choice. Desbio attacks you again!")
-            Death()
+             #death due to invalid option
+        elif beast_choice2.lower() == "heal":
+            print(f"You use a healing potion to heal yourself and {companion}.")
+            time.sleep(5)
+            increase_health(50)
+            print(f"{companion} is back in the fight!")
+            time.sleep(5)
+            print("desbio attacks you before you can attack again!")
+            time.sleep(5)
+            print(f"You and {companion} are both injured and need to find a way to defeat desbio before it attacks again.")
+            decrease_health(50)
+            time.sleep(5)
+            print(f"{companion}'s health is low")
+            time.sleep(5)
+            print("desbio attacks you before you can attack again!")
+            death()
             return
-        #Death due to invalid option
-    elif beastchoice1.lower() == "dodge":
-        print("You quickly dodge Desbio's attack, narrowly avoiding its powerful strike.")
+        #death
+        else:
+            print("Invalid choice. desbio attacks you again!")
+            death()
+            return
+        #death due to invalid option
+    elif beast_choice.lower() == "dodge":
+        print("You quickly dodge desbio's attack, narrowly avoiding its powerful strike.")
         time.sleep(5)
-        print("You counterattack, striking Desbio with all your might.")
+        print("You counterattack, striking desbio with all your might.")
         time.sleep(5)
-        print(f"The beast staggers back, but it is not defeated yet. You and {Companion} must work together to defeat it.")
+        print(f"The beast staggers back, but it is not defeated yet. You and {companion} must work together to defeat it.")
         time.sleep(5)
         while True:
-            beastchoice2 = input(f"You can either type 'Attack' to attack Desbio again or type 'Heal' to heal yourself and {Companion}: ")
-            if beastchoice2.lower() == "attack":
-                print(f"You and {Companion} attack Desbio with all your might.")
+            beast_choice5 = input(f"You can either type 'Attack' to attack desbio again or type 'Heal' to heal yourself and {companion}: ")
+            if beast_choice5.lower() == "attack":
+                print(f"You and {companion} attack desbio with all your might.")
                 time.sleep(5)
-                print(f"You and {Companion} attack Desbio's core with all your might, striking it with your weapons.")
+                print(f"You and {companion} attack desbio's core with all your might, striking it with your weapons.")
                 time.sleep(5)
-                print("Desbio roars in pain, and it crumbles to the ground, defeated.")
+                print("desbio roars in pain, and it crumbles to the ground, defeated.")
                 time.sleep(5)
-                print(f"You and {Companion} stand victorious, breathing heavily from the intense battle.")
+                print(f"You and {companion} stand victorious, breathing heavily from the intense battle.")
                 time.sleep(5)
                 print("You search the beast's remains and find a glowing black key that unlocks a hidden door in the dungeon.")
                 time.sleep(5)
-                print(f"You and {Companion} enter the hidden door, hoping to find the princess inside.")
+                print(f"You and {companion} enter the hidden door, hoping to find the princess inside.")
                 time.sleep(5)
                 print("As you step through the door, you find yourselves in a dimly lit chamber filled with ancient artifacts.")
                 time.sleep(5)
@@ -2347,65 +2363,64 @@ def Chapter_11():
                 time.sleep(5)
                 save_game()
                 time.sleep(5)
-                Dark_ShieldStory()
+                dark_shield_story()
                 time.sleep(5)
-                Chapter_12()
+                chapter_12()
                 return
             #Shows the shield upgrade story and continues to the next chapter
-            elif beastchoice2.lower() == "heal":
-                print(f"You use a healing potion to heal yourself and {Companion}.")
+            elif beast_choice5.lower() == "heal":
+                print(f"You use a healing potion to heal yourself and {companion}.")
                 increase_health(50)
                 time.sleep(5)
-                print(f"{Companion} is back in the fight!")
+                print(f"{companion} is back in the fight!")
                 time.sleep(5)
-                print("You both attack Desbio together, striking it with all your might.")
+                print("You both attack desbio together, striking it with all your might.")
                 time.sleep(5)
-                print("Desbio roars in pain, but it's scales harden under your combined assault")
+                print("desbio roars in pain, but it's scales harden under your combined assault")
                 time.sleep(5)
-                print("Desbio attacks you before you can attack again!")
+                print("desbio attacks you before you can attack again!")
                 time.sleep(5)
-                print(f"Desbio charges up another burst of dark energy, and spews directly at you and {Companion}")
+                print(f"desbio charges up another burst of dark energy, and spews directly at you and {companion}")
                 time.sleep(5)
-                Death()
+                death()
                 break
             #Gets killed
             else:
-                print("Invalid choice. Desbio attacks you again!")
-                Death()
+                print("Invalid choice. desbio attacks you again!")
+                death()
                 return
             #Gets killed by invalid option
     else:
-        print("Invalid choice. Desbio attacks you again!")
-        Death()
+        print("Invalid choice. desbio attacks you again!")
+        death()
         return
     #Gets killed by invalid option
 
-def Chapter_12():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_12"
-    print("" 
-          "***************************\n"
+def chapter_12():
+    global current_chapter
+    current_chapter = "chapter_12"
+    print("***************************\n"
       "Chapter 12: The Calm Before The Storm"
           "***************************\n")
     time.sleep(2)
-    print(f"You and {Companion} continue down the path, now with no clue where to go...")
+    print(f"You and {companion} continue down the path, now with no clue where to go...")
     time.sleep(5)
-    print(f"{Companion} says, I've heard rumours of the final beast that captured the princess, but never the location...")
+    print(f"{companion} says, I've heard rumours of the final beast that captured the princess, but never the location...")
     time.sleep(5)
     print("We may need to camp near a village for a few days as I try to gather some info, I'm also quite tired...")
     time.sleep(5)
-    print(f"Wait {Username}!, I see another village over the in the horizon. Let's go!")
+    print(f"Wait {username}!, I see another village over the in the horizon. Let's go!")
     time.sleep(5)
-    print(f"You and {Companion} approach the village, but it looks off...")
+    print(f"You and {companion} approach the village, but it looks off...")
     time.sleep(5)
-    print(abandoned_village)
+    print(ABANDONED_VILLAGE)
     time.sleep(5)
     print("There are no villagers in sight, it was abandoned quite a few months ago by the looks of it...")
     time.sleep(5)
-    MajorChoice = input("Would you like to stay or leave to find another village? (Stay/Leave): ")
-    if MajorChoice.lower() == "stay":
-        print(f"Ok, {Username} let's stay, we can gather info later! Says {Companion}")
-        Chapter_12Part2()
+    abandoned_village_choice = input("Would you like to stay or leave to find another village? (Stay/Leave): ")
+    if abandoned_village_choice.lower() == "stay":
+        print(f"Ok, {username} let's stay, we can gather info later! Says {companion}")
+        chapter_12part2()
         return
     #Continues to the next chapter
     else:
@@ -2415,18 +2430,18 @@ def Chapter_12():
         time.sleep(5)
         print("You have no choice but to go back towards the village.")
         time.sleep(5)
-        print(f"You arrived back at the village and sat down")
-        Chapter_12Part2()
+        print("You arrived back at the village and sat down")
+        chapter_12part2()
         time.sleep(5)
         return
     #Continues to next chapter and returns to the village
     
-def Chapter_12Part2():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_12Part2"
-    print(f"{Companion} approaches one of the abandoned houses and pulls out some goods")
+def chapter_12part2():
+    global  current_chapter
+    current_chapter = "chapter_12part2"
+    print(f"{companion} approaches one of the abandoned houses and pulls out some goods")
     time.sleep(5)
-    print(f"You set up the fire! Yells {Companion}")
+    print(f"You set up the fire! Yells {companion}")
     time.sleep(5)
     print("You oblige and went to go get firewood nearby")
     time.sleep(5)
@@ -2458,199 +2473,202 @@ def Chapter_12Part2():
         print("Not collected")
     print("You return to the camp carrying all the wood...")
     time.sleep(5)
-    print(f"{Companion} appears around a corner carrying a stack of books and yells at you")
+    print(f"{companion} appears around a corner carrying a stack of books and yells at you")
     time.sleep(5)
-    print(f"Come here {Username}, says {Companion}")
+    print(f"Come here {username}, says {companion}")
     time.sleep(5)
-    print("I've analyzed the keys. I believe the final creature could be dungeon somewhere underneath Fargon, potentially underneath the Capital ")
+    print("I've analyzed the keys."
+          "I believe the final creature could be dungeon somewhere underneath Fargon,"
+          "potentially underneath the capital")
     time.sleep(5)
-    print("The Capital? You ask")
+    print("The capital? You ask")
     time.sleep(5)
-    print("Yeah, according to this book, there's a city called the capital located somewhere around here...")
+    print("Yeah, according to this book, " 
+          "there's a city called the capital located somewhere around here...")
     time.sleep(5)
     print("It's guarded by a forcefield, with 5 ancient machines guarding it")
     time.sleep(5)
     print("We should go find it, huh? Sounds like the princess could be located there!")
     time.sleep(5)
-    print(f"You and {Companion} rest the night and leave tomorrow")
+    print(f"You and {companion} rest the night and leave tomorrow")
     time.sleep(5)
-    print(f"You and {Companion} sleep the night")
+    print(f"You and {companion} sleep the night")
     time.sleep(10)
     reset_health()
-    Chapter_13()
+    chapter_13()
     #This resets the players health to 100 and continues to the next chapter
     
-def Chapter_13():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_13"
+def chapter_13():
+    global current_chapter
+    current_chapter = "chapter_13"
     print("***************************\n"
-            "Chapter 13: The Capital"
+            "Chapter 13: The capital"
           "***************************\n")
     time.sleep(2)
-    print(f"You and {Companion} set off from the abandoned village...")
+    print(f"You and {companion} set off from the abandoned village...")
     time.sleep(5)
-    print(f"Towards where {Companion} thinks where the capital is...")
+    print(f"Towards where {companion} thinks where the capital is...")
     time.sleep(5)
-    print(f"You and {Companion} walk for days")
+    print(f"You and {companion} walk for days")
     time.sleep(6)
     reset_health()
-    print(f"{Companion} looks around, and says 'We should be here'")
+    print(f"{companion} looks around, and says 'We should be here'")
     time.sleep(5)
     print("What, you reply, there's nothing here")
     time.sleep(5)
     print("All of a sudden, the ground beneath began to shake and split open")
     time.sleep(5)
-    print(f"You and {Companion} drop into the cavern below")
+    print(f"You and {companion} drop into the cavern below")
     time.sleep(5)
-    lower_health()
+    decrease_health()
     time.sleep(5)
-    print(f"You and {Companion} faint")
+    print(f"You and {companion} faint")
     time.sleep(10)
     print("When you wake up you notice, that companion disappeared. In front of you is 5 tunnels")
     while True:
-     try:
-      tunnelchoice = int(input("Which tunnel would you proceed down (1-5): "))
-     except ValueError:
-        print("Please enter a valid number")
-        continue
-     match tunnelchoice:
-         #This matches the players input with a result
-        case 1:
-            print("You walk into the darkness of the tunnel...")
-            time.sleep(5)
-            print("You reach a dead end...")
-            time.sleep(5)
-            print("All of a sudden a skeleton attacks you from behind...")
-            print(skeleton)
-            time.sleep(5)
-            Death()
-            break
-        case 2:
-            print("You walk into the darkness of the tunnel...")
-            time.sleep(5)
-            print("In the end, you reach a fountain...")
-            time.sleep(5)
-            print("Your deadly thirsty and drank from the fountain...")
-            time.sleep(5)
-            print("The fountain water was poisoned.")
-            Death()
-            break
-        case 3:
-            print("You walk into the darkness of the tunnel...")
-            time.sleep(5)
-            print(f"You notice, a shadow up ahead, it could be {Companion}...")
-            time.sleep(5)
-            print("You run towards the shadow...")
-            time.sleep(5)
-            print("You walk right past the shadow...")
-            time.sleep(5)
-            print(f"You arrive back at the village, alone, with no {Companion} in sight...")
-            time.sleep(5)
-            print("You died of loneliness and despair")
-            time.sleep(5)
-            Death()
-            break
-        case 4:
-            print("You walk into the darkness of the tunnel...")
-            time.sleep(5)
-            print(f"You notice a shadow up ahead, it could be {Companion}...")
-            time.sleep(5)
-            print(f"Hey, come {Username}! {Companion} yells")
-            time.sleep(5)
-            print("You run towards the shadow...")
-            time.sleep(5)
-            print(f"You arrive at {Companion} and hug them tightly")
-            time.sleep(5)
-            print(f"{Companion} says, 'I thought I lost you!'")
-            time.sleep(5)
-            print("You realise that there was a blue misty wall at the end of the tunnel blocking your way further...")
-            time.sleep(5)
-            print(f"You and {Companion} then spot another tunnel to the right of the blue wall...")
-            time.sleep(5)
-            print(f"You and {Companion} walk down the tunnel, hoping to find to the Capital")
-            time.sleep(5)
-            Chapter_14()
-            break
-         #This goes to the next chapter
-        case 5:
-            print("You walk into the darkness of the tunnel...")
-            time.sleep(5)
-            print("You spot  a faint light in the distance...")
-            time.sleep(5)
-            print("You walk towards the light...")
-            time.sleep(5)
-            print("You arrive at a small campfire, with a note next to it...")
-            time.sleep(5)
-            print("The note reads: 'Beware of the final beast, it lurks in the shadows of the capital.'")
-            time.sleep(5)
-            print("You take the note and continue down the tunnel...")
-            time.sleep(5)
-            print("You arrive at a dead end, with no way out...")
-            time.sleep(5)
-            print("You sit down and wait for help...")
-            time.sleep(5)
-            print("After a few hours, you hear a voice calling your name...")
-            time.sleep(5)
-            print(f"It sounds like {Companion}, yet it doesn't!")
-            time.sleep(5)
-            print("You stand up and walk towards the voice...")
-            time.sleep(5)
-            print("You arrive at a small clearing, with a shadowy figure standing in the middle.")
-            time.sleep(5)
-            print("The figure is cloaked in darkness, its eyes glowing with a menacing light.")
-            time.sleep(5)
-            print("****************************\n"
-                    "  The Shadowy Figure \n"
-                    "****************************\n")
-            time.sleep(5)
-            print(mysterious_character)
-            time.sleep(5)
-            print("The figure speaks, 'You have come far, but you will not find the princess here.'")
-            time.sleep(5)
-            print(f"You ask the figure where the princess and {Companion} is, but it only laughs.")
-            time.sleep(5)
-            print("The figure lunges at you, its claws slashing through the air.")
-            time.sleep(5)
-            print("You try to dodge the attack, but the figure is too fast.")
-            time.sleep(5)
-            print(f"You've came far, yet this is where it ends for you, {Username}.")
-            time.sleep(5)
-            print("The figure strikes you down, and you fall to the ground, defeated.")
-            time.sleep(5)
-            print("You hear the figure laugh as it disappears into the shadows.")
-            time.sleep(5)
-            print("This creature was not the final beast, but a mere shadow of what is to come.")
-            time.sleep(5)
-            Death()
-            break
-         #This kills the player
-        case _:
-            print("Enter a valid number")
-            return
-        #This loops until the player enters a valid number
+        try:
+            tunnel_choice = int(input("Which tunnel would you proceed down (1-5): "))
+        except ValueError:
+            print("Please enter a valid number")
+            continue
+        match tunnel_choice:
+                #This matches the players input with a result
+            case 1:
+                print("You walk into the darkness of the tunnel...")
+                time.sleep(5)
+                print("You reach a dead end...")
+                time.sleep(5)
+                print("All of a sudden a skeleton attacks you from behind...")
+                print(SKELETON)
+                time.sleep(5)
+                death()
+                break
+            case 2:
+                print("You walk into the darkness of the tunnel...")
+                time.sleep(5)
+                print("In the end, you reach a fountain...")
+                time.sleep(5)
+                print("Your deadly thirsty and drank from the fountain...")
+                time.sleep(5)
+                print("The fountain water was poisoned.")
+                death()
+                break
+            case 3:
+                print("You walk into the darkness of the tunnel...")
+                time.sleep(5)
+                print(f"You notice, a shadow up ahead, it could be {companion}...")
+                time.sleep(5)
+                print("You run towards the shadow...")
+                time.sleep(5)
+                print("You walk right past the shadow...")
+                time.sleep(5)
+                print(f"You arrive back at the village, alone, with no {companion} in sight...")
+                time.sleep(5)
+                print("You died of loneliness and despair")
+                time.sleep(5)
+                death()
+                break
+            case 4:
+                print("You walk into the darkness of the tunnel...")
+                time.sleep(5)
+                print(f"You notice a shadow up ahead, it could be {companion}...")
+                time.sleep(5)
+                print(f"Hey, come {username}! {companion} yells")
+                time.sleep(5)
+                print("You run towards the shadow...")
+                time.sleep(5)
+                print(f"You arrive at {companion} and hug them tightly")
+                time.sleep(5)
+                print(f"{companion} says, 'I thought I lost you!'")
+                time.sleep(5)
+                print("You realise that there was a blue misty wall at the end of the tunnel blocking your way further...")
+                time.sleep(5)
+                print(f"You and {companion} then spot another tunnel to the right of the blue wall...")
+                time.sleep(5)
+                print(f"You and {companion} walk down the tunnel, hoping to find to the capital")
+                time.sleep(5)
+                chapter_14()
+                break
+            #This goes to the next chapter
+            case 5:
+                print("You walk into the darkness of the tunnel...")
+                time.sleep(5)
+                print("You spot  a faint light in the distance...")
+                time.sleep(5)
+                print("You walk towards the light...")
+                time.sleep(5)
+                print("You arrive at a small campfire, with a note next to it...")
+                time.sleep(5)
+                print("The note reads: 'Beware of the final beast, it lurks in the shadows of the capital.'")
+                time.sleep(5)
+                print("You take the note and continue down the tunnel...")
+                time.sleep(5)
+                print("You arrive at a dead end, with no way out...")
+                time.sleep(5)
+                print("You sit down and wait for help...")
+                time.sleep(5)
+                print("After a few hours, you hear a voice calling your name...")
+                time.sleep(5)
+                print(f"It sounds like {companion}, yet it doesn't!")
+                time.sleep(5)
+                print("You stand up and walk towards the voice...")
+                time.sleep(5)
+                print("You arrive at a small clearing, with a shadowy figure standing in the middle.")
+                time.sleep(5)
+                print("The figure is cloaked in darkness, its eyes glowing with a menacing light.")
+                time.sleep(5)
+                print("****************************\n"
+                      "  The Shadowy Figure \n"
+                      "****************************\n")
+                time.sleep(5)
+                print(MYSTERIOUS_CHARACTER)
+                time.sleep(5)
+                print("The figure speaks, 'You have come far, but you will not find the princess here.'")
+                time.sleep(5)
+                print(f"You ask the figure where the princess and {companion} is, but it only laughs.")
+                time.sleep(5)
+                print("The figure lunges at you, its claws slashing through the air.")
+                time.sleep(5)
+                print("You try to dodge the attack, but the figure is too fast.")
+                time.sleep(5)
+                print(f"You've came far, yet this is where it ends for you, {username}.")
+                time.sleep(5)
+                print("The figure strikes you down, and you fall to the ground, defeated.")
+                time.sleep(5)
+                print("You hear the figure laugh as it disappears into the shadows.")
+                time.sleep(5)
+                print("This creature was not the final beast, but a mere shadow of what is to come.")
+                time.sleep(5)
+                death()
+                break
+            #This kills the player
+            case _:
+                print("Enter a valid number")
+                return
+            #This loops until the player enters a valid number
 
-def Chapter_14():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_14"
+def chapter_14():
+    global  current_chapter
+    current_chapter = "chapter_14"
     print("***************************\n"
           "Chapter 14: The First Machine\n"
           "***************************\n")
     time.sleep(2)
-    print(f"You and {Companion} arrive at the first machine, a massive structure made of stone and metal.")
+    print(f"You and {companion} arrive at the first machine, a massive structure made of stone and metal.")
     time.sleep(5)
     print("The machine is covered in strange symbols and runes, and it seems to be powered by some kind of dark energy.")
     time.sleep(5)
-    print(f"{Companion} says, 'This must be one of the machines that guard the capital.'")
+    print(f"{companion} says, 'This must be one of the machines that guard the capital.'")
     time.sleep(5)
     print("You nod in agreement, determined to find a way to disable the machine.")
     time.sleep(5)
     print("As you approach the machine, you notice a small panel on the side with a glowing red button.")
     time.sleep(5)
-    print(f"{Companion} says, 'We need to find a way to activate this button.'")
+    print(f"{companion} says, 'We need to find a way to activate this button.'")
     time.sleep(5)
     print("You search the area around the machine and find a small lever hidden behind some rocks.")
     time.sleep(5)
-    print(f"You pull the lever, and the machine comes to life, its gears grinding and whirring as it powers up.")
+    print("You pull the lever, and the machine comes to life, its gears grinding and whirring as it powers up.")
     time.sleep(5)
     print("The glowing red button on the panel lights up, and you press it.")
     time.sleep(5)
@@ -2658,9 +2676,9 @@ def Chapter_14():
     time.sleep(5)
     print("Suddenly, a massive door opens in the side of the machine, revealing a dark chamber inside.")
     time.sleep(5)
-    print(f"{Companion} says, 'We need to go inside and see what we can find.'")
+    print(f"{companion} says, 'We need to go inside and see what we can find.'")
     time.sleep(5)
-    print(f"You and {Companion} enter the chamber, weapons drawn, ready for whatever lies ahead.")
+    print(f"You and {companion} enter the chamber, weapons drawn, ready for whatever lies ahead.")
     time.sleep(5)
     print("Inside the chamber, you find a series of strange machines and devices, all connected to a button on a pedestal in the center of the room.")
     time.sleep(5)
@@ -2668,9 +2686,9 @@ def Chapter_14():
     time.sleep(5)
     print("All of a sudden, you feel a strange urge  to press the button, as if it is calling to you.")
     time.sleep(5)
-    print(f"{Companion} says, 'We need to be careful. This could be a tra..")
+    print(f"{companion} says, 'We need to be careful. This could be a tra..")
     time.sleep(5)
-    print(f"But before {Companion} can finish their sentence, you press the button.")
+    print(f"But before {companion} can finish their sentence, you press the button.")
     time.sleep(5)
     print("The machine shudders and shakes, and you can feel the ground beneath you tremble.")
     time.sleep(5)
@@ -2678,35 +2696,35 @@ def Chapter_14():
     time.sleep(5)
     print("You hear a loud rumbling noise, and the machines begin to open a trapdoor in the floor.")
     time.sleep(5)
-    print(f"You and {Companion} look at each other, unsure of what to do next.")
+    print(f"You and {companion} look at each other, unsure of what to do next.")
     time.sleep(5)
     print("*****************************\n"
-           "     The First Guardian \n"
+           "     The First guardian \n"
           "*****************************\n")
     time.sleep(5)
-    Guardian1()
+    guardian1()
 #This goes to the first guardian fight
 
-def Guardian1():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Guardian1"
+def guardian1():
+    global  current_chapter
+    current_chapter = "guardian1"
     print("Suddenly, a massive mechanical guardian emerges from the trapdoor, its eyes glowing with a menacing light.")
     time.sleep(5)
     print("The guardian is a towering figure made of metal and stone, its body covered in intricate designs and runes.")
     time.sleep(5)
     print("It raises its massive fists, ready to attack.")
     time.sleep(5)
-    print(f"You and {Companion} prepare for battle, your weapons drawn and ready to fight.")
+    print(f"You and {companion} prepare for battle, your weapons drawn and ready to fight.")
     time.sleep(5)
     print("The guardian lunges at you, its fists swinging through the air.")
     time.sleep(5)
-    print(f"You dodge the attack and strike back, hitting the guardian in the side.")
+    print("You dodge the attack and strike back, hitting the guardian in the side.")
     time.sleep(5)
     print("The guardian roars in pain, but it is not defeated yet.")
     time.sleep(5)
     guardian_choice = input("Do you want to attack the guardian again or try to find a way to disable the machines? (Attack/Disable): ")
     if guardian_choice.lower() == "attack":
-        print(f"You and {Companion} attack the guardian with all your might, striking it with your weapons.")
+        print(f"You and {companion} attack the guardian with all your might, striking it with your weapons.")
         time.sleep(5)
         print("The guardian roars in pain, but it is not defeated yet.")
         time.sleep(5)
@@ -2714,63 +2732,63 @@ def Guardian1():
         time.sleep(5)
         disable_choice = input("Do you want to try to disable the machines or keep attacking the guardian? (Disable/Attack): ")
         if disable_choice.lower() == "disable":
-            print(f"You and {Companion} search the room for a way to disable the machines.")
+            print(f"You and {companion} search the room for a way to disable the machines.")
             time.sleep(5)
             print("You find a control panel on the wall with a series of buttons and switches.")
             time.sleep(5)
             print("You quickly figure out how to disable the machines, and they all shut down, leaving the guardian vulnerable.")
             time.sleep(5)
-            print(f"You and {Companion} attack the guardian one last time, striking it down and defeating it.")
+            print(f"You and {companion} attack the guardian one last time, striking it down and defeating it.")
             time.sleep(5)
             print("You search the guardian's remains and find a glowing red key that unlocks a hidden door in the machine.")
             time.sleep(5)
-            print(f"You and {Companion} enter the hidden door, hoping to find more clues about the final beast.")
+            print(f"You and {companion} enter the hidden door, hoping to find more clues about the final beast.")
             time.sleep(5)
-            Chapter_15()
+            chapter_15()
         #This goes to chapter 15
         elif disable_choice.lower() == "attack":
-            print(f"You and {Companion} keep attacking the guardian, but it is too strong.")
+            print(f"You and {companion} keep attacking the guardian, but it is too strong.")
             time.sleep(5)
             print("The guardian strikes you down, and you fall to the ground, defeated.")
             time.sleep(5)
-            Death()
+            death()
             return
-        #Death
+        #death
         else:
             print("The guardian doesn't hesitate to attack back")
-            Death(0)
+            death()
         #This kills the player due to invalid response
     elif guardian_choice.lower() == "disable":
-        print(f"You and {Companion} search the room for a way to disable the machines.")
+        print(f"You and {companion} search the room for a way to disable the machines.")
         time.sleep(5)
         print("You find a control panel on the wall with a series of buttons and switches.")
         time.sleep(5)
         print("You quickly figure out how to disable the machines, and they all shut down, leaving the guardian vulnerable.")
         time.sleep(5)
-        print(f"You and {Companion} attack the guardian one last time, striking it down and defeating it.")
+        print(f"You and {companion} attack the guardian one last time, striking it down and defeating it.")
         time.sleep(5)
         print("You search the guardian's remains and find a glowing red key that unlocks a hidden door in the machine.")
         time.sleep(5)
-        print(f"You and {Companion} enter the hidden door, hoping to find more clues about the final beast.")
+        print(f"You and {companion} enter the hidden door, hoping to find more clues about the final beast.")
         time.sleep(5)
-        Chapter_15()
+        chapter_15()
     #This goes to the nest chapter
     else:
         print("The guardian lumbers over towards you and crushes you")
-        Death()
+        death()
 
-def Chapter_15():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_15"
+def chapter_15():
+    global  current_chapter
+    current_chapter = "chapter_15"
     print("***************************\n"
           "Chapter 15: The Second Machine\n"
           "***************************\n")
     time.sleep(2)
-    print(f"You and {Companion} enter the second machine, a massive structure filled with gears and machinery.")
+    print(f"You and {companion} enter the second machine, a massive structure filled with gears and machinery.")
     time.sleep(5)
     print("The air is thick with the smell of rusty metal, and you can hear the sound of machinery whirring to life.")
     time.sleep(5)
-    print(f"{Companion} says, 'We need to find a way to shut down this machine before it activates.'")
+    print(f"{companion} says, 'We need to find a way to shut down this machine before it activates.'")
     time.sleep(5)
     print("You nod in agreement, determined to stop the machine and find the final beast.")
     time.sleep(5)
@@ -2785,24 +2803,24 @@ def Chapter_15():
     print("It raises its massive fists, ready to attack.")
     time.sleep(5)
     print("****************************\n"
-          "  The Second Guardian \n"
+          "  The Second guardian \n"
           "****************************\n")
     time.sleep(5)
-    Guardian2()
+    guardian2()
 #This goes to the next stage of the battle
 
-def Guardian2():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Guardian2"
+def guardian2():
+    global current_chapter
+    current_chapter = "guardian2"
     print("The guardian lunges at you, its fists swinging through the air.")
     time.sleep(5)
-    print(f"You dodge the attack and strike back, hitting the guardian in the side.")
+    print("You dodge the attack and strike back, hitting the guardian in the side.")
     time.sleep(5)
     print("The guardian roars in pain, but it is not defeated yet.")
     time.sleep(5)
     guardian_choice = input("Do you want to attack the guardian again or try to find a way to disable the machines? (Attack/Disable): ")
     if guardian_choice.lower() == "attack":
-        print(f"You and {Companion} attack the guardian with all your might, striking it with your weapons.")
+        print(f"You and {companion} attack the guardian with all your might, striking it with your weapons.")
         time.sleep(5)
         print("The guardian roars in pain, but it is not defeated yet.")
         time.sleep(5)
@@ -2810,69 +2828,69 @@ def Guardian2():
         time.sleep(5)
         disable_choice = input("Do you want to try to disable the machines or keep attacking the guardian? (Disable/Attack): ")
         if disable_choice.lower() == "disable":
-            print(f"You and {Companion} search the room for a way to disable the machines.")
+            print(f"You and {companion} search the room for a way to disable the machines.")
             time.sleep(5)
             print("You find a control panel on the wall with a series of buttons and switches.")
             time.sleep(5)
             print("You quickly figure out how to disable the machines, and they all shut down, leaving the guardian vulnerable.")
             time.sleep(5)
-            print(f"You and {Companion} attack the guardian one last time, striking it down and defeating it.")
+            print(f"You and {companion} attack the guardian one last time, striking it down and defeating it.")
             time.sleep(5)
             print("You search the guardian's remains and find a glowing blue key that unlocks a hidden door in the machine.")
             time.sleep(5)
-            print(f"You and {Companion} enter the hidden door, hoping to find more clues about the final beast.")
+            print(f"You and {companion} enter the hidden door, hoping to find more clues about the final beast.")
             time.sleep(5)
-            Final_machine()
+            final_machine()
         #Goes to next chapter
         elif disable_choice.lower() == "attack":
-            print(f"You and {Companion} keep attacking the guardian, but it is too strong.")
+            print(f"You and {companion} keep attacking the guardian, but it is too strong.")
             time.sleep(5)
             print("The guardian strikes you down, and you fall to the ground, defeated.")
             time.sleep(5)
-            Death()
+            death()
         #kills the player
         else:
             print("The guardian suddenly stops moving")
             time.sleep(5)
-            print(f"You and {Companion} stare bewildered")
+            print(f"You and {companion} stare bewildered")
             time.sleep(5)
             print("Suddenly, the guardian explodes")
             time.sleep(5)
             print("All those years being inactive and inside this humid room must have rusted something")
-            Death()
+            death()
             return
     elif guardian_choice.lower() == "disable":
-        print(f"You and {Companion} search the room for a way to disable the machines.")
+        print(f"You and {companion} search the room for a way to disable the machines.")
         time.sleep(5)
         print("You find a control panel on the wall with a series of buttons and switches.")
         time.sleep(5)
         print("You quickly figure out how to disable the machines, and they all shut down, leaving the guardian vulnerable.")
         time.sleep(5)
-        print(f"You and {Companion} attack the guardian one last time, striking it down and defeating it.")
+        print(f"You and {companion} attack the guardian one last time, striking it down and defeating it.")
         time.sleep(5)
         print("You search the guardian's remains and find a glowing blue key that unlocks a hidden door in the machine.")
         time.sleep(5)
-        print(f"You and {Companion} enter the hidden door, hoping to find more clues about the final beast.")
+        print(f"You and {companion} enter the hidden door, hoping to find more clues about the final beast.")
         time.sleep(5)
-        Final_machine()
+        final_machine()
     else:
         print("The guardian swings it huge arms at you")
-        Death()
+        death()
         return
     #Goes to next chapter
 
-def Final_machine():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Final_machine"
+def final_machine():
+    global current_chapter
+    current_chapter = "final_machine"
     print("***************************\n"
           "Chapter 16: The Final Machine\n"
           "***************************\n")
     time.sleep(2)
-    print(f"You and {Companion} enter the final machine, a massive structure filled with gears and machinery.")
+    print(f"You and {companion} enter the final machine, a massive structure filled with gears and machinery.")
     time.sleep(5)
     print("The air is thick with the smell of rusty metal, and you can hear the sound of machinery whirring to life.")
     time.sleep(5)
-    print(f"{Companion} says, 'This is it. The final machine that guards the capital.'")
+    print(f"{companion} says, 'This is it. The final machine that guards the capital.'")
     time.sleep(5)
     print("You nod in agreement, determined to find a way to shut down the machine and rescue the princess.")
     time.sleep(5)
@@ -2882,25 +2900,25 @@ def Final_machine():
     time.sleep(5)
     print("You hear a loud rumbling noise, and the machines begin to shut down the forcefield that surrounds the capital.")
     time.sleep(5)
-    print(f"With the forcefield down, you and {Companion} rush out of the machine rooms and make your way to the heart of the capital.")
-    Chapter_16()
+    print(f"With the forcefield down, you and {companion} rush out of the machine rooms and make your way to the heart of the capital.")
+    chapter_16()
 #This goes to the next chapter after disabling the forcefield
     
 
-def Chapter_16():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_16"
+def chapter_16():
+    global current_chapter
+    current_chapter = "chapter_16"
     print("***************************\n"
           "Chapter 16: The Final Showdown\n"
           "***************************\n")
     time.sleep(2)
-    print(f"You and {Companion} enter the capital, a grand city filled with towering buildings and bustling streets.")
+    print(f"You and {companion} enter the capital, a grand city filled with towering buildings and bustling streets.")
     time.sleep(5)
-    print(capital)
+    print(NECRON)
     time.sleep(5)
     print("But something is off. The streets are eerily quiet, and you can feel a dark presence lurking in the shadows.")
     time.sleep(5)
-    print(f"{Companion} says, 'We need to find the final beast and rescue the princess.'")
+    print(f"{companion} says, 'We need to find the final beast and rescue the princess.'")
     time.sleep(5)
     print("You nod in agreement, determined to find the final beast and rescue the princess.")
     time.sleep(5)
@@ -2912,9 +2930,9 @@ def Chapter_16():
     time.sleep(5)
     print("These symbols seem to pulse with a dark energy, and you can feel their power as you pass by.")
     time.sleep(5)
-    print(f"{Companion} says, 'These symbols must be connected to the final beast.'")
+    print(f"{companion} says, 'These symbols must be connected to the final beast.'")
     time.sleep(5)
-    print(f"You and {Companion} continue to explore the capital, searching for any clues that might lead you to the final beast.")
+    print(f"You and {companion} continue to explore the capital, searching for any clues that might lead you to the final beast.")
     time.sleep(5)
     print("As you venture deeper into the capital, you come across a large underground chamber filled with darkness with a few crates inside.")
     time.sleep(5)
@@ -2925,85 +2943,85 @@ def Chapter_16():
     print("The figure is a giant shadow beast, its eyes glowing with a menacing light.")
     time.sleep(5)
     print("****************************\n"
-    "   Necron The Beast of Eternal Doom \n"
+    "   necron The Beast of Eternal Doom \n"
           "****************************\n")
     time.sleep(5)
-    print(necron)
+    print(NECRON)
     time.sleep(5)
     save_game()
-    Necron_Fight()
+    necron_fight()
 #This starts the boss fight
 
-def Necron_Fight():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Necron_Fight"
+def necron_fight():
+    global current_chapter
+    current_chapter = "necron_fight"
     print("The beast lunges at you, its claws slashing through the air.")
     time.sleep(5)
-    print(f"You dodge the attack and strike back, hitting the beast in the side.")
+    print("You dodge the attack and strike back, hitting the beast in the side.")
     time.sleep(5)
-    print("Necron roars in pain, but it is not defeated yet.")
+    print("necron roars in pain, but it is not defeated yet.")
     time.sleep(5)
-    beast_choice = input("Do you want to attack the beast again or heal? (Attack/Heal): ")
-    if beast_choice.lower() == "attack":
-        print(f"You and {Companion} attack the beast with all your might, striking it with your weapons.")
+    necron_choice = input("Do you want to attack the beast again or heal? (Attack/Heal): ")
+    if necron_choice.lower() == "attack":
+        print(f"You and {companion} attack the beast with all your might, striking it with your weapons.")
         time.sleep(5)
         print("The beast roars in pain, but it is not defeated yet.")
         time.sleep(5)
-        print("Necron is too strong, and you realize that you need to find a way to disable the machines before you can defeat it.")
+        print("necron is too strong, and you realize that you need to find a way to disable the machines before you can defeat it.")
         time.sleep(5)
         disable_choice = input("Do you want to try to disable the machines or keep attacking the beast? (Heal/Attack): ")
         if disable_choice.lower() == "heal":
-            print(f"You and {Companion} search the cavern for a way to heal yourselves.")
+            print(f"You and {companion} search the cavern for a way to heal yourselves.")
             time.sleep(5)
             print("You find a stash of healing potions and quickly use them to restore your health.")
             time.sleep(5)
             print("With your health restored, you feel ready to take on the beast again.")
             time.sleep(5)
-            Necron_Fight2()
+            necron_fight2()
         #Goes to the second part of the fight
         elif disable_choice.lower() == "attack":
-            print(f"You and {Companion} keep attacking the beast, but it is too strong.")
+            print(f"You and {companion} keep attacking the beast, but it is too strong.")
             time.sleep(5)
             print("The beast strikes you down, and you fall to the ground, defeated.")
             time.sleep(5)
-            Death()
+            death()
         #Deatg
         else:
             print("Invalid choice. You continue to attack the beast without healing.")
             time.sleep(5)
-            Necron_Fight2()
+            necron_fight2()
         #Goes to the second part of the fight without heal
-    elif beast_choice.lower() == "heal":
-        print(f"You and {Companion} search the cavern for a way to heal yourselves.")
+    elif necron_choice.lower() == "heal":
+        print(f"You and {companion} search the cavern for a way to heal yourselves.")
         time.sleep(5)
         print("You find a stash of healing potions and quickly use them to restore your health.")
         time.sleep(5)
         print("With your health restored, you feel ready to take on the beast again.")
         time.sleep(5)
-        Necron_Fight2()
+        necron_fight2()
     #Goees to second part of the fight
     else:
-        print("Invalid choice. Necron casts a dark spell, and you feel your strength draining away.")
+        print("Invalid choice. necron casts a dark spell, and you feel your strength draining away.")
         time.sleep(5)
-        Death()
+        death()
         return
-    #Death
+    #death
 
-def Necron_Fight2():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Necron_Fight2"
-    print("AHHHHHH, LIGHT WILL NEVER COME OVER THIS WORLD, YOU CAN'T STOP ME YOU PUNY LITTLE INSECTS! Necron yells")
-    beast_choice2 = input("Do you want to attack the beast again or heal? (Attack/Heal): ")
-    if beast_choice2.lower() == "attack":
-        print(f"You and {Companion} attack the beast with all your might, striking it with your weapons.")
+def necron_fight2():
+    global current_chapter
+    current_chapter = "necron_fight2"
+    print("AHHHHHH, LIGHT WILL NEVER COME OVER THIS WORLD, YOU CAN'T STOP ME YOU PUNY LITTLE INSECTS! necron yells")
+    necron_choice2 = input("Do you want to attack the beast again or heal? (Attack/Heal): ")
+    if necron_choice2.lower() == "attack":
+        print(f"You and {companion} attack the beast with all your might, striking it with your weapons.")
         time.sleep(5)
         print("The beast roars in pain, but it is not defeated yet.")
         time.sleep(5)
-        print("Necron is too strong, and you realize that there are machines surrounding the room healing Necron, you need to find a way to disable the machines before you can defeat it.")
+        print("necron is too strong, and you realize that there are machines surrounding the room healing necron, you need to find a way to disable the machines before you can defeat it.")
         time.sleep(5)
         disable_choice2 = input("Do you want to try to disable the machines or keep attacking the beast? (Disable/Attack): ")
         if disable_choice2.lower() == "disable":
-            print(f"You and {Companion} search the cavern for a way to disable the machines.")
+            print(f"You and {companion} search the cavern for a way to disable the machines.")
             time.sleep(5)
             print("You find a control panel on the wall with a series of buttons and switches and a book full of unknown letters.")
             time.sleep(5)
@@ -3011,56 +3029,56 @@ def Necron_Fight2():
             time.sleep(5)
             print("With this knowledge, you feel ready to take on the machines.")
             time.sleep(5)
-            Machines1()
+            machines1()
         #Goes to next part
         elif disable_choice2.lower() == "attack":
-            print(f"You and {Companion} keep attacking the beast, but it is too strong.")
+            print(f"You and {companion} keep attacking the beast, but it is too strong.")
             time.sleep(5)
             print("The beast strikes you down, and you fall to the ground, defeated.")
             time.sleep(5)
-            Death()
+            death()
             return
-        #Death
+        #death
         else:
-            print(f"Necron suddenly slams into the cavern causing it to collapse on top of you and {Companion}")
-            Death()
+            print(f"necron suddenly slams into the cavern causing it to collapse on top of you and {companion}")
+            death()
             return
-    elif beast_choice2.lower() == "heal":
-        print(f"You and {Companion} search the cavern for a way to heal yourselves.")
+    elif necron_choice2.lower() == "heal":
+        print(f"You and {companion} search the cavern for a way to heal yourselves.")
         time.sleep(5)
         print("You find a stash of healing potions and quickly use them to restore your health.")
         time.sleep(5)
         print("With your health restored, you feel ready to take on the beast again.")
         time.sleep(5)
-        Necron_Fight3()
+        necron_fight3()
     #Starts next sequence of the boss fight
     else:
-        print(f"Necron summons a stack of playing cards on top of you and {Companion}, crushing you both")
-        Death()
+        print(f"necron summons a stack of playing cards on top of you and {companion}, crushing you both")
+        death()
         return
 
-def Necron_Fight3():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Necron_Fight3"
-    print("Necron roars in anger, its eyes glowing with a menacing light.")
+def necron_fight3():
+    global  current_chapter
+    current_chapter = "necron_fight3"
+    print("necron roars in anger, its eyes glowing with a menacing light.")
     time.sleep(5)
     print("The beast lunges at you, its claws slashing through the air.")
     time.sleep(5)
-    print(f"You dodge the attack and strike back, hitting the beast in the side.")
+    print("You dodge the attack and strike back, hitting the beast in the side.")
     time.sleep(5)
-    print("Necron roars in pain, but it is not defeated yet.")
+    print("necron roars in pain, but it is not defeated yet.")
     time.sleep(5)
-    beast_choice3 = input("Do you want to attack the beast again or destroy the machines? (Attack/Destroy): ")
-    if beast_choice3.lower() == "attack":
-        print(f"You and {Companion} attack the beast with all your might, striking it with your weapons.")
+    necron_choice3 = input("Do you want to attack the beast again or destroy the machines? (Attack/Destroy): ")
+    if necron_choice3.lower() == "attack":
+        print(f"You and {companion} attack the beast with all your might, striking it with your weapons.")
         time.sleep(5)
         print("The beast roars in pain, but it is not defeated yet.")
         time.sleep(5)
-        print("Necron is too strong, and you realize that you need to find a way to destroy the machines before you can defeat it.")
+        print("necron is too strong, and you realize that you need to find a way to destroy the machines before you can defeat it.")
         time.sleep(5)
         destroy_choice = input("Do you want to try to destroy the machines or keep attacking the beast? (Destroy/Attack): ")
         if destroy_choice.lower() == "destroy":
-            print(f"You and {Companion} search the cavern for a way to destroy the machines.")
+            print(f"You and {companion} search the cavern for a way to destroy the machines.")
             time.sleep(5)
             print("You find a control panel on the wall with a series of buttons and switches and a book full of unknown letters.")
             time.sleep(5)
@@ -3068,23 +3086,23 @@ def Necron_Fight3():
             time.sleep(5)
             print("With this knowledge, you feel ready to take on the machines.")
             time.sleep(5)
-            Machines1()
+            machines1()
         elif destroy_choice.lower() == "attack":
-            print(f"You and {Companion} keep attacking the beast, but it is too strong.")
+            print(f"You and {companion} keep attacking the beast, but it is too strong.")
             time.sleep(5)
             print("The beast strikes you down, and you fall to the ground, defeated.")
             time.sleep(5)
-            Death()
+            death()
         #Gets killed
         else:
-            print(f"You and {Companion} look in dread as Necron summons a hoard of goblins")
+            print(f"You and {companion} look in dread as necron summons a hoard of goblins")
             time.sleep(5)
-            print(f"The disoriented goblins start swarming you and {Companion}")
+            print(f"The disoriented goblins start swarming you and {companion}")
             time.sleep(5)
-            Death()
+            death()
             return
-    elif beast_choice3.lower() == "destroy":
-        print(f"You  search the cavern for a way to destroy the machines while {Companion} distracts Necrom.")
+    elif necron_choice3.lower() == "destroy":
+        print(f"You  search the cavern for a way to destroy the machines while {companion} distracts Necrom.")
         time.sleep(5)
         print("You find a control panel on the wall with a series of buttons and switches and a book full of unknown letters.")
         time.sleep(5)
@@ -3092,11 +3110,11 @@ def Necron_Fight3():
         time.sleep(5)
         print("With this knowledge, you feel ready to take on the machines.")
         time.sleep(5)
-        Machines1()
+        machines1()
     #Goes to the next chapter
 
 
-def Machines1():
+def machines1():
     print("You spot the first machine, a massive structure made of stone and metal.")
     time.sleep(5)
     destroy1 = input("To destory it type (XYSDFBA): ")
@@ -3105,21 +3123,21 @@ def Machines1():
         time.sleep(5)
         print("You search the machine's remains and find a glowing red key that unlocks a hidden door in the capital.")
         time.sleep(5)
-        print(f"You and {Companion} enter the hidden door, hoping to find more clues about the final beast.")
+        print(f"You and {companion} enter the hidden door, hoping to find more clues about the final beast.")
         time.sleep(5)
-        Machines2()
+        machines2()
     #Goes to next chapter
     else:
         print("You fail to destroy the first machine, and it remains intact.")
         time.sleep(5)
         print("You realize that you need to find a way to disable the machine before you can proceed.")
         time.sleep(5)
-        Machines1()
+        machines1()
     #Repeats
 
-def Machines2():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Machines2"
+def machines2():
+    global current_chapter
+    current_chapter = "machines2"
     print("You spot the second machine, a massive structure made of sharpened serpent scales.")
     time.sleep(5)
     destroy2 = input("To destroy it type (DNQEJJ): ")
@@ -3128,21 +3146,21 @@ def Machines2():
         time.sleep(5)
         print("You search the machine's remains and find a glowing red key that unlocks a hidden door in the capital.")
         time.sleep(5)
-        print(f"You and {Companion} enter the hidden door, hoping to find more clues about the final beast.")
+        print(f"You and {companion} enter the hidden door, hoping to find more clues about the final beast.")
         time.sleep(5)
-        Machines3()
+        machines3()
     #Goes to next chapter
     else:
         print("You fail to destroy the second machine, and it remains intact.")
         time.sleep(5)
         print("You realize that you need to find a way to disable the machine before you can proceed.")
         time.sleep(5)
-        Machines2()
+        machines2()
     #Repeats
 
-def Machines3():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Machines3"
+def machines3():
+    global current_chapter
+    current_chapter = "machines3"
     print("You spot the third machine, a massive structure made of solidified lava.")
     time.sleep(5)
     destroy3 = input("To destroy it type (FNJREWNFJ): ")
@@ -3151,21 +3169,21 @@ def Machines3():
         time.sleep(5)
         print("You search the machine's remains and find a glowing red key that unlocks a hidden door in the capital.")
         time.sleep(5)
-        print(f"You and {Companion} enter the hidden door, hoping to find more clues about the final beast.")
+        print(f"You and {companion} enter the hidden door, hoping to find more clues about the final beast.")
         time.sleep(5)
-        Machines4()
+        machines4()
     #Goes to next chapter
     else:
         print("You fail to destroy the third machine, and it remains intact.")
         time.sleep(5)
         print("You realize that you need to find a way to disable the machine before you can proceed.")
         time.sleep(5)
-        Machines3()
+        machines3()
     #Repeats
 
-def Machines4():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Machines4"
+def machines4():
+    global current_chapter
+    current_chapter = "machines4"
     print("You spot the fourth machine, a massive structure made of pure packed ice.")
     time.sleep(5)
     destroy4 = input("To destroy it type (FNJQNRE): ")
@@ -3174,225 +3192,225 @@ def Machines4():
         time.sleep(5)
         print("You search the machine's remains and find a glowing red key that unlocks a hidden door in the capital.")
         time.sleep(5)
-        print(f"You and {Companion} enter the hidden door, hoping to find more clues about the final beast.")
+        print(f"You and {companion} enter the hidden door, hoping to find more clues about the final beast.")
         time.sleep(5)
-        Machines5()
+        machines5()
     #Goes to next chapter
     else:
         print("You fail to destroy the fourth machine, and it remains intact.")
         time.sleep(5)
         print("You realize that you need to find a way to disable the machine before you can proceed.")
         time.sleep(5)
-        Machines4()
+        machines4()
     #Repeats
 
-def Machines5():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Machines5"
+def machines5():
+    global current_chapter
+    current_chapter = "machines5"
     print("You spot the final machine, a massive structure made of pure refined darkness.")
     time.sleep(5)
     destroy5 = input("To destroy it type (JDEIJDU): ")
     if destroy5.lower() == "jdeijdu":
         print("You successfully destroy the fifth machine, and it crumbles to the ground.")
         time.sleep(5)
-        print("Just in time, you turn around and see Necron, the final beast, charging at you.")
+        print("Just in time, you turn around and see necron, the final beast, charging at you.")
         time.sleep(5)
-        print(f"{Companion} is nowhere to be seen, and you realize that you are alone in this fight.")
+        print(f"{companion} is nowhere to be seen, and you realize that you are alone in this fight.")
         time.sleep(5)
-        Necron_Fight4()
+        necron_fight4()
     #Goes to next part of the fight
     else:
         print("You fail to destroy the fifth machine, and it remains intact.")
         time.sleep(5)
         print("You realize that you need to find a way to disable the machine before you can proceed.")
         time.sleep(5)
-        Machines5()
+        machines5()
     #Repeats
 
-def Necron_Fight4():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Necron_Fight4"
-    print("Necron roars in anger, its eyes glowing with a darker menacing light.")
+def necron_fight4():
+    global  current_chapter
+    current_chapter = "necron_fight4"
+    print("necron roars in anger, its eyes glowing with a darker menacing light.")
     time.sleep(5)
-    print("Necron shrieks another battle cry, and transforms into it's second form, a massive shadowy dragon.")
+    print("necron shrieks another battle cry, and transforms into it's second form, a massive shadowy dragon.")
     time.sleep(5)
     print("*************************************\n"
-"      Necronom The Final Bringer of Eternal Darkness \n"
+"      necronom The Final Bringer of Eternal Darkness \n"
           "************************************\n")
     time.sleep(5)
-    print(necron_secondform)
+    print(NECRON_SECOND_FORM)
     time.sleep(5)
     print("The dragon lunges at you, its claws slashing through the air.")
     time.sleep(5)
-    print(f"You dodge the attack and strike back, hitting the dragon in the side.")
+    print("You dodge the attack and strike back, hitting the dragon in the side.")
     time.sleep(5)
-    print("Necronom roars in pain, but it is not defeated yet.")
+    print("necronom roars in pain, but it is not defeated yet.")
     time.sleep(5)
     dragon_choice = input("Do you want to attack the dragon again or heal? (Attack/Heal): ")
     #Saves input as dragon_choice
     if dragon_choice.lower() == "attack":
-        print(f"You and {Companion} attack the dragon with all your might, striking it with your weapons.")
+        print(f"You and {companion} attack the dragon with all your might, striking it with your weapons.")
         time.sleep(5)
         print("The dragon roars in pain, but it is not defeated yet.")
         time.sleep(5)
-        print("Necronom is too strong, and yet you perservere through the pain and realize that inside one of the crates, is a book full of spells.")
+        print("necronom is too strong, and yet you perservere through the pain and realize that inside one of the crates, is a book full of spells.")
         time.sleep(5)
         disable_choice = input("Do you want to try to cast a spell or keep attacking the dragon? (Cast/Attack): ")
         if disable_choice.lower() == "cast":
-            print(f"You grab the book and quickly flip through the pages, searching for a spell that can help you defeat the dragon.")
+            print("You grab the book and quickly flip through the pages, searching for a spell that can help you defeat the dragon.")
             time.sleep(5)
-            print(Dark_Book)
+            print(DARK_BOOK)
             time.sleep(5)
             print("You find a spell that seems to describe the dragon, and you quickly memorize it.")
             time.sleep(5)
-            print(f"Nazma incus draconis! you chant, and a burst of light erupts from your hands.")
+            print("Nazma incus draconis! you chant, and a burst of light erupts from your hands.")
             time.sleep(5)
             print("The dragon roars in pain, and you can see its scales begin to crack and crumble.")
             time.sleep(5)
-            print("AHHHHHHHHHHHHHHHHHHHHHH, NOOOOOOOOOOOO! Necronom screams  as it begins to disintegrate.")
+            print("AHHHHHHHHHHHHHHHHHHHHHH, NOOOOOOOOOOOO! necronom screams  as it begins to disintegrate.")
             time.sleep(5)
-            print("THIS WILL NOT BE THE END, THE PRINCESS IS NOT WHO SHE SEEMS, YOU WILL NEVER ESCAPE THIS PLACE ALIVE! Necronom yells as it fades into the shadows.")
+            print("THIS WILL NOT BE THE END, THE PRINCESS IS NOT WHO SHE SEEMS, YOU WILL NEVER ESCAPE THIS PLACE ALIVE! necronom yells as it fades into the shadows.")
             time.sleep(5)
             print("You search the dragon's remains and find a glowing purple key that unlocks a hidden door in the chamber.")
             time.sleep(5)
-            print(f"You and {Companion} enter the hidden door, hoping to find more clues about the final beast.")
+            print(f"You and {companion} enter the hidden door, hoping to find more clues about the final beast.")
             time.sleep(5)
-            companionfight()
+            companion_fight()
         #Continues to next chapter
         elif disable_choice.lower() == "attack":
-            print(f"You and {Companion} keep attacking the dragon, but it is too strong.")
+            print(f"You and {companion} keep attacking the dragon, but it is too strong.")
             time.sleep(5)
             print("The dragon strikes you down, and you fall to the ground, defeated.")
             time.sleep(5)
-            Death()
-        #Death
+            death()
+        #death
         else:
             print("Invalid choice. The dragon strikes you down, and you fall to the ground, defeated.")
             time.sleep(5)
-            Death()
-        #Death due to invalid response
+            death()
+        #death due to invalid response
     elif dragon_choice.lower() == "heal":
-        print("Necronom charges into you and picks you up high before dropping you")
-        Death()
+        print("necronom charges into you and picks you up high before dropping you")
+        death()
     else:
-        print("Necronom strikes you and companion")
-        Death()
+        print("necronom strikes you and companion")
+        death()
 
 
-def companionfight():
-    global Companion, Username, current_chapter, player
-    current_chapter = "companionfight"
+def companion_fight():
+    global  current_chapter
+    current_chapter = "companion_fight"
     print("As you enter the hidden door, you find yourself in a large chamber filled with darkness.")
     time.sleep(5)
     print("In the center of the chamber, you see a pedestal with a glowing purple key.")
     time.sleep(5)
     print("But before you can approach the pedestal, you hear a voice calling your name.")
     time.sleep(5)
-    print(f"You turn around to look at {Companion} but he looks off")
+    print(f"You turn around to look at {companion} but he looks off")
     time.sleep(5)
-    print(f"Their eyes are glowing with a dark energy.")
+    print("Their eyes are glowing with a dark energy.")
     time.sleep(5)
-    print(f"{Companion} says, 'You have come far, but you will not find the princess here.'")
+    print(f"{companion} says, 'You have come far, but you will not find the princess here.'")
     time.sleep(5)
-    print(f"The voice is distorted and twisted, and you can feel a dark presence emanating from {Companion}.")
+    print(f"The voice is distorted and twisted, and you can feel a dark presence emanating from {companion}.")
     time.sleep(5)
     print("****************************\n"
-            "  Corrupted Companion \n"
+            "  Corrupted companion \n"
           "****************************\n")
     time.sleep(5)
-    print(f"You realize that {Companion} has been corrupted by the dark energy of Necron, and you must fight them to save the princess.")
+    print(f"You realize that {companion} has been corrupted by the dark energy of necron, and you must fight them to save the princess.")
     time.sleep(5)
-    companion_choice = input(f"Do you want to attack {Companion} or try to reason with them? (Attack/Reason): ")
+    companion_choice = input(f"Do you want to attack {companion} or try to reason with them? (Attack/Reason): ")
     if companion_choice.lower() == "reason":
-        print(f"You try to reason with {Companion}, but they are too far gone.")
+        print(f"You try to reason with {companion}, but they are too far gone.")
         time.sleep(5)
-        print(f"The corrupted {Companion} is strong, but you are determined to save them.")
+        print(f"The corrupted {companion} is strong, but you are determined to save them.")
         time.sleep(5)
-        print(f"Too late, the corrupted {Companion} lunges at you, their claws slashing through the air.")
+        print(f"Too late, the corrupted {companion} lunges at you, their claws slashing through the air.")
         time.sleep(5)
-        print(f" {Companion} manages to strike you down, and you fall to the ground, defeated.")
+        print(f" {companion} manages to strike you down, and you fall to the ground, defeated.")
         time.sleep(5)
-        print(f"I'm sorry, {Username}, but I cannot let you find the princess, {Companion} says, their voice distorted and twisted.")
+        print(f"I'm sorry, {username}, but I cannot let you find the princess, {companion} says, their voice distorted and twisted.")
         time.sleep(5)
-        print(f"{Companion} leaves you lying on the ground, defeated, and walks away into the darkness.")
+        print(f"{companion} leaves you lying on the ground, defeated, and walks away into the darkness.")
         time.sleep(5)
         print("You've made it far, but this is where it ends for you.")
         time.sleep(5)
-        print(f"You hear the corrupted {Companion} laugh as they disappear into the shadows.")
-        Death()       
+        print(f"You hear the corrupted {companion} laugh as they disappear into the shadows.")
+        death()       
         return
     elif companion_choice.lower() == "attack":
-        print(f"You lunge at {Companion}, your eyes filled with tears yet your heart filled with determination.")
+        print(f"You lunge at {companion}, your eyes filled with tears yet your heart filled with determination.")
         time.sleep(5)
-        print(f"{Companion} tries to dodge your attack, but you manage to hit them in the side.")
+        print(f"{companion} tries to dodge your attack, but you manage to hit them in the side.")
         time.sleep(5)
-        print(f"Wait, {Username}, I can still be saved! {Companion} cries out, their voice filled with pain.")
+        print(f"Wait, {username}, I can still be saved! {companion} cries out, their voice filled with pain.")
         time.sleep(5)
-        companion_choice2 = input(f"Would you like to continue attacking {Companion} or try to save them? (Attack/Save): ")
+        companion_choice2 = input(f"Would you like to continue attacking {companion} or try to save them? (Attack/Save): ")
         time.sleep(5)
         if companion_choice2.lower() == "save":
-            print(f"Fine, you reply")
+            print("Fine, you reply")
             time.sleep(5)
-            print(f"Thank you, {Username}, I knew you would come to save me! {Companion} says, their voice filled with hope.")
+            print(f"Thank you, {username}, I knew you would come to save me! {companion} says, their voice filled with hope.")
             time.sleep(5)
-            print(f"You help {Companion} to their feet, and they look at you with gratitude in their eyes.")
+            print(f"You help {companion} to their feet, and they look at you with gratitude in their eyes.")
             time.sleep(5)
-            print(f"'Come let's go, we need to get out of here', you say to {Companion}")
+            print(f"'Come let's go, we need to get out of here', you say to {companion}")
             time.sleep(5)
-            print(f"We need to go find the princ...")
+            print("We need to go find the princ...")
             time.sleep(5)
-            print(f"{Companion} striked you in the bag, their eyes glowing with a dark energy once again.")
+            print(f"{companion} striked you in the bag, their eyes glowing with a dark energy once again.")
             time.sleep(5)
-            print(f"You really thought I was going to let you save me? {Companion} says, their voice distorted and twisted.")
+            print(f"You really thought I was going to let you save me? {companion} says, their voice distorted and twisted.")
             time.sleep(5)
-            print(f"Bye bye, {Username}, I hope you enjoy your stay in the darkness, {Companion} says with a sinister laugh.")
-            Death()
+            print(f"Bye bye, {username}, I hope you enjoy your stay in the darkness, {companion} says with a sinister laugh.")
+            death()
             return
         elif companion_choice2.lower() == "attack":
-            print(f"You keep attacking {Companion}, determined to defeat them and save the princess.")
+            print(f"You keep attacking {companion}, determined to defeat them and save the princess.")
             time.sleep(5)
-            print(f"The corrupted {Companion} fights back with all their might, but you are relentless in your attack.")
+            print(f"The corrupted {companion} fights back with all their might, but you are relentless in your attack.")
             time.sleep(5)
-            print(f"Finally, after a long and grueling battle, {Companion} surrenders.")
+            print(f"Finally, after a long and grueling battle, {companion} surrenders.")
             time.sleep(5)
-            print(f"Fine, I'm sorry, {Username}, I didn't mean to hurt you, {Companion} says, their voice filled with pain. ")
+            print(f"Fine, I'm sorry, {username}, I didn't mean to hurt you, {companion} says, their voice filled with pain. ")
             time.sleep(5)
-            print("No, you replied, you were corrupted by the dark energy of Necron, and you must be stopped.")
+            print("No, you replied, you were corrupted by the dark energy of necron, and you must be stopped.")
             time.sleep(5)
-            print(f"You hoist your sword towards {Companion}, ready to strike the final blow.")
+            print(f"You hoist your sword towards {companion}, ready to strike the final blow.")
             time.sleep(5)
-            print(f"But before you can strike, you remember all the fond memories you had with {Companion}.")
+            print(f"But before you can strike, you remember all the fond memories you had with {companion}.")
             time.sleep(5)
-            print(f"You remember the times you laughed together, the times you fought side by side, all the dungeons you faced together.")
+            print("You remember the times you laughed together, the times you fought side by side, all the dungeons you faced together.")
             time.sleep(5)
-            print(f"You realize that you cannot bring yourself to kill {Companion}, even if they corrupted, but yet he could still hurt you.")
+            print(f"You realize that you cannot bring yourself to kill {companion}, even if they corrupted, but yet he could still hurt you.")
             time.sleep(5)
-            companion_choice3 = input(f"Do you want to spare {Companion} or finish them off? (Spare/Finish): ")
+            companion_choice3 = input(f"Do you want to spare {companion} or finish them off? (Spare/Finish): ")
             if companion_choice3.lower() == "spare":
-                print(f"You lower your sword, tears streaming down your face.")
+                print("You lower your sword, tears streaming down your face.")
                 time.sleep(5)
-                print(f"I can't do it, {Companion}, I can't do it, you say, your voice filled with emotion.")
+                print(f"I can't do it, {companion}, I can't do it, you say, your voice filled with emotion.")
                 time.sleep(5)
-                print(f"{Companion} looks at you with gratitude in their eyes, and they fall to their knees, their eyes filled with tears.")
+                print(f"{companion} looks at you with gratitude in their eyes, and they fall to their knees, their eyes filled with tears.")
                 time.sleep(5)
-                print(f"Thank you, {Username}, I knew you would come to save me, {Companion} says, their voice filled with hope.")
+                print(f"Thank you, {username}, I knew you would come to save me, {companion} says, their voice filled with hope.")
                 time.sleep(5)
                 print("I can't kill you, even if you are corrupted, you say, your voice filled with emotion.")
                 time.sleep(5)
-                print("The book which you used to kill Necronon, starts to pulse")
+                print("The book which you used to kill necronon, starts to pulse")
                 time.sleep(5)
                 print("All of a sudden, it opens and frees from your clutches and begins to float in the air.")
                 time.sleep(5)
-                print(f"{Companion} begins to float in the air alongside the book")
+                print(f"{companion} begins to float in the air alongside the book")
                 time.sleep(5)
-                print(f"Suddenly, lightning strikes {Companion} and they collapse to the ground, weak but you feel that the dark energy is gone.")
-                Chapter_17()
+                print(f"Suddenly, lightning strikes {companion} and they collapse to the ground, weak but you feel that the dark energy is gone.")
+                chapter_17()
             elif companion_choice3.lower() == "finish":
-                print(f"You raise your sword and deliver the final blow to {Companion}, ending their corrupted existence.")
+                print(f"You raise your sword and deliver the final blow to {companion}, ending their corrupted existence.")
                 time.sleep(5)
-                print(f"With their last breath, {Companion} looks at you with a mix of gratitude and sorrow.")
+                print(f"With their last breath, {companion} looks at you with a mix of gratitude and sorrow.")
                 time.sleep(5)
-                print(f"Thank you for freeing me, {Username}, {Companion} whispers before fading away.")
+                print(f"Thank you for freeing me, {username}, {companion} whispers before fading away.")
                 time.sleep(5)
                 print("You look down at the remains of your once beloved companion, your heart heavy with sorrow.")
                 time.sleep(5)
@@ -3403,67 +3421,67 @@ def companionfight():
                 print("You faint and collapse")
                 time.sleep(5)
                 print("You died, due to loneliness and sorrow")
-                Death()
+                death()
                 return
             else:
-                print(f"Invalid choice. The corrupted {Companion} strikes you down, and you fall to the ground, defeated.")
+                print(f"Invalid choice. The corrupted {companion} strikes you down, and you fall to the ground, defeated.")
                 time.sleep(5)
-                Death()
+                death()
         else:
-            print(f"Invalid choice. The corrupted {Companion} strikes you down, and you fall to the ground, defeated.")
+            print(f"Invalid choice. The corrupted {companion} strikes you down, and you fall to the ground, defeated.")
             time.sleep(5)
-            Death()
+            death()
     else:
-        print(f"Invalid choice. The corrupted {Companion} strikes you down, and you fall to the ground, defeated.")
+        print(f"Invalid choice. The corrupted {companion} strikes you down, and you fall to the ground, defeated.")
         time.sleep(5)
-        Death()
+        death()
 
-def Chapter_17():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_17"
+def chapter_17():
+    global  current_chapter
+    current_chapter = "chapter_17"
     print("***************************\n"
             "Chapter 17: The Princess?\n"
           "***************************\n")
     time.sleep(2)
-    print(f"Uhhh, where am I?? {Companion} says, as they slowly regain consciousness.")
+    print(f"Uhhh, where am I?? {companion} says, as they slowly regain consciousness.")
     time.sleep(5)
-    print(f"What happened?, {Companion} asks, looking around the abandoned house.")
+    print(f"What happened?, {companion} asks, looking around the abandoned house.")
     time.sleep(5)
-    print(f"You explain to {Companion} that you defeated Necron and saved them from the dark energy that corrupted them.")
+    print(f"You explain to {companion} that you defeated necron and saved them from the dark energy that corrupted them.")
     time.sleep(5)
-    print(f"{Companion} looks at you with gratitude in their eyes, and they fall to their knees, their eyes filled with tears.")
+    print(f"{companion} looks at you with gratitude in their eyes, and they fall to their knees, their eyes filled with tears.")
     time.sleep(5)
-    print(f"Thank you, {Username}, I knew you would come to save me, {Companion} says, their voice filled with hope.")
+    print(f"Thank you, {username}, I knew you would come to save me, {companion} says, their voice filled with hope.")
     time.sleep(5)
-    print(f"You help {Companion} to their feet, and they look at you with gratitude in their eyes.")
+    print(f"You help {companion} to their feet, and they look at you with gratitude in their eyes.")
     time.sleep(5)
-    print(f"'Come let's go, we need to find the princess', you say to {Companion}")
+    print(f"'Come let's go, we need to find the princess', you say to {companion}")
     time.sleep(5)
-    print(f"You and {Companion} leave the abandoned house and make your way to the heart of the capital.")
+    print(f"You and {companion} leave the abandoned house and make your way to the heart of the capital.")
     time.sleep(5)
     print("As you walk through the empty streets, you once again notice the strange symbols etched into the walls but now they've seem to be faded away.")
     time.sleep(5)
-    print(f"I want to get out of here, {Companion} says, their voice filled with determination")
+    print(f"I want to get out of here, {companion} says, their voice filled with determination")
     time.sleep(5)
-    print(f"You nod in agreement, determined to find the princess and escape the capital.")
+    print("You nod in agreement, determined to find the princess and escape the capital.")
     time.sleep(5)
-    print(f"'At the center of the capital, lies the princess's castle,' {Companion} says, 'It's most likely she's trapped in there.'")
+    print(f"'At the center of the capital, lies the princess's castle,' {companion} says, 'It's most likely she's trapped in there.'")
     time.sleep(5)
-    print(f"You and {Companion} make your way to the castle, hoping to find the princess and escape the capital.")
-    Chapter_18()
+    print(f"You and {companion} make your way to the castle, hoping to find the princess and escape the capital.")
+    chapter_18()
 
-def Chapter_18():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_18"
+def chapter_18():
+    global current_chapter
+    current_chapter = "chapter_18"
     print("***************************\n"
           "Chapter 18: The Castle\n"
           "***************************\n")
     time.sleep(2)
-    print(f"You and {Companion} arrive at the castle, a grand gothic structure filled with towering walls and ornate decorations.")
+    print(f"You and {companion} arrive at the castle, a grand gothic structure filled with towering walls and ornate decorations.")
     time.sleep(5)
     print("But something is off. The castle is eerily quiet, and you can feel a dark presence lurking in the shadows.")
     time.sleep(5)
-    print(f"{Companion} says, 'We need to find the princess and escape this place.'")
+    print(f"{companion} says, 'We need to find the princess and escape this place.'")
     time.sleep(5)
     print("You nod in agreement, determined to find the princess and escape the capital.")
     time.sleep(5)
@@ -3473,192 +3491,198 @@ def Chapter_18():
     time.sleep(5)
     print("But before you can approach the pedestal, you hear a voice calling your name.")
     time.sleep(5)
-    print(f"It's the princess, but something is off.")
+    print("It's the princess, but something is off.")
     time.sleep(5)
-    print(f"The princess appears before you, but her eyes are glowing with a dark energy.")
+    print("The princess appears before you, but her eyes are glowing with a dark energy.")
     time.sleep(5)
-    print(f"The princess says, 'You have come far, but you will not find your way out of here.'")
+    print("The princess says, 'You have come far, but you will not find your way out of here.'")
     time.sleep(5)
-    print(f"The voice is distorted and twisted, and you can feel a dark presence emanating from the princess.")
+    print("The voice is distorted and twisted, and you can feel a dark presence emanating from the princess.")
     time.sleep(5)
     print("****************************\n"
               "  Corrupted Princess \n"
           "****************************\n")
     time.sleep(5)
-    print(f"You realize that the princess has been corrupted by the dark energy of Necron, and you must fight her to escape the capital.")
+    print("You realize that the princess has been corrupted by the dark energy of necron, and you must fight her to escape the capital.")
     time.sleep(5)
-    princess_choice = input(f"Do you want to attack the princess or try to reason with her? (Attack/Reason): ")
+    princess_choice = input("Do you want to attack the princess or try to reason with her? (Attack/Reason): ")
     if princess_choice.lower() == "reason":
-        print(f"You try to reason with the princess, but she is too far gone.")
+        print("You try to reason with the princess, but she is too far gone.")
         time.sleep(5)
-        Death()
+        death()
         return
     elif princess_choice.lower() == "attack":
-        print(f"You draw your weapon and prepare to fight the corrupted princess.")
+        print("You draw your weapon and prepare to fight the corrupted princess.")
         time.sleep(5)
-        print(f"The corrupted princess lunges at you, her claws slashing through the air.")
+        print("The corrupted princess lunges at you, her claws slashing through the air.")
         time.sleep(5)
-        print(f"You dodge the attack and strike back, hitting the princess in the side.")
+        print("You dodge the attack and strike back, hitting the princess in the side.")
         time.sleep(5)
-        print(f"The corrupted princess lets out a roar of pain and anger.")
+        print("The corrupted princess lets out a roar of pain and anger.")
         time.sleep(5)
-        print(f"You realize that you need to find another way to defeat her, and you quickly search the chamber for a way to disable the dark energy that is corrupting her.")
+        print("You realize that you need to find another way to defeat her, and you quickly search the chamber for a way to disable the dark energy that is corrupting her.")
         time.sleep(5)
-        print(f"Before either you or {Companion} can react, the corrupted princess lunges at you again, her claws slashing through the air.")
+        print(f"Before either you or {companion} can react, the corrupted princess lunges at you again, her claws slashing through the air.")
         time.sleep(5)
-        princess_choice2 = input(f"Do you want to attack the princess again or try to run away? (Attack/Run): ")
+        princess_choice2 = input("Do you want to attack the princess again or try to run away? (Attack/Run): ")
         if princess_choice2.lower() == "attack":
-            print(f"You and {Companion} attack the corrupted princess with all your might, striking her with your weapons.")
+            print(f"You and {companion} attack the corrupted princess with all your might, striking her with your weapons.")
             time.sleep(5)
-            print(f"The corrupted princess roars in pain, but she is not defeated yet.")
+            print("The corrupted princess roars in pain, but she is not defeated yet.")
             time.sleep(5)
-            print(f"Suddenly, she summons a dark energy field that surrounds her, making her even more powerful and rendering your attacks useless.")
+            print("Suddenly, she summons a dark energy field that surrounds her, making her even more powerful and rendering your attacks useless.")
             time.sleep(5)
             print("You remember the book you found in the cavern, and you quickly flip through the pages, searching for a spell that can help you defeat the corrupted princess.")
             time.sleep(5)
             print("You find a spell that seems to describe the princess, and you quickly memorize it.")
             time.sleep(5)
-            print(f"Nazma incus regina...")
+            print("Nazma incus regina...")
             time.sleep(5)
-            print(f"But before you can finish the spell, she lunges at you again, her claws slashing through the air.")
+            print("But before you can finish the spell, she lunges at you again, her claws slashing through the air.")
             time.sleep(5)
-            Death()
+            death()
             return
         elif princess_choice2.lower() == "run":
-            print(f"You and {Companion} try to run away from the corrupted princess, dodging her attacks.")
+            print(f"You and {companion} try to run away from the corrupted princess, dodging her attacks.")
             time.sleep(5)
-            print(f"INCOMING ATTACK!!, says {Companion}.")
+            print(f"INCOMING ATTACK!!, says {companion}.")
             time.sleep(5)
-            princess_choice2mini = input(f"Type 'DUCK' to dodge the attack: ")
-            if princess_choice2mini.lower() == "duck":
-                print(f"You and {Companion} duck just in time, avoiding the corrupted princess's attack.")
+            princess_choice3 = input("Type 'DUCK' to dodge the attack: ")
+            if princess_choice3.lower() == "duck":
+                print(f"You and {companion} duck just in time, avoiding the corrupted princess's attack.")
                 time.sleep(5)
-                print(f"You quickly search the chamber for a way to disable the dark energy that is corrupting her.")
+                print("You quickly search the chamber for a way to disable the dark energy that is corrupting her.")
                 time.sleep(5)
-                print(f"Before you can find a way to disable the dark energy, the book you found in the cavern starts to pulse.")
+                print("Before you can find a way to disable the dark energy, the book you found in the cavern starts to pulse.")
                 time.sleep(5)
-                print(f"It levitates into the air and opens, revealing a passage that seems to describe the princess.")
+                print("It levitates into the air and opens, revealing a passage that seems to describe the princess.")
                 time.sleep(5)
-                print(f"Suddenly, lightning strikes the book, and it begins to glow with a bright light.")
+                print("Suddenly, lightning strikes the book, and it begins to glow with a bright light.")
                 time.sleep(5)
                 print("The book strikes you with lightning, and you can feel its power coursing through your veins.")
                 time.sleep(5)
-                print(f"You realize that you can use this power to help the corrupted princess.")
+                print("You realize that you can use this power to help the corrupted princess.")
                 time.sleep(5)
-                print(f"You quickly memorize the passage and prepare to cast the spell.")
+                print("You quickly memorize the passage and prepare to cast the spell.")
                 time.sleep(5)
-                print(f"Nazma incus regina! you chant, and a burst of light erupts from your hands.")
+                print("Nazma incus regina! you chant, and a burst of light erupts from your hands.")
                 time.sleep(5)
-                print(f"The corrupted princess roars in pain, and you can see the dark energy surrounding her begin to dissipate.")
+                print("The corrupted princess roars in pain, and you can see the dark energy surrounding her begin to dissipate.")
                 time.sleep(5)
-                print(f"AHHHHHHHHHHHHHHHHHHHHHH, NOOOOOOOOOOOOOOOO! The corrupted princess screams as she begins to weaken.")
+                print("AHHHHHHHHHHHHHHHHHHHHHH, NOOOOOOOOOOOOOOOO! The corrupted princess screams as she begins to weaken.")
                 time.sleep(5)
-                print(f"THIS WILL NOT BE THE END, YOU WILL NEVER ESCAPE THIS PLACE ALIVE! The corrupted princess yells as she falls to the ground, defeated.")
+                print("THIS WILL NOT BE THE END, YOU WILL NEVER ESCAPE THIS PLACE ALIVE! The corrupted princess yells as she falls to the ground, defeated.")
                 time.sleep(5)
             else:
-                print(f"You fail to dodge the attack, and the corrupted princess strikes you down, and you fall to the ground, defeated.")
+                print("You fail to dodge the attack, and the corrupted princess strikes you down, and you fall to the ground, defeated.")
                 time.sleep(5)
-                Death()
+                death()
                 return
         else:
-            print(f"Invalid choice. The corrupted princess strikes you down, and you fall to the ground, defeated.")
+            print("Invalid choice. The corrupted princess strikes you down, and you fall to the ground, defeated.")
             time.sleep(5)
-            Death()
+            death()
     else:
-            print(f"Invalid choice. The corrupted princess strikes you down, and you fall to the ground, defeated.")
-            time.sleep(5)
-            Death()
+        print("Invalid choice. The corrupted princess strikes you down, and you fall to the ground, defeated.")
+        time.sleep(5)
+        death()
 
-def Chapter_19():
-    global Companion, Username, current_chapter, player
-    current_chapter = "Chapter_19"
+def chapter_19():
+    global  current_chapter
+    current_chapter = "chapter_19"
     print("***************************\n"
           "Chapter 19: The Aftermath\n"
           "***************************\n")
     time.sleep(2)
-    print(f"You and {Companion} stand over the defeated corrupted princess,  her body lying motionless on the ground.")
+    print(f"You and {companion} stand over the defeated corrupted princess,  her body lying motionless on the ground.")
     time.sleep(5)
-    print(f"You realize that you have defeated the final beast, but at a great cost.")
+    print("You realize that you have defeated the final beast," 
+           "but at a great cost.")
     time.sleep(5)
-    print(f"You look down at the remains of the corrupted princess, your heart heavy with sorrow.")
+    print("You look down at the remains of the corrupted princess, your heart heavy with sorrow.")
     time.sleep(5)
-    print(f"You begin to feel regret for what you have done.")
+    print("You begin to feel regret for what you have done.")
     time.sleep(5)
-    print(f"Suddenly, you hear the princess slowly waking up")
+    print("Suddenly, you hear the princess slowly waking up")
     time.sleep(5)
-    print(f"UHhh, where am I?? the princess says, as she slowly regains consciousness.")
+    print("Uhhh, where am I?? the princess says, as she slowly regains consciousness.")
     time.sleep(5)
-    print(f"What happened?, the princess asks, looking around the chamber.")
+    print("What happened?, the princess asks, looking around the chamber.")
     time.sleep(5)
-    print(f"You explain to the princess that you defeated the corrupted princess and saved her from the dark energy that corrupted her.")
+    print("You explain to the princess that you defeated the corrupted princess and saved her from the dark energy that corrupted her.")
     time.sleep(5)
-    print(f"The princess looks at you with gratitude in her eyes.")
+    print("The princess looks at you with gratitude in her eyes.")
     time.sleep(5)
-    print(f"Thank you, {Username}, I knew you would come to save me.")
+    print(f"Thank you, {username}, I knew you would come to save me.")
     time.sleep(5)
-    print(f"You help the princess to her feet, and she looks at you with a newfound determination.")
+    print("You help the princess to her feet, and she looks at you with a newfound determination.")
     time.sleep(5)
-    print(f"Now, me and {Companion} really need to get out of here, you say to the princess.")
+    print(f"Now, me and {companion} really need to get out of here, you say to the princess.")
     time.sleep(5)
-    print(f"Yeah, I would like to get out of here too, {Companion} says, their voice still filled with pain.")
+    print(f"Yeah, I would like to get out of here too, {companion} says, their voice still filled with pain.")
     time.sleep(5)
-    print(f"You and {Companion} leave the chamber with the princess towards one of the castle's dungeon rooms")
-    The_End()
+    print(f"You and {companion} leave the chamber with the princess towards one of the castle's dungeon rooms")
+    the_end()
 #Goes to the end
 
-def The_End():
-    global Companion, Username, current_chapter, player
-    current_chapter = "The_End"
+def the_end():
+    global current_chapter
+    current_chapter = "the_end"
     print("***************************\n"
                    "The End\n"
           "***************************\n")
     time.sleep(2)
-    print(f"You,{Companion} and the princess reach the portal that leads out of Fargon towards where you came from")
-    time.sleep(5)   
-    print(f"The magnificent green portal is glowing with a bright light, and you can feel its power coursing through your veins.")
+    print(f"You,{companion} and the princess reach the portal that leads out of Fargon towards where you came from")
     time.sleep(5)
-    print(f"Well, this is it, you and {Companion} say to the princess.")
+    print("The magnificent green portal is glowing with a bright light," 
+          "and you can feel its power coursing through your veins.")
     time.sleep(5)
-    print(f"This is goodbye")
+    print(f"Well, this is it, you and {companion} say to the princess.")
     time.sleep(5)
-    print(f"Suddenly, the princess pulls you and {Companion} into a tight embrace.")
+    print("This is goodbye")
     time.sleep(5)
-    print(f"Thank you, {Username} and {Companion}, for saving me and for everything you have done.")
+    print(f"Suddenly, the princess pulls you and {companion} into a tight embrace.")
     time.sleep(5)
-    print(f"Fargon will never forget your bravery and heroism.")
+    print(f"Thank you, {username} and {companion}, for saving me and for everything you have done.")
     time.sleep(5)
-    print(f"You and {Companion} nod in agreement, grateful for the princess's kind words.")
+    print("Fargon will never forget your bravery and heroism.")
+    time.sleep(5)
+    print(f"You and {companion} nod in agreement, grateful for the princess's kind words.")
     time.sleep(5)
     print("Suddenly you feel a strange sensation in your chest, and you realize that you've survived so many days in Fargon")
     time.sleep(5)
-    Final_Choice = input("Do you want to stay in Fargon or return home? (Stay/Return): ")
-    if Final_Choice.lower() == "stay":
-        print(f"You and {Companion} decide to stay in Fargon, determined to continue your adventures and protect the realm.")
+    final_choice = input("Do you want to stay in Fargon or return home? (Stay/Return): ")
+    if final_choice.lower() == "stay":
+        print(f"You and {companion} decide to stay in Fargon, determined to continue your adventures and protect the realm.")
         time.sleep(5)
-        print(f"You and {Companion} are now the heroes of Fargon, and your legend will live on for generations to come.")
+        print(f"You and {companion} are now the heroes of Fargon, and your legend will live on for generations to come.")
         time.sleep(5)
         credits()
     #Goes to credits by choosing to stay
-    elif Final_Choice.lower() == "return":
-        print(f"You and {Companion} decide to return home, grateful for the adventures you have had in Fargon.")
+    elif final_choice.lower() == "return":
+        print(f"You and {companion} decide to return home, grateful for the adventures you have had in Fargon.")
         time.sleep(5)
-        print(f"You say goodbye to the princess, promising to never forget your time in Fargon.")
+        print("You say goodbye to the princess,"
+              "promising to never forget your time in Fargon.")
         time.sleep(5)
-        print(f"You and {Companion} step through the portal, ready to return to your world.")
+        print(f"You and {companion} step through the portal, ready to return to your world.")
         time.sleep(5)
-        print(f"You and {Companion} are now the heroes of Fargon, and your legend will live on for generations to come.")
+        print(f"You and {companion} are now the heroes of Fargon,"
+              "and your legend will live on for generations to come.")
         time.sleep(5)
         credits()
     #Returns home and goes to credits
     else:
-        print(f"Invalid Choice, You and {Companion} decide to return home, grateful for the adventures you have had in Fargon.")
+        print(f"Invalid choice, You and {companion} decide to return home, grateful for the adventures you have had in Fargon.")
         time.sleep(5)
-        print(f"You say goodbye to the princess, promising to never forget your time in Fargon.")
+        print("You say goodbye to the princess," 
+              "promising to never forget your time in Fargon.")
         time.sleep(5)
-        print(f"You and {Companion} step through the portal, ready to return to your world.")
+        print(f"You and {companion} step through the portal, ready to return to your world.")
         time.sleep(5)
-        print(f"You and {Companion} are now the heroes of Fargon, and your legend will live on for generations to come.")
+        print(f"You and {companion} are now the heroes of Fargon, and your legend will live on for generations to come.")
         time.sleep(5)
+        save_game()
         credits()
     #Goes to credits
 
@@ -3667,7 +3691,7 @@ def credits():
           "         Credits\n"
           "***************************\n")
     time.sleep(2)
-    print(creditroll)
+    print(credit_roll)
     time.sleep(2)
     print("Game made by: Eric")
     time.sleep(2)
@@ -3675,14 +3699,14 @@ def credits():
     time.sleep(1)
     print("Goodbye!")
     time.sleep(2)
-    Secret = input("Would you like to see a secret ending? (Yes/No): ")
-    if Secret.lower() == "yes":
+    secret = input("Would you like to see a secret ending? (Yes/No): ")
+    if secret.lower() == "yes":
         print("***************************\n"
-              "Secret Ending: The Dark Path\n"
+              "secret Ending: The Dark Path\n"
               "***************************\n")
         #Seperate ending
         time.sleep(2)
-        print(f"You and your companion, {Companion}, decide to take a different path.")
+        print(f"You and your companion, {companion}, decide to take a different path.")
         time.sleep(5)
         print("Instead of returning home, you choose to explore the dark side of Fargon.")
         time.sleep(5)
@@ -3697,9 +3721,14 @@ def credits():
         print("For when there is darkness, there is light...")
         time.sleep(5)
         print("Thank you again. For playing this game")
+        the_end()
+    else:
+        print("Thank you again. For playing this game")
+        the_end()
 
-def THE_END():
-    ENDING = (r"""
+
+def story_over():
+    ending = (r"""
  .-') _    ('-. .-.   ('-.          ('-.       .-') _  _ .-') _  
 (  OO) )  ( OO )  / _(  OO)       _(  OO)     ( OO ) )( (  OO) ) 
 /     '._ ,--. ,--.(,------.     (,------.,--./ ,--,'  \     .'_ 
@@ -3709,7 +3738,7 @@ def THE_END():
    |  |   |  .-.  | |  .--'       |  .--' |  |\    |   |  |   / :
    |  |   |  | |  | |  `---.      |  `---.|  | \   |   |  '--'  /
    `--'   `--' `--' `------'      `------'`--'  `--'   `-------'  """)
-    for char in ENDING:
+    for char in ending:
         print(char, end="")
     keyboard = (r"""
  ____ ____ ____ ____ ____ ____ ____ _________ ____ ____ 
@@ -3726,5 +3755,5 @@ def THE_END():
 #End of game
 
 if __name__ == "__main__":
-   main()
+    main()
 #Used due to multiple functions
