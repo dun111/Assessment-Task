@@ -8,915 +8,25 @@ and 3 secret bosses to save Fargon (Main part)
 # Uses Upper_Case naming style for constants and snake_case for functions and variables
 # Imports
 import time
-import json
-import random
+import ascii_art
+import utils
+from dispatcher import CHAPTERS
 
 # Global variables to be used throughout the game
-PLAYER = None
-USERNAME = ""
-COMPANION = ""
-CURRENT_CHAPTER = "main"
+GAME_STATE = {
+      "PLAYER": None,
+      "USERNAME": "",
+      "COMPANION": "",
+      "CURRENT_CHAPTER": ""
+}
 
-# Ascii art saved as a list
-BULL = r"""
-      
-             _.-````'-,_
-   _,.,_ ,-'`           `'-.,_
- /)     (\                   '``-.
-((      ) )                      `\
- \)    (_/                        )\
-  |       /)           '    ,'    / \
-  `\    ^'            '     (    /  ))
-    |      _/\ ,     /    ,,`\   (  "`
-     \Y,   |  \  \  | ````| / \_ \
-       `)_/    \  \  )    ( >  ( >
-                \( \(     |/   |/
-               /_(/_(    /_(  /_( 
-      
-"""
-# Saves ascii as a raw string and use ''' for the art. Repeats for the rest
-FLAME = r"""
-         
-                  __~a~_
-                  ~~;  ~_
-    _                ~  ~_                _
-   '_\;__._._._._._._]   ~_._._._._._.__;/_`
-   '(/'/'/'/'|'|'|'| (    )|'|'|'|'\'\'\'\)'
-   (/ / / /, | | | |(/    \) | | | ,\ \ \ \)
-  (/ / / / / | | | ^(/    \) ^ | | \ \ \ \ \)
- (/ / / / /  ^ ^ ^   (/  \)    ^ ^  \ \ \ \ \)
-(/ / / / ^          / (||)|          ^ \ \ \ \)
-^ / / ^            M  /||\M             ^ \ \ ^
- ^ ^                  /||\                 ^ ^
-                     //||\\
-                     //||\\
-                     //||\\         
-                     '/||\'
-
-"""
-
-GOLEM = r"""
-         
-⠀⠀⠀⠀⠀⠀⢀⡀⣴⡄⢸⣀⣀⣈⣿⣿⣁⣀⣀⡇⢠⣦⣄⡀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠴⠾⠿⠿⠛⠃⠀⠛⠛⠛⠛⠛⠛⠛⠛⠀⠘⠛⠿⠿⠷⠦⠀⠀⠀⠀
-⠀⠀⢀⣤⣤⣴⡆⢀⣶⣾⣿⣿⣷⣦⡀⢀⣴⣾⣿⣿⣷⣶⡀⢰⣦⣤⣤⡀⠀⠀
-⠀⢠⣾⣿⣿⣿⠇⢸⣿⣿⣿⣿⣿⣿⡇⢸⣿⣿⣿⣿⣿⣿⡇⠸⣿⣿⣿⣷⡄⠀
-⠀⠈⠛⣿⣿⣿⠀⠀⡉⠛⠿⠛⢉⣿⡇⢸⣿⡉⠛⠿⠛⢉⠀⠀⣿⣿⣿⣿⠁⠀
-⠀⠀⣾⣿⣿⣿⠀⠀⢿⣷⣶⣿⣿⣿⡇⢸⣿⣿⣿⣄⣼⡿⠀⠀⣿⣿⣿⣿⠀⠀
-⠀⠀⠘⢉⣉⣉⠀⠀⠸⣿⣿⣿⣿⣿⡇⢸⣿⣿⣿⣿⣿⠇⠀⠀⣉⣉⡉⠁⠀⠀
-⠀⠀⠈⣿⣿⣿⡀⠀⠀⣄⣈⠉⠉⠙⠃⠘⠋⣉⣉⣁⣠⠀⠀⢀⣿⣿⣿⠀⠀⠀
-⠀⠀⠀⢹⣿⣿⡇⠀⢠⣿⣿⣧⣾⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⢸⣿⣿⡏⠀⠀⠀
-⠀⠀⠀⠘⣿⣿⣇⠀⢸⣿⣿⣿⣿⣿⠏⠹⣿⣿⣿⣿⣿⡇⠀⣸⣿⣿⠃⠀⠀⠀
-⠀⠀⠀⠀⠛⠛⠋⠀⣸⣿⣿⣿⣿⠏⠀⠀⠹⣿⣿⡿⣿⣇⠀⠙⠃⠈⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠉⠉⠀⠀⠀⠀⠉⠉⠀⠉⠉⠀⠀⠀⠀⠀⠀⠀
-
-"""
-
-
-WRAITH = r"""
-          
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠀⠀⠀⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⢠⢠⣿⣿⣿⣦⡀⠀⠀⠀⠀⠀⠄⠀⠀⠄⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⢀⠀⠀⠀⠀⣸⣦⣸⣧⣼⣿⣦⣄⣀⣈⣴⣾⣿⣿⣦⡐⠄⠀⠀⠀⠀
-⠀⢠⣶⣶⣦⣤⣤⣤⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀⠀⠀
-⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡌⡀⠀⠀
-⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⢠⠀⠀
-⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀
-⠀⠄⢿⣿⣿⣿⡿⠿⣿⡿⠉⠙⣿⣿⣿⣿⣿⣿⡇⢘⠐⠨⠄⠁⠄⢻⣿⣿⠀⠀⠀
-⠀⠀⡈⢿⣿⣿⡇⠆⠈⠃⠃⠁⠸⣿⣿⣿⣿⣿⣷⢸⠀⠀⠀⠀⠈⡈⢿⡿⢀⠀⠀
-⠀⠀⠀⠄⠻⣿⣇⠠⠀⠀⠀⠀⠂⢹⣿⣿⣿⣿⣿⠈⠀⠀⠀⠀⠀⢀⠸⠋⠄⠀⠀
-⠀⠀⠀⠀⠀⠈⠻⡆⠀⠀⠀⠀⠈⠄⢿⣿⣿⣿⡆⠂⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠂⠀⠀⠀⠀⠀⠈⠄⢻⣿⣿⣧⠐⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢀⠹⣿⣿⡀⠄⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡘⢿⣿⡀⠄⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⡙⠳⠈⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀
-"""
-
-DESBIO = r"""
-
-  .:'                                  `:.
- ::'                                    `::
-:: :.                                  .: ::
- `:. `:.             .             .:'  .:'
-   `::. `::          !           ::' .::'
-      `::.`::.    .' ! `.    .::'.::'
-        `:.  `::::'':!:``::::'   ::'
-        :'*:::.  .:' ! `:.  .:::*`:
-       :: HHH::.   ` ! '   .::HHH ::
-      ::: `H TH::.  `!'  .::HT H' :::
-      ::..  `THHH:`:   :':HHHT'  ..::
-      `::      `T: `. .' :T'      ::'
-        `:. .   :         :   . .:'
-          `::'               `::'
-            :'  .`.  .  .'.  `:
-            :' ::.       .:: `:
-            :' `:::     :::' `:
-             `.  ``     ''  .'
-              :`...........':
-              ` :`.     .': '
-               `:  `...'  :' 
-
-"""
-
-MYSTERIOUS_CHARACTER = r"""
-                                    
-           *************
-          *****     *****
-         ***           ***
-        ***             ***
-        **               **
-        **    o     o    **                  ____
-        ***             ***             //////////
-        ****           ****        ///////////////  
-        *****         *****    ///////////////////
-        ******       ******/////////         |  |
-      *********     ****//////               |  |
-   *************   **/////*****              |  |
-  *************** **///***********          *|  |*
- ************************************    ****| <=>*
-*********************************************|<===>* 
-*********************************************| <==>*
-***************************** ***************| <=>*
-******************************* *************|  |*
-********************************** **********|  |*    
-*********************************** *********|  | 
-                         """
-
-
-NECRON_SECOND_FORM = r"""
-                      <>=======() 
-(/\___   /|\\          ()==========<>_
-      \_/ | \\        //|\   ______/ \)
-        \_|  \\      // | \_/
-          \|\/|\_   //  /\/
-           (oo)\ \_//  /
-          //_/\_\/ /  |
-         @@/  |=\  \  |
-              \_=\_ \ |
-                \==\ \|\_ 
-             __(\===\(  )\
-            (((~) __(_/   |
-                 (((~) \  /
-                 ______/ /
-                 '------' """
-
-NECRON = r"""
-                           \ __
---==/////////////[})))==*
-                 / \ '          ,|
-                    `\`\      //|                             ,|
-                      \ `\  //,/'                           -~ |
-   )             _-~~~\  |/ / |'|                       _-~  / ,
-  ((            /' )   | \ / /'/                    _-~   _/_-~|
- (((            ;  /`  ' )/ /''                 _ -~     _-~ ,/'
- ) ))           `~~\   `\\/'/|'           __--~~__--\ _-~  _/, 
-((( ))            / ~~    \ /~      __--~~  --~~  __/~  _-~ /
- ((\~\           |    )   | '      /        __--~~  \-~~ _-~
-    `\(\    __--(   _/    |'\     /     --~~   __--~' _-~ ~|
-     (  ((~~   __-~        \~\   /     ___---~~  ~~\~~__--~ 
-      ~~\~~~~~~   `\-~      \~\ /           __--~~~'~~/
-                   ;\ __.-~  ~-/      ~~~~~__\__---~~ _..--._
-                   ;;;;;;;;'  /      ---~~~/_.-----.-~  _.._ ~\     
-                  ;;;;;;;'   /      ----~~/         `\,~    `\ \        
-                  ;;;;'     (      ---~~/         `:::|       `\\.      
-                  |'  _      `----~~~~'      /      `:|        ()))),      
-            ______/\/~    |                 /        /         (((((())  
-          /~;;.____/;;'  /          ___.---(   `;;;/             )))'`))
-         / //  _;______;'------~~~~~    |;;/\    /                ((   ( 
-        //  \ \                        /  |  \;;,\                 `   
-       (<_    \ \                    /',/-----'  _> 
-        \_|     \\_                 //~;~~~~~~~~~ 
-                 \_|               (,~~   
-                                    \~\
-                                     ~~ """
-
-CREDIT_ROLL = r"""
-                     .''.      .        *''*    :_\/_:     .
-      :_\/_:   _\(/_  .:.*_\/_*   : /\ :  .'.:.'.
-  .''.: /\ :    /)\   ':'* /\ *  : '..'.  -=:o:=-
- :_\/_:'.:::.  | ' *''*    * '.\'/.'_\(/_'.':'.'
- : /\ : :::::  =  *_\/_*     -= o =- /)\    '  *
-  '..'  ':::' === * /\ *     .'/.\'.  ' ._____
-"""
-
-DUNGEON_1 = r"""
-
-               )\         O_._._._A_._._._O         /(
-                \`--.___,'=================`.___,--'/
-                 \`--._.__                 __._,--'/
-                   \  ,. l`~~~~~~~~~~~~~~~'l ,.  /
-       __            \||(_)!_!_!_.-._!_!_!(_)||/            __
-       \\`-.__        ||_|____!!_|;|_!!____|_||        __,-'//
-        \\    `==---='-----------'='-----------`=---=='    //
-        | `--.                                         ,--' |
-         \  ,.`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',.  /
-           \||  ____,-------._,-------._,-------.____  ||/
-            ||\|___!`======="!`======="!`======="!___|/||
-            || |---||--------||-| | |-!!--------||---| ||
-  __O_____O_ll_lO_____O_____O|| |'|'| ||O_____O_____Ol_ll_O_____O__
-  o H o o H o o H o o H o o |-----------| o o H o o H o o H o o H o
- ___H_____H_____H_____H____O =========== O____H_____H_____H_____H___
-                          /|=============|\
-()______()______()______() '==== +-+ ====' ()______()______()______()
-||{_}{_}||{_}{_}||{_}{_}/| ===== |_| ===== |\{_}{_}||{_}{_}||{_}{_}||
-||      ||      ||     / |====  (   )  ====| \     ||      ||      ||
-======================()  =================  ()======================
-----------------------/| ------------------- |\----------------------
-                     / |---------------------| \
--'--'--'           ()  '---------------------'  ()
-                   /| ------------------------- |\    --'--'--'
-       --'--'     / |---------------------------| \    '--'
-                ()  |___________________________|  ()           '--'-
-  --'-          /| _______________________________  |\
- --'          / |__________________________________| \ """
-
-DUNGEON_2 = r"""
-                                /   \              /'\       _                              
-*\_..           /'.,/     \_         .,'   \     / \_                            
-*    \         /            \      _/       \_  /    \     _                     
-*     \__,.   /              \    /           \/.,   _|  _/ \                    
-*          \_/                \  /',.,''\      \_ \_/  \/    \                   
-*                           _  \/   /    ',../',.\    _/      \                  
-*             /           _/m\  \  /    |         \  /.,/'\   _\                 
-*           _/           /MMmm\  \_     |          \/      \_/  \                
-*          /      \     |MMMMmm|   \__   \          \_       \   \_              
-*                  \   /MMMMMMm|      \   \           \       \    \             
-*                   \  |MMMMMMmm\      \___            \_      \_   \            
-*                    \|MMMMMMMMmm|____.'  /\_            \       \   \_          
-*                    /'.,___________...,,'   \            \   \        \         
-*                   /       \          |      \    |__     \   \_       \        
-*                 _/        |           \      \_     \     \    \       \_      
-*                /                               \     \     \_   \        \     
-*                                                 \     \      \   \__      \    
-*                                                  \     \_     \     \      \   
-*                                                   |      \     \     \      \  
-*                                                    \          |            \"    """
-
-
-GOBLIN_HUT = r"""
-                              ,-_                  (`  ).
-                 |-_'-,              (     ).
-                 |-_'-'           _(        '`.
-        _        |-_'/        .=(`(      .     )
-       /;-,_     |-_'        (     (.__.:-`-_.'
-      /-.-;,-,___|'          `(       ) )
-     /;-;-;-;_;_/|\_ _ _ _ _   ` __.:'   )
-        x_( __`|_P_|`-;-;-;,|        `--'
-        |\ \    _||   `-;-;-'
-        | \`   -_|.      '-'
-        | /   /-_| `
-        |/   ,'-_|  \
-        /____|'-_|___\
- _..,____]__|_\-_'|_[___,.._
-'                          ``'--,..,.    """
-SMALL_VILLAGE = r"""
-                 ~         ~~          __
-       _T      .,,.    ~--~ ^^
- ^^   // \                    ~
-      ][O]    ^^      ,-~ ~
-   /''-I_I         _II____
-__/_  /   \ ______/ ''   /'\_,__
-  | II--'''' \,--:--..,_/,.-{ },
-; '/__\,.--';|   |[] .-.| O{ _ }
-:' |  | []  -|   ''--:.;[,.'\,/
-'  |[]|,.--'' '',   ''-,.    |
-  ..    ..-''    ;       ''. ' """
-# Using upper case naming style for constants
-DUNGEON_3 = r"""
-            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⢿⣿⣿⣿⣿⣿⣿⣷⡀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿⣿⣿⣿⣷⣄⠙⠛⠛⠿⠿⠿⠟⢁⡄⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⢀⠘⠛⠿⢿⣿⠿⠻⣿⣿⣿⣿⣶⣶⣶⣦⣴⣿⣷⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⣠⣶⣿⣿⣷⣶⣤⣤⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⡀⠀
-⠀⠀⠀⠀⠐⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⢋⣀⠈⢿⣿⡟⢻⣿⣿⠀
-⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⣠⣤⣼⣿⣿⠀
-⠀⠀⠀⢀⣠⣤⠈⠿⠿⠟⢋⣠⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀
-⠀⠀⠐⣿⣿⣿⣷⣶⣤⣶⣿⣿⣿⣿⣿⣿⠟⠙⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀
-⠀⠀⠐⣿⣿⣿⣷⣶⣤⣶⣿⣿⣿⣿⣿⣿⠟⠙⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀
-⠀⠀⠐⣿⣿⣿⣷⣶⣤⣶⣿⣿⣿⣿⣿⣿⠟⠙⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⠀⠀⠐⣿⣿⣿⣷⣶⣤⣶⣿⣿⣿⣿⣿⣿⠟⠙⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀
-⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠈⠙⠻⠿⠿⠿⣿⡿⣿⣿⣿⠀
-⠀⠀⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⡿⣿⠛⠀⠀⠀⠀⠀⠀⢤⣶⣦⣀⣤⣿⣿⣿⠀
-⠀⣠⣾⣿⡿⠿⠿⠿⠛⠋⠙⠋⠀⠸⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿⠀
-⠀⣿⣿⣿⣿⣶⣶⣶⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⢋⣡⠀
-⠀⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⠛⠛⠛⠛⠛⠛⠀ """
-
-DUNGEON_4 = r"""
-               .                  .-.    .  _   *     _   .
-           *          /   \     ((       _/ \       *    .
-         _    .   .--'\/\_ \     `      /    \  *    ___
-     *  / \_    _/ ^      \/\'__        /\/\  /\  __/   \ *
-       /    \  /    .'   _/  /  \  *' /    \/  \/ .`'\_/\   .
-  .   /\/\  /\/ :' __  ^/  ^/    `--./.'  ^  `-.\ _    _:\ _
-     /    \/  \  _/  \-' __/.' ^ _   \_   .'\   _/ \ .  __/ \
-   /\  .-   `. \/     \ / -.   _/ \ -. `_/   \ /    `._/  ^  \
-  /  `-.__ ^   / .-'.--'    . /    `--./ .-'  `-.  `-. `.  -  `.
-@/        `.  / /      `-.   /  .-'   / .   .'   \    \  \  .-  \%
-@&8jgs@@%% @)&@&(88&@.-_=_-=_-=_-=_-=_.8@% &@&&8(8%@%8)(8@%8 8%@)%
-@88:::&(&8&&8:::::%&`.~-_~~-~~_~-~_~-~~=.'@(&%::::%@8&8)::&#@8::::
-`::::::8%@@%:::::@%&8:`.=~~-.~~-.~~=..~'8::::::::&@8:::::&8:::::'
- `::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::.' """
-
-DUNGEON_5 =  r"""
-                             .          .           .     .                .       .
-  .      .      *           .       .          .                       .
-                 .       .   . *            
-         >>         .        .               .
- .   .  /WWWI; \  .       .    .  ____               .         .     .         
-  *    /WWWWII; \=====;    .     /WI; \   *    .        /\_             .
-  .   /WWWWWII;..      \_  . ___/WI;:. \     .        _/M; \    .   .         .
-     /WWWWWIIIIi;..      \__/WWWIIII:.. \____ .   .  /MMI:  \   * .
- . _/WWWWWIIIi;;;:...:   ;\WWWWWWIIIII;.     \     /MMWII;   \    .  .     .
-  /WWWWWIWIiii;;;.:.. :   ;\WWWWWIII;;;::     \___/MMWIIII;   \              .
- /WWWWWIIIIiii;;::.... :   ;|WWWWWWII;;::.:      :;IMWIIIII;:   \___     *
-/WWWWWWWWWIIIIIWIIii;;::;..;\WWWWWWIII;;;:::...    ;IMIII;;     ::  \     .
-WWWWWWWWWIIIIIIIIIii;;::.;..;\WWWWWWWWIIIII;;..  :;IMIII;:::     :    \   
-WWWWWWWWWWWWWIIIIIIii;;::..;..;\WWWWWWWWIIII;::; :::::::::.....::       \
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%XXXXXXX
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%XXXXXXXXXX
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%XXXXXXXXXXXXX
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%XXXXXXXXXXXXXXXXX
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%XXXXXXXXXXXXXXXXXXXX
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%XXXXXXXXXXXXXXXXXXXXXXXXXX """
-
-TROLL = r"""
-       .-'.'.'.'.'.'.`-.
-     .'.'.'.'.'.'.'.'.'.`.
-    /.'.'               '.\
-    |.'    _.--...--._     |
-    \    `._.-.....-._.'   /
-    |     _..- .-. -.._   |
- .-.'    `.   ((@))  .'   '.-.
-( ^ \      `--.   .-'     / ^ )
- \  /         .   .       \  /
- /          .'     '.  .-    \
-( _.\    \ (_`-._.-'_)    /._\)
- `-' \   ' .--.          / `-'
-     |  / /|_| `-._.'\   |
-     |   |       |_| |   /-.._
- _..-\   `.--.______.'  |
-      \       .....     |
-       `.  .'      `.  /
-         \           .'
-           `-..___..-` """
-
-SKELETON = r"""
-                              _.--""-._
-  .                         ."         ".
- / \    ,^.         /(     Y             |      )\
-/   `---. |--'\    (  \__..'--   -   -- -'""-.-'  )
-|        :|    `>   '.     l_..-------.._l      .'
-|      __l;__ .'      "-.__.||_.-'v'-._||`"----"
- \  .-' | |  `              l._       _.'
-  \/    | |                   l`^^'^^'j
-        | |                _   \_____/     _
-        j |               l `--__)-'(__.--' |
-        | |               | /`---``-----'"1 |  ,-----.
-        | |               )/  `--' '---'   \'-'  ___  `-.
-        | |              //  `-'  '`----'  /  ,-'   I`.  \
-      _ L |_            //  `-.-.'`-----' /  /  |   |  `. \
-     '._' / \         _/(   `/   )- ---' ;  /__.J   L.__.\ :
-      `._;/7(-.......'  /        ) (     |  |            | |
-      `._;l _'--------_/        )-'/     :  |___.    _._./ ;
-        | |                 .__ )-'\  __  \  \  I   1   / /
-        `-'                /   `-\-(-'   \ \  `.|   | ,' /
-                           \__  `-'    __/  `-. `---'',-'
-                              )-._.-- (        `-----'
-                             )(  l\ o ('..-.
-                       _..--' _'-' '--'.-. |
-                __,,-'' _,,-''            \ \
-               f'. _,,-'                   \ \
-              ()--  |                       \ \
-                \.  |                       /  \
-                  \ \                      |._  |
-                   \ \                     |  ()|
-                    \ \                     \  /
-                     ) `-.                   | |
-                    // .__)                  | |
-                 _.//7'                      | |
-               '---'                         j_| `
-                                            (| |
-                                             |  \
-                                             |lllj
-                                             |||||  """
-
-CHEST = r"""
-        /\____;;___\
-       | /         /
-       `. ())oo() .
-        |\(%()*^^()^\
-       %| |-%-------|
-      % \ | %  ))   |
-      %  \|%________|
-  %%%%                """
-
-CAPITAL = r"""
-                      / \\\
-                      |n| |
-                    )(|_|-'X
-                   /  \\Y// \
-                   |A | | |A|
-                   |  | | |_|
-            )(__X,,|__|MEB;;;-,)(,
-           /  \\\;;;;;;;;;;;;/    \
-           |A | |            | U  |
-         )_|  | |____)-----( |    |
-        ///|__|-'////       \|___)=(__X
-       /////////////         \///   \/ \
-       |           |  U    U |//     \u|
-       |   )_,-,___|_)=(     | |  U  |_|_X
-       |  ///   \\|//   \    | |  __ |/// \
-     )_')(//     \Y/     >---)=( /  \|  | |-----------------
-    //// ,\ u   u |   u /////   \|  ||__|A|----------------
-   |  | .. |      |    ///// ,-, \__||--------------------
----'--'_::_|______'----| u | | | |-----------------------.
-                       |___|_|_|_|----------------------
-                            `--------------------------
-                                                                   """
-
-ABANDONED_VILLAGE = r"""
-                              /\  //\\
-                       /\    //\\///\\\        /\
-                      //\\  ///\////\\\\  /\  //\\
-         /\          /  ^ \/^ ^/^  ^  ^ \/^ \/  ^ \
-        / ^\    /\  / ^   /  ^/ ^ ^ ^   ^\ ^/  ^^  \. 
-       /^   \  / ^\/ ^ ^   ^ / ^  ^    ^  \/ ^   ^  \       *
-      /  ^ ^ \/^  ^\ ^ ^ ^   ^  ^   ^   ____  ^   ^  \     /|\
-     / ^ ^  ^ \ ^  _\___________________|  |_____^ ^  \   /||o\
-    / ^^  ^ ^ ^\  /______________________________\ ^ ^ \ /|o|||\
-   /  ^  ^^ ^ ^  /________________________________\  ^  /|||||o|\
-  /^ ^  ^ ^^  ^    ||___|___||||||||||||___|__|||      /||o||||||\       |
- / ^   ^   ^    ^  ||___|___||||||||||||___|__|||          | |           |
-/ ^ ^ ^  ^  ^  ^   ||||||||||||||||||||||||||||||oooooooooo| |ooooooo  |
-ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo """
-
-SPECIAL_SWORD = r"""
-                             _
- _         | |
-| | _______| |---------------------------------------------\
-|:-)_______|==[]============================================>
-|_|        | |---------------------------------------------/
-           |_| """
-
-SPECIAL_SHIELD = r"""
-  |`-._/\_.-`|
-  |    ||    |
-  |___o()o___|
-  |__((<>))__|
-  \   o\/o   /
-   \   ||   /
-    \  ||  /
-     '.||.'
-       ``"""
-
-SPECIAL_DAGGER = r"""
-      ______________________________ ______________________
-    .'                              | (_)     (_)    (_)   \
-  .'                                |  __________________   }
-.'_.............................____|_(                  )_/
-
-"""
-
-DARK_DAGGER = r"""                                   |_  |
-                                                        | |
-__                      ____                            | |
-\ ````''''----....____.'\   ````''''--------------------| |--.               _____      .-.
- :.                      `-._                           | |   `''-----''''```     ``''|`: :|
-  '::.                       `'--.._____________________| |                           | : :|
-    '::..       ----....._______________________________| |                           | : :|
-      `'-::...__________________________________________| |   .-''-..-'`-..-'`-..-''-.cjr :|
-           ```'''---------------------------------------| |--'                         `'-'
-                                                        | |
-                                                       _| |
-                                                      |___| """
-
-DARK_BOOK = r"""
-     __...--~~~~~-._   _.-~~~~~--...__
-    //               `V'               \\ 
-   //                 |                 \\ 
-  //__...--~~~~~~-._  |  _.-~~~~~~--...__\\ 
- //__.....----~~~~._\ | /_.~~~~----.....__\\
-====================\\|//====================
-                    `---`. """
-
-DARK_SHIELD = r"""
-  |\ _..--.._ /|
-  |############|
-   )##########(
-._/##.'//\\'.##\_.
- .__)#((()))#(__.
-  \##'.\\//.'##/
-   \####\/####/
-   /,.######.,\
-  (  \##__##/  )
-      "(\/)"
-        )(.  """
-
-DARK_SWORD = r"""               __________                         ._
-             ./' .v~__,/~ _____   _____     _____   )~\      _____     _____
-           ./  .(W---\| /',---.`\ |\./\     |\./|  / | \     |\./\     |\./|
-          ,|  /@)$$$$$$$$($( )#H>===========) ) )==`\`\`\| | |=====\ \ \======`\`\`\| | |-->
-/_p~~~~~~~~~~\$@|/------------/ / /-----`\`\\ | |------\ \ \-------`\`\\ | |-'
-          `|  \) 
-"""
-
-SERPUS = r"""
-                           .......................:....                                                       
-              ..-=%--=---=-:..*...=*=......... .                                                    
-             ..:*****+##%%%:*+==@..-*+*.#....-......                                                
-            ....+#+%@+**#*%#%%#%+*.     %###=-++*+*=-...                                                
-            ......*###+%%@#%%@%#=#*#*++###*#***@=+-...                                              
-                ...=.*=##++##@#@%@%@%#@#@*##%###*%+. .                                              
-                ....:..=**#%%###**%%#%%%@%%*%#+#%#%%=.                                              
-                    .....+%%%%%*#==*#%@%@@%%@@@@%%%#%%..                                            
-                    .....=#%%@@%=-=-#@@%#@@%%%@@@@@%##..                                            
-                     ...-+#%+*+#+-%*%@#%*##*##*#%%%#%%#.                                            
-                    ....-*##++*-**%%@*+....===++##%%%#%...                                          
-                .......*#==+#=**%@#+....    ::****%%##@#.. .                                        
-                ....-=%+=%#++%#%#+:.....    .-:=+##@%#@%.. .                                        
-                ...*::%--**%%#..           .--=+*+###%@#=..                                         
-                .:..--=+%%. ....           .:-=*=#%%%%@*.. .                                        
-                ......... ......        ..:-=+#*#*%%@%%#....                                        
-                      ..              ..-=-.*-+#%%%#%@%.=...                                        
-                                    ..-:-:=+****@##%@%=.:...                                        
-                                  ..=-.++**+=+%###%#%-..                                            
-                                ..=-=.*-=+**#+%%%@@%.:..                                            
-                              ..-::--+=.+*##@%#@@@@...                                              
-                            ..:=-:+-+*+#*##%%@@@@%..                                                
-                        ...:-:.--==+**#@#@%%%@@%:. .                                                
-                        ..---=++*++*#*#%@@@%@%%==.....                                              
-                ....  ..=.:-=+#=+++*#%#@@@@@%*#*##*.....                                            
-                ..... :-:.=+*#+=++%##@%%%@%@@@%%%*%%-...                                            
-            .....:+#=:..:=-=-+%%%@%@@@@@@@%%%%%#@%@@%. .        ..      ....                        
-        .....-+**#%+----:+:=+*%#%%%@@@@@@@%%%%##%@@@@#..........:...........                        
-        ..=*#%*##@%:=--+=*++%#%#@%@@@@@@@%@@#%@%@@%%@@.+##*#%*#*#***@*#*=*....                      
-      ..+#**#%**%@::-:-==*###%@@%@@#@@@@%%#@%%@@%@%@@@@%%%%#@%@%##@#@##**+#%#...                    
-    ...**#%#%%%@@%::==:*+**%%#@%%%@@@@@@%%%%%%#@@@@@@@@#%%%@@*@*%@@@%@@%@%@%%@#.                    
-    ..=*%#%%#%*%%:--++++*#*@%##%@@%@@@%%%%@%@@@%@@@@@@@%%@@%@@%%@%%%###%#@%@@%@@-.......            
-    .=#%@##%@#@@#-:=--=#*#*#%%@@@@@%@@@@@@@@@%%@@@@@@@@@@%@@@@@%%@%#%##@%%@@%%@@@%#+....            
-    .+#%%@@#%@%%%=-=-=*#*%*@%@%%@@#%%@%@%@@@@@@@@@@@@@@@@@@%@@@*%@#%#%%@%%@@@@%@@@%#%#....          
-    .++%#%@@%%@%%*-:--++*#+##@@@%%%@@@@@%@%@#@@%%%#%%%%%%@%#@*%@@@#%#%%%@@%%@%@%@@@%%#%% .          
-    .=*%%@@%#%@%%#-=-*+++**#%#%@%#%@@%@@@@@#%#@@%%#%%#%%@%%%##@@%%#%@%@%%@%@@@@@@@@%%%#@@...        
-    .*+*%@@@%%#@#@+=+=+*#%#**%%@@@%@%@@@@%%%@%@@@#@@%%@%%%@@*%@@#@#@@@%%%@%%@@@@@@@%#@@#%*..        
-  ..:-*+**%%#%@%@@@++=*#=+######%@@@@%@%%%%%%@@#%%%@@%@@%%%@@%@%@%@%@%@@@@@@@@@@@@@@@*%@@@. ..      
-...%+%%#####%##@@@%@*=-####%%%%%#%@@%@%%@%@@@@@@@%@%@#@@%@@@%@%%%@@%%@@@@@@@@@@@@@@%#@@%@@=... .    
-..*##@+*%#%%%#%##%%%@=++*##%%%%%%%%%@%@@@@@@@%@@@@@@@%@@%@@@@@@@@@@@@@@@@@@@@@@@@@#%%@%@@@*#*...    
-:-+##@@%#%@%%%#%%%%%@@@+#+***%%%%%%%%@@%@@@@@%@@@@@@@@%@%@@@@@@@@@@@@@@@@@@@@@@@%@%%@@@@@@#@*#:     
---==+@@#@@@@@@@@%%@%%@@@#%#*###%%%%%%%%%@@@@@@@@%@@@@@@%@%@%@@@@@@@@@@@@@@@@@%%@@@#%%@@@@@@@###.    
---==+#%@@@@@@@@@@@@@@@@@@@@%%%%##%%%#@@@%@%*##@@@@@@@@@%@@@@@@@@@@@@@@@@@%#%%#@#@@@%@@@@@@@@@%#:.   
-:::--=++***###%%%@@@@@@@+*+#*%%%%%%%%*#@@#@#@@%@@@@@@@@@@@@@@@@@@@@@@%##%%%@%@%@@@@@@@@@%**=-:..    
-.....::---==++++***####%+@#@@@@@@@%=#**#+%*%%%%@@@@@@@@@@@@%@%%%%@@%%%@@@@@@@@@@@@@@@@%#*++=-:..    
-..........:::::----===+%@@+#@@%%%%%@*@@@%@@+#***@@@@@@%@@@%@@@@@@@@@@@@@@@@@@@@@@@%%#**++==-:...    
-      ..................::....  ..                      
-                                         ....... ....... ..                                    """
-
-SAVE_FILE = "TalesOfTime.json"
-
-def save_game():
-    """
-    Used to save game data to a json file
-    """
-    data = {
-        "PLAYER": PLAYER,
-        "USERNAME": USERNAME,
-        "COMPANION": COMPANION,
-        "CURRENT_CHAPTER": CURRENT_CHAPTER
-    }
-    with open(SAVE_FILE, "w", encoding="utf-8") as file:
-        json.dump(data, file)
-    print("Waypoint set!")
-#This saves the data (Name, PLAYER stats, COMPANION name and current chapter into a Json file
-
-def load_game():
-    """
-    Used to extract data from the Json file and load the last saved chapter
-    """
-    global PLAYER, USERNAME, COMPANION, CURRENT_CHAPTER
-    try:
-        with open(SAVE_FILE, "r", encoding="utf-8") as file:
-            data = json.load(file)
-            PLAYER = data["PLAYER"]
-            USERNAME = data["USERNAME"]
-            COMPANION = data["COMPANION"]
-            CURRENT_CHAPTER = data.get("CURRENT_CHAPTER", "main")
-        print("Waypoint loaded!")
-        # Resumes at the correct chapter
-        resume_game()
-    except FileNotFoundError:
-        print("No saved waypoint found.")
-        main()
-        return
-#This loads the json file data and if there is an error will show No saved waypoint
-
-def resume_game():
-    """
-    Used to resume the game
-    """
-    if CURRENT_CHAPTER == "main":
-        main()
-    elif CURRENT_CHAPTER == "companion_chapter":
-        companion_chapter()
-    elif CURRENT_CHAPTER == "chapter_1":
-        chapter_1()
-    elif CURRENT_CHAPTER == "chapter_2":
-        chapter_2()
-    elif CURRENT_CHAPTER == "chapter_3":
-        chapter_3()
-    elif CURRENT_CHAPTER == "chapter_3part2":
-        chapter_3part2()
-    elif CURRENT_CHAPTER == "chapter_4":
-        chapter_4()
-    elif CURRENT_CHAPTER == "chapter_5":
-        chapter_5()
-    elif CURRENT_CHAPTER == "chapter_6":
-        chapter_6()
-    elif CURRENT_CHAPTER == "serpus_fight2":
-        serpus_fight2()
-    elif CURRENT_CHAPTER == "serpus_fight3":
-        serpus_fight3()
-    elif CURRENT_CHAPTER == "chapter_7":
-        chapter_7()
-    elif CURRENT_CHAPTER == "chapter_8":
-        chapter_8()
-    elif CURRENT_CHAPTER == "chapter_9":
-        chapter_9()
-    elif CURRENT_CHAPTER == "village":
-        village()
-    elif CURRENT_CHAPTER == "chapter_9part2":
-        chapter_9part2()
-    elif CURRENT_CHAPTER == "chapter_10":
-        chapter_10()
-    elif CURRENT_CHAPTER == "chapter_11":
-        chapter_11()
-    elif CURRENT_CHAPTER == "chapter_12":
-        chapter_12()
-    elif CURRENT_CHAPTER == "chapter_12part2":
-        chapter_12part2()
-    elif CURRENT_CHAPTER == "chapter_13":
-        chapter_13()
-    elif CURRENT_CHAPTER == "chapter_14":
-        chapter_14()
-    elif CURRENT_CHAPTER == "guardian1":
-        guardian1()
-    elif CURRENT_CHAPTER == "chapter_15":
-        chapter_15()
-    elif CURRENT_CHAPTER == "guardian2":
-        guardian2()
-    elif CURRENT_CHAPTER == "final_machine":
-        final_machine()
-    elif CURRENT_CHAPTER == "chapter_16":
-        chapter_16()
-    elif CURRENT_CHAPTER == "necron_fight":
-        necron_fight()
-    elif CURRENT_CHAPTER == "necron_fight2":
-        necron_fight2()
-    elif CURRENT_CHAPTER == "necron_fight3":
-        necron_fight3()
-    elif CURRENT_CHAPTER == "machines1":
-        machines1()
-    elif CURRENT_CHAPTER == "machines2":
-        machines2()
-    elif CURRENT_CHAPTER == "machines3":
-        machines3()
-    elif CURRENT_CHAPTER == "machines4":
-        machines4()
-    elif CURRENT_CHAPTER == "machines5":
-        machines5()
-    elif CURRENT_CHAPTER == "necron_fight4":
-        necron_fight4()
-    elif CURRENT_CHAPTER == "companion_fight":
-        companion_fight()
-    elif CURRENT_CHAPTER == "chapter_17":
-        chapter_17()
-    elif CURRENT_CHAPTER == "chapter_18":
-        chapter_18()
-    elif CURRENT_CHAPTER == "chapter_19":
-        chapter_19()
-    elif CURRENT_CHAPTER == "the_end":
-        the_end()
-    else:
-        main()
-# This function is used to go back to the PLAYER's
-# chapter when the game saved by saving the current chapter into the variable "CURRENT_CHAPTER"
-
-def decrease_health(amount=None):
-    """
-    Used to decrease the player's health
-    If amount is not provided, it will randomly choose a value between 10 and 80.
-    """
-    if PLAYER is None:
-        print("Error: PLAYER not initialized.")
-        death()
-        return
-    if amount is None:
-        amount = random.randint(10, 80)
-    reduced = max(1, amount - PLAYER["defence"] // 3)
-    PLAYER["health"] -= reduced
-    print(f"You took {reduced} damage! (Reduced by defence) Your health is now {PLAYER['health']}.")
-    if PLAYER["health"] <= 0:
-        print("You have died...")
-        death()
-    elif PLAYER["health"] <= 10:
-        print("Low Health!")
-#This function lower's the PLAYER's health randomly between 10 and 80
-
-def increase_health(amount):
-    """
-    Used to increase the player's health
-    """
-    if PLAYER is None:
-        print("Error: PLAYER not initialized.")
-        death()
-        return
-    PLAYER["health"] += amount
-    print(f"Your health is now {PLAYER['health']}")
-#This function increases the PLAYER's health
-
-def reset_health():
-    """
-    Used to reset the player's health
-    """
-    if PLAYER is None:
-        print("Error: PLAYER not initialized.")
-        death()
-        return
-    PLAYER["health"] = 100
-    print("Your health has been reset to 100.")
-#This function resets the PLAYERs health
-
-def playerdata(name):
-    """
-    The player's data for their stats by default
-    """
-    return {"name": name,
-            "health": 100,
-            "gold": 200,
-            "strength": 20,
-            "defence": 20,
-            "luck": 20,}
-#This function shows the PLAYER's stats. Still in work
-
-
-def decrease_gold(amount):
-    """
-    Used to decrease the player's gold
-    """
-    if PLAYER is None:
-        print("Error: PLAYER not initialized.")
-        death()
-        return
-    PLAYER["gold"] -= amount
-    print(f"You spent {amount} gold. Your gold is now {PLAYER['gold']}.")
-#This function lowers the PLAYERs gold
-
-def increase_gold(amount):
-    """
-    Used to increase the player's gold
-    """
-    if PLAYER is None:
-        print("Error, PLAYER is not intitialized.")
-        death()
-        return
-    PLAYER["gold"] += amount
-    print(f"You gained {amount} gold. Your gold is now {PLAYER['gold']}")
-#This function increases the PLAYER's gold
-
-def death():
-    """
-    Used to kill the player then prompt them to restart or exit the game
-    """
-    print("You have died. Game over.")
-    input()
-    print("Do you want to restart the game? (Yes/No): ")
-    choice = input().strip().strip().lower()
-    if choice == "yes":
-        restart()
-    elif choice == "no":
-        print("Thank you for playing!")
-        exit()
-    else:
-        print("Bye! Exiting the game.")
-        exit()
-#This function manages the death sequence
-
-def restart():
-    """
-    Used to restart the game and go to main
-    """
-    global USERNAME, COMPANION, PLAYER
-    print("restarting the game...")
-    USERNAME = ""
-    PLAYER = None
-    COMPANION = ""
-    main()
-#This function restarts the game
-
-def dark_sword_story():
-    """
-    Used to upgrade sword and to show backstory
-    """
-    print("Before you leave, you notice a bottle of ominous energy.")
-    input()
-    print("Suddenly your sword flies out your hand and forges with the ominous energy")
-    input()
-    print("'You have acquired 'The Corrupted Sword'")
-    input()
-    print(DARK_SWORD)
-    learn_more2 = input("Would you like to hear about the backstory of this weapon (Yes/No)?")
-    match learn_more2.strip().lower().strip():
-        case "yes":
-            print("This sword, now corrupted by dark energy. " \
-                  "Has increased sharpness and toughness allowing " \
-                  "it attack against even the strongest of enemies.")
-            input()
-            chapter_10()
-            return
-        case "no":
-            print("Ok, skipping backstory")
-            input()
-            chapter_10()
-            return
-        case _:
-            print("Invalid Option")
-            print("Try Again")
-            dark_sword_story()
-            return
-#This is for the upgrade of the sword
-
-
-def dark_shield_story():
-    """
-    Used to upgrade shield and to show backstory
-    """
-    print("Before you leave, you notice a bottle of ominous energy.")
-    input()
-    print("Suddenly your shield flies out your hand and forges with the ominous energy")
-    input()
-    print("'You have acquired 'The Dark Shield'")
-    input()
-    print(DARK_SHIELD)
-    learn_more3 = input("Would you like to hear about the backstory of this weapon (Yes/No)?")
-    match learn_more3.strip().lower().strip():
-        case "yes":
-            print("This shield, now corrupted by dark energy. " \
-                  "Has increased defence and toughness allowing it defend " \
-                  "against even the strongest of enemies.")
-            input()
-            chapter_12()
-            return
-        case "no":
-            print("Ok, skipping backstory")
-            input()
-            chapter_12()
-            return
-        case _:
-            print("Invalid Option")
-            print("Try Again")
-            dark_shield_story()
-            return
-#This is for the upgrade of the shield
-
-def dark_dagger_story():
-    """
-    Used to upgrade dagger and to show backstory
-    """
-    print("Before you leave, you notice a bottle of ominous energy.")
-    input()
-    print("Suddenly your Dagger flies out your hand and forges with the ominous energy")
-    input()
-    print("'You have acquired 'The Dark Dagger'")
-    input()
-    print(DARK_SHIELD)
-    learn_more3 = input("Would you like to hear about the backstory of this weapon (Yes/No)?")
-    match learn_more3.strip().lower().strip():
-        case "yes":
-            print("This dagger, now corrupted by dark energy. " \
-                  "Has increased sharpness and power allowing it attack " \
-                  "against even the strongest of enemies.")
-            input()
-            chapter_7()
-            return
-        case "no":
-            print("Ok, skipping backstory")
-            input()
-            chapter_7()
-            return
-        case _:
-            print("Invalid Option")
-            print("Try Again")
-            dark_dagger_story()
-            return
-#This is for the upgrade of the shield
 
 #Start of game with title screen
 def main():
     """
     Main function to start the game and show the title screen
     """
-    global USERNAME, PLAYER, CURRENT_CHAPTER
-    CURRENT_CHAPTER = "main"
+    GAME_STATE["CURRENT_CHAPTER"] = "main"
     print(r"""
  _________     _       _____     ________   ______      ___   ________ 
 |  _   _  |   / \     |_   _|   |_   __  |.' ____ \   .'   `.|_   __  |
@@ -937,9 +47,9 @@ def main():
         "type 'Load' to load saved game: ")
         match result.strip().lower().strip():
             case "enter":
-                USERNAME = input("Enter your name: ")
-                #Saves the PLAYER's name as USERNAME
-                PLAYER = playerdata(USERNAME)
+                GAME_STATE["USERNAME"] = input("Enter your name: ")
+                #Saves the GAME_STATE["PLAYER"]'s name as GAME_STATE["USERNAME"]
+                GAME_STATE["PLAYER"] = utils.playerdata(GAME_STATE["USERNAME"])
                 input()
                 #Uses time.sleep to wait for 2,5, etc seconds before printing the next text
                 print("You woke up in a strange place, with no memory of how you got there.")
@@ -968,19 +78,19 @@ def main():
                         input()
                         print("Nothing happen, You die of boredom")
                         input()
-                        death()
-                #This kills the PLAYER since they typed in that they want to leave
+                        utils.death()
+                #This kills the GAME_STATE["PLAYER"] since they typed in that they want to leave
                     case "continue":
                         print("You chose to continue. Moving forward...")
-                        save_game()
+                        utils.save_game()
                         companion_chapter()
                 #This continues to the next chapter
                     case _:
                         print("Invalid Option")
                         input()
                         print("Try Again")
-                #This makes the PLAYER try again
-        #This is the option when the PLAYER types in enter or presses enter
+                #This makes the GAME_STATE["PLAYER"] try again
+        #This is the option when the GAME_STATE["PLAYER"] types in enter or presses enter
             case "tutorial":
                 #Gives tutorial to the player
                 print("This will restart the game!")
@@ -1015,28 +125,27 @@ def main():
                 return
         #This shows how to play the game and how the game works
             case "load":
-                load_game()
+                utils.load_game(CHAPTERS, CHAPTERS["main"])
                 return
         #This loads when the game last saved
             case _:
                 print("Invalid Option, Try again")
                 main()
                 return
-        #This shows when the PLAYER doesn't type in an appropriate response
+        #This shows when the GAME_STATE["PLAYER"] doesn't type in an appropriate response
 
 def companion_chapter():
     """
     Introduces companion to you through a fight
     """
-    global COMPANION, CURRENT_CHAPTER
-    CURRENT_CHAPTER = "companion_chapter"
+    GAME_STATE["CURRENT_CHAPTER"] = "companion_chapter"
     input()
     print("Suddenly, out of the blue, a mysterious character " \
           "jumps out from a bush holding a dagger ready to attack you.")
     input()
     companion_choice = input("You can either type 'Kill' to kill him or " \
                              "type 'Reason' to reason with him: ")
-    #Saves the PLAYER's input as companion_choice
+    #Saves the GAME_STATE["PLAYER"]'s input as companion_choice
     if companion_choice.strip().lower() == "kill":
         print("You tried killing the mysterious character " \
               "but they proceed to strike you in the stomach.")
@@ -1050,7 +159,7 @@ def companion_chapter():
         print("You realize that you have made a grave mistake, "
               "and your life is now forfeit.")
         input()
-        decrease_health()
+        utils.decrease_health()
         print("You pass out from the pain and lose consciousness.")
         time.sleep(10)
         print("When you wake up you find yourself in a cave resting " \
@@ -1060,12 +169,13 @@ def companion_chapter():
               "leaving you alone in the cave.")
         input()
         print("You died of loneliness and despair.")
-        death()
+        utils.death()
         return
-    #This kills the PLAYER when they try to kill the enemy
+    #This kills the GAME_STATE["PLAYER"] when they try to kill the enemy
     elif companion_choice.strip().lower() == 'reason':
         print("Reasoning with the mysterious character, " \
-              "you explain that you mean no harm and are also lost in this strange place...")
+              "you explain that you mean no harm and are also lost in this strange place..." \
+              "PLEASE WAIT")
         time.sleep(10)
         print("The mysterious character agrees and joins you on your " \
               "journey to get out of this foreign place.")
@@ -1073,172 +183,171 @@ def companion_chapter():
         print("The mysterious character is now your Companion.")
         input()
         print("Before continuing, you ask the mysterious character his name.")
-        COMPANION = input("Enter Companion's name: ")
-        #Saves player input as COMPANION to then be used throughout the game
-        save_game()
+        GAME_STATE["COMPANION"] = input("Enter Companion's name: ")
+        #Saves player input as GAME_STATE["COMPANION"] to then be used throughout the game
+        utils.save_game()
         chapter_1()
         return
-    #This continues the game since the PLAYER wants to reason with
-    # COMPANION which is integral to the story
+    #This continues the game since the GAME_STATE["PLAYER"] wants to reason with
+    # GAME_STATE["COMPANION"] which is integral to the story
     else:
-        death()
+        utils.death()
         return
-    #This shows up when the PLAYER doesn't type an appropriate response
+    #This shows up when the GAME_STATE["PLAYER"] doesn't type an appropriate response
 
 def chapter_1():
     """
     Companion needs help to find their stuff before telling you about Fargon
     """
-    global  CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_1"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_1"
     print(f"***************************\n"
-         f"Chapter 1: {COMPANION}'s Dilemma\n"
+         f"Chapter 1: {GAME_STATE["COMPANION"]}'s Dilemma\n"
            "***************************\n")
     input()
-    print(f'You and {COMPANION} continue down the path, discussing your situation.')
+    print(f'You and {GAME_STATE["COMPANION"]} continue down the path, discussing your situation.')
     input()
-    print(f"'You know, I know a way out of here, but I need your help first,' :{COMPANION}.")
+    print("'You know, I know a way out of here, but"
+          f"I need your help first,' :{GAME_STATE["COMPANION"]}.")
     input()
     dagger_choice = input("During our little scuffle, I lost my dagger."
-                          f"Can you help me find it? :{COMPANION}(Yes/No): ")
-    #Saves the PLAYER's input as dagger_choice
+                          f"Can you help me find it? :{GAME_STATE["COMPANION"]}(Yes/No): ")
+    #Saves the GAME_STATE["PLAYER"]'s input as dagger_choice
     if dagger_choice.strip().lower() == "yes":
-        print(f"Thank you! I knew I could count on you! :{COMPANION}")
+        print(f"Thank you! I knew I could count on you! :{GAME_STATE["COMPANION"]}")
         input()
-        print(f"You and {COMPANION} start searching the area for the lost dagger.")
+        print(f"You and {GAME_STATE["COMPANION"]} start searching the area for the lost dagger.")
         time.sleep(10)
         print("After a while, you find the dagger hidden under some leaves.")
         input()
-        print(f"You hand the dagger back to {COMPANION}, who looks relieved.")
+        print(f"You hand the dagger back to {GAME_STATE["COMPANION"]}, who looks relieved.")
         input()
-        print(f"Here, {USERNAME} take my dagger,"
-              f"I see you have no weapon. Follow me, {USERNAME}. :{COMPANION}")
+        print(f"Here, {GAME_STATE["USERNAME"]} take my dagger,"
+              f"I see you have no weapon. Follow me, {GAME_STATE["USERNAME"]}."
+              f":{GAME_STATE["COMPANION"]}")
         input()
-        print(f"You acquired {COMPANION}'s trusty dagger.")
+        print(f"You acquired {GAME_STATE["COMPANION"]}'s trusty dagger.")
         input()
-        print(SPECIAL_DAGGER)
+        print(ascii_art.SPECIAL_DAGGER)
         input()
-        save_game()
+        utils.save_game()
         chapter_2()
         return
-    #This continues the game since the PLAYER wants to help COMPANION
+    #This continues the game since the GAME_STATE["PLAYER"] wants to help GAME_STATE["COMPANION"]
     else:
-        print(f"Too bad, I guess you don't want to leave this place... :{COMPANION}")
+        print(f"Too bad, I guess you don't want to leave this place... :{GAME_STATE["COMPANION"]}")
         time.sleep(10)
-        print(f"{COMPANION} turns away and walks off into the darkness, leaving you alone.")
+        print(f"{GAME_STATE["COMPANION"]} turns away and"
+              f"walks off into the darkness, leaving you alone.")
         input()
         print("You died of loneliness and despair.")
-        death()
+        utils.death()
         return
-    #This kills the PLAYER since they don't want to help
+    #This kills the GAME_STATE["PLAYER"] since they don't want to help
 
 def chapter_2():
     """
     Companion tells you about the backstory of Fargon
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_2"
     print("***************************\n"
        "Chapter 2: The Lost Princess of Faron\n"
           "***************************\n")
     input()
     print("Ok, so you see, This place is called Faron,"
             "it used to be a beautiful place,"
-          f"ruled by a princess called Violet. :{COMPANION}")
+          f"ruled by a princess called Violet. :{GAME_STATE["COMPANION"]}")
     input()
     print("But now, it's just a shadow of its former self,"
-          f"plagued by dark creatures and monsters. :{COMPANION}")
+          f"plagued by dark creatures and monsters. :{GAME_STATE["COMPANION"]}")
     input()
-    print(f"As you and {COMPANION} walk, you can feel"
+    print(f"As you and {GAME_STATE["COMPANION"]} walk, you can feel"
            "the weight of the history around you.")
     input()
     print("You see ruins of old buildings, broken statues, "
           "and remnants of a once-thriving civilization in the distance.")
     input()
-    print(f"You ask {COMPANION} about Princess Violet and what happened to her.")
+    print(f"You ask {GAME_STATE["COMPANION"]} about Princess Violet and what happened to her.")
     input()
-    print(f"{COMPANION} looks sad 'The princess was taken by"
-          f"the monsters that consumed this place. :{COMPANION}")
+    print(f"{GAME_STATE["COMPANION"]} looks sad 'The princess was taken by"
+          f"the monsters that consumed this place. :{GAME_STATE["COMPANION"]}")
     input()
-    print(f"She was the last hope for Faron, but now she's gone. :{COMPANION}")
+    print(f"She was the last hope for Faron, but now she's gone. :{GAME_STATE["COMPANION"]}")
     input()
     print("You feel a sense of determination to find a way to save Faron and its lost princess.")
     input()
-    print(f"You ask {COMPANION} how do they know all this.")
+    print(f"You ask {GAME_STATE["COMPANION"]} how do they know all this.")
     input()
     print("'I arrived a few years ago, and I have been trying"
-          f"to find a way out ever since. :{COMPANION}'")
+          f"to find a way out ever since. :{GAME_STATE["COMPANION"]}'")
     input()
     print("I have heard stories from the locals about the princess"
-          f"and the monsters that took her. :{COMPANION}")
+          f"and the monsters that took her. :{GAME_STATE["COMPANION"]}")
     input()
-    print(f"You ask {COMPANION} where the princess is at now?")
+    print(f"You ask {GAME_STATE["COMPANION"]} where the princess is at now?")
     input()
     print("I don't know, but I have heard rumors of a hidden temple deep in the forest." /
           "It's said that the princess is trapped there,"
-          f"guarded by powerful creatures. :{COMPANION}")
+          f"guarded by powerful creatures. :{GAME_STATE["COMPANION"]}")
     input()
     path_choice = input("You have a choice to make." \
                         "Do you want to go to the temple and try " \
                         "to rescue the princess? (Yes/No): ")
     if path_choice.strip().lower() == "yes":
-        print(f"You and {COMPANION} set off towards the hidden temple,"
+        print(f"You and {GAME_STATE["COMPANION"]} set off towards the hidden temple,"
               "determined to rescue the princess.")
-        #Saves the PLAYER's input as path_choice
+        #Saves the GAME_STATE["PLAYER"]'s input as path_choice
         input()
-        save_game()
+        utils.save_game()
         input()
         chapter_3()
         return
-    #This goes to the next chapter since the PLAYER wants to progress
+    #This goes to the next chapter since the GAME_STATE["PLAYER"] wants to progress
     else:
         print("You decide not to take the risk and continue on your current path.")
         input()
         print("All of a sudden, you hear a loud roar and a bull appears out of nowhere.")
         input()
-        print(BULL)
+        print(ascii_art.BULL)
         input()
         bull_fight = input("You can either type 'Run' to run away or " \
                            "type 'Fight' to fight the bull: ")
-        #Saves the PLAYER's input as bull_fight
+        #Saves the GAME_STATE["PLAYER"]'s input as bull_fight
         if bull_fight.strip().lower() == "run":
             print("You turn and run as fast as you can, escaping the bull's charge.")
             input()
             print("Unfortunately, you run into a dead end and the bull catches up to you.")
             input()
-            death()
+            utils.death()
             return
-        #This kills the PLAYER as the bull kills them
+        #This kills the GAME_STATE["PLAYER"] as the bull kills them
         elif bull_fight.strip().lower() == "fight":
             print("You bravely stand your ground and prepare to fight the bull.")
             input()
             print("You regret your choice")
             input()
-            death()
+            utils.death()
             return
-        #This also kills the PLAYER as the bull kills them
+        #This also kills the GAME_STATE["PLAYER"] as the bull kills them
         else:
             print("Invalid choice. The bull charges at you!")
-            death()
+            utils.death()
             return
-        #This also kills the PLAYER
-    #This goes to the bull scene where all the options kill the PLAYER
+        #This also kills the GAME_STATE["PLAYER"]
+    #This goes to the bull scene where all the options kill the GAME_STATE["PLAYER"]
 
 def chapter_3():
     """
     Introducs the mechanics and what the battles will feel like, with the first dungeon
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_3"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_3"
     while True:
         print("***************************\n"
               "Chapter 3: The Hidden Temple\n"
               "***************************\n")
         #Introduction to the dungeon
         input()
-        print(DUNGEON_1)
+        print(ascii_art.DUNGEON_1)
         #This prints the ascii art for the dungeon
-        print(f"You and {COMPANION} arrive at the hidden temple,"
+        print(f"You and {GAME_STATE["COMPANION"]} arrive at the hidden temple,"
               "its entrance shrouded in vines and darkness.")
         input()
         print("As you step inside, you feel a chill run down your spine. " \
@@ -1247,36 +356,39 @@ def chapter_3():
         print("You can hear the faint sound of water dripping in the distance, " \
               "echoing through the empty halls.")
         input()
-        print(f"You and {COMPANION} cautiously explore the temple,"
+        print(f"You and {GAME_STATE["COMPANION"]} cautiously explore the temple,"
               "searching for any signs of the princess.")
         input()
-        print(f"Here, {USERNAME} take this sword as well as this shield,"
-              f"Stay cautious, I don't have a good feeling about this... :{COMPANION}")
+        print(f"Here, {GAME_STATE["USERNAME"]} take this sword as well as this shield,"
+              "Stay cautious, I don't have a good"
+              f"feeling about this... :{GAME_STATE["COMPANION"]}")
         input()
-        print(f"You have acquired {COMPANION}'s special iron sword and reinforced shield")
+        print(f"You have acquired {GAME_STATE["COMPANION"]}'s"
+              "special iron sword and reinforced shield")
         input()
-        print(SPECIAL_SWORD)
+        print(ascii_art.SPECIAL_SWORD)
         input()
-        print(SPECIAL_SHIELD)
+        print(ascii_art.SPECIAL_SHIELD)
         input()
         print("Suddenly, you hear a loud roar and a " \
               "giant creature appears in front of you, blocking your path.")
         input()
         print("The creature is a massive stone golem, its eyes glowing with an eerie light.")
         input()
-        print(f"All of a sudden, the golem charges at {COMPANION} and knocks them to the wall")
+        print(f"All of a sudden, the golem charges at {GAME_STATE["COMPANION"]}"
+              "and knocks them to the wall")
         input()
         print("****************************\n"
               " Forging The Beast of Stone \n"
               "****************************\n")
         #Introduction to the boss
-        print(GOLEM)
+        print(ascii_art.GOLEM)
         #This prints the ascii for the golem, this repeats for all the bosses
         input()
         print("You have a choice to make. Do you want to fight the golem "
               "or try to reason with it? (Fight/Reason): ")
         golem_choice = input("What do you want to do? ")
-        #Saves the PLAYER's input as golem_choice
+        #Saves the GAME_STATE["PLAYER"]'s input as golem_choice
         if golem_choice.strip().lower() == "fight":
             print("You bravely stand your ground and prepare to fight the golem.")
             input()
@@ -1290,28 +402,28 @@ def chapter_3():
             input()
             print("The golem knocks you out cold")
             input()
-            death()
+            utils.death()
             return
-        #This kills the PLAYER since they tried reasoning with a rock
+        #This kills the GAME_STATE["PLAYER"] since they tried reasoning with a rock
         else:
             print("Invalid choice. The golem charges at you!")
             input()
-            death()
+            utils.death()
             return
-        #This kills the PLAYER since they did an invalid response
+        #This kills the GAME_STATE["PLAYER"] since they did an invalid response
         while True:
             golem_choice2 = input("You can either type 'Dodge' to dodge its attack "
                                   "or type 'Attack' to attack it: ")
-            #Saves the PLAYER's input as golem_choice2
+            #Saves the GAME_STATE["PLAYER"]'s input as golem_choice2
             if golem_choice2.strip().lower() == "dodge":
                 print("You quickly dodge the golem's attack, narrowly avoiding its powerful fists.")
                 input()
                 print("You counterattack, striking the golem with all your might.")
                 input()
                 print("The golem staggers back, but it is not defeated yet."
-                      f"You and {COMPANION} must work together to defeat it.")
+                      f"You and {GAME_STATE["COMPANION"]} must work together to defeat it.")
                 input()
-                save_game()
+                utils.save_game()
                 chapter_3part2()
                 return
             #This continues to the next chapter
@@ -1321,37 +433,36 @@ def chapter_3():
                 print("The golem retaliates with a powerful punch, " \
                       "sending you flying across the room.")
                 input()
-                death()
+                utils.death()
                 return
-            #This kills the PLAYER
+            #This kills the GAME_STATE["PLAYER"]
             else:
                 print("Invalid choice. The golem charges at you!")
                 input()
-                death()
+                utils.death()
                 return
-            #This kills the PLAYER for an invalid response
+            #This kills the GAME_STATE["PLAYER"] for an invalid response
 
 def chapter_3part2():
     """
     Part 2 of Chapter 3, battle continues
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_3part2"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_3part2"
     while True:
         golem_choice3 = input("You can either type 'Attack' to attack the golem again"
-                              f"or type 'Heal' to wake up {COMPANION}: ")
-        #Saves the PLAYER's input as golem_choice3
+                              f"or type 'Heal' to wake up {GAME_STATE["COMPANION"]}: ")
+        #Saves the GAME_STATE["PLAYER"]'s input as golem_choice3
         if golem_choice3.strip().lower() == "attack":
-            print(f"You and {COMPANION} attack the golem with all your might.")
+            print(f"You and {GAME_STATE["COMPANION"]} attack the golem with all your might.")
             input()
             print("The golem stands unfazed, cracks form but it is still standing.")
             input()
             print("You realize that you need to find a way to weaken it before you can defeat it.")
         #This repeats the question again
         elif golem_choice3.strip().lower() == "heal":
-            print(f"You use a healing potion to wake up {COMPANION}.")
+            print(f"You use a healing potion to wake up {GAME_STATE["COMPANION"]}.")
             input()
-            print(f"{COMPANION} is back in the fight!")
+            print(f"{GAME_STATE["COMPANION"]} is back in the fight!")
             print("You both attack the golem together, striking it with all your might.")
             input()
             print("The golem staggers back, its stone body cracking under your combined assault.")
@@ -1361,13 +472,14 @@ def chapter_3part2():
             print("Finally, with one last powerful blow, " \
                   "the golem crumbles to the ground, defeated.")
             input()
-            print(f"You and {COMPANION} stand victorious,"
+            print(f"You and {GAME_STATE["COMPANION"]} stand victorious,"
                    "breathing heavily from the intense battle.")
             input()
             print("You search the golem's remains and find a rusty grey key " \
                   "that unlocks a hidden door in the temple.")
             input()
-            print(f"You and {COMPANION} enter the hidden door, hoping to find the princess inside.")
+            print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
+                  "hoping to find the princess inside.")
             input()
             print("As you step through the door, you find yourselves in " \
                   "a dimly lit chamber filled with ancient artifacts.")
@@ -1377,7 +489,7 @@ def chapter_3part2():
             print("****************************\n"
                   "  1 Key Achieved 4 left. \n"
                   "****************************\n")
-            save_game()
+            utils.save_game()
             chapter_4()
             return
         #This shows you've defeated the boss and have gained a key
@@ -1389,32 +501,35 @@ def chapter_4():
     """
     Tells more backstory about the keys
     """
-    global  CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_4"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_4"
     while True:
         print("***************************\n"
               "Chapter 4: The Path Ahead\n"
               "***************************\n")
         input()
-        print(f"You and {COMPANION} exit the temple past the pile of"
+        print(f"You and {GAME_STATE["COMPANION"]} exit the temple past the pile of"
                "rubble and continue down a path.")
         input()
-        key_question = input(f"You can ask {COMPANION} a question about the other keys"
-                              "or continue down the path playing with the key. (Ask/Continue): ")
-        #Saves the PLAYER's input as key_question
+        key_question = input(f"You can ask {GAME_STATE["COMPANION"]} a question"
+                              "about the other keys"
+                              "or continue down the path playing " \
+                              "with the key. (Ask/Continue): ")
+        #Saves the GAME_STATE["PLAYER"]'s input as key_question
         if key_question.strip().lower() == "ask":
-            print(f"You ask {COMPANION} about the other keys.")
+            print(f"You ask {GAME_STATE["COMPANION"]} about the other keys.")
             input()
             print(f"'There are 5 keys in total, but I don't know the exact locations,"
-                  f"but I have heard rumors of their existence' :{COMPANION}")
+                  f"but I have heard rumors of their existence' :{GAME_STATE["COMPANION"]}")
             input()
             print("Suddenly, the key shifts in you hand and points forwards.")
             input()
-            print(f"You thank {COMPANION} for the information and continue down the path.")
+            print(f"You thank {GAME_STATE["COMPANION"]} for the information"
+                  "and continue down the path.")
             input()
             print(f"The path ahead changes to a lush green tropical forest but you and"
-                  f"{COMPANION} are determined to find the other keys and rescue the princess.")
-            save_game()
+                  f"{GAME_STATE["COMPANION"]} are determined to find the"
+                  "other keys and rescue the princess.")
+            utils.save_game()
             chapter_5()
             break
         #This continues to the next dungeon while showing a little more backstory
@@ -1423,11 +538,14 @@ def chapter_4():
             input()
             print("The key feels warm in your hand, and you can sense its power.")
             input()
-            print(f"The path ahead changes to a lush green tropical forest but you and {COMPANION}"
-                   "are determined to find the other keys and rescue the princess.")
-            save_game()
+            print("The path ahead changes to a lush green tropical"
+                  f"forest but you and {GAME_STATE["COMPANION"]}"
+                   "are determined to find the " \
+                   "other keys and " \
+                   "rescue the princess.")
+            utils.save_game()
             input()
-            save_game()
+            utils.save_game()
             chapter_5()
             break
         #This skips the backstory but still goes to the next dungeon
@@ -1440,13 +558,12 @@ def chapter_5():
     """
     Introduces the goblin camp and the next dungeon
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_5"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_5"
     print("***************************\n"
           "Chapter 5: The Goblin Camp\n"
           "***************************\n")
     input()
-    print(f"You and {COMPANION} arrive at the goblin camp,"
+    print(f"You and {GAME_STATE["COMPANION"]} arrive at the goblin camp,"
            "a makeshift settlement hidden deep in the forest.")
     input()
     print("As you enter, you can feel the tension in the air. " \
@@ -1456,39 +573,41 @@ def chapter_5():
           "but you are determined to find the next key.")
     input()
     print("We need to be careful."
-          f"The goblins are known for their traps and ambushes. :{COMPANION}")
+          f"The goblins are known for their traps and ambushes. :{GAME_STATE["COMPANION"]}")
     input()
     print("You nod in agreement and start to plan your approach.")
     input()
     print(f"Stay here, I'll go talk to the camp chief"
-          f"and see if they know anything about the key. :{COMPANION}")
+          f"and see if they know anything about the key. :{GAME_STATE["COMPANION"]}")
     input()
-    print(f"{COMPANION} disappears around the corner of a hut, leaving you alone in the camp.")
+    print(f"{GAME_STATE["COMPANION"]} disappears around the corner of a hut,"
+          "leaving you alone in the camp.")
     input()
     goblin_choice = input("Now you have a choice to make."
-                          f"Do you want to wait for {COMPANION} to return"
+                          f"Do you want to wait for {GAME_STATE["COMPANION"]} to return"
                            "or explore the camp on your own? (Wait/Explore): ")
-    #Saves the PLAYER's input as goblin_choice
+    #Saves the GAME_STATE["PLAYER"]'s input as goblin_choice
     if goblin_choice.strip().lower() == "wait":
-        print(f"You decide to wait for {COMPANION} to return.")
+        print(f"You decide to wait for {GAME_STATE["COMPANION"]} to return.")
         input()
-        print(f"{COMPANION} returns after a while, looking worried.")
+        print(f"{GAME_STATE["COMPANION"]} returns after a while, looking worried.")
         input()
         print("The goblin chief knows where the dungeon is,"
-              f"but he won't give it up easily. :{COMPANION}")
+              f"but he won't give it up easily. :{GAME_STATE["COMPANION"]}")
         input()
-        print(f"You approach the chief with {COMPANION}")
+        print(f"You approach the chief with {GAME_STATE["COMPANION"]}")
         input()
         goblin_choice2 = input("Do you want to try to reason with " \
                                "the goblin chief or attack him? (Reason/Attack): ")
         while True:
-    #Waiting for COMPANION to come back and the going to the chief
+    #Waiting for GAME_STATE["COMPANION"] to come back and the going to the chief
             if goblin_choice2.strip().lower() == "reason":
-                print(f"You and {COMPANION} approach the goblin chief, trying to reason with him.")
+                print(f"You and {GAME_STATE["COMPANION"]} approach the goblin chief,"
+                      "trying to reason with him.")
                 input()
                 print("The goblin chief listens to your plea, but he is not convinced.")
                 input()
-                print(f"We need to find another way to get the location :{COMPANION}")
+                print(f"We need to find another way to get the location :{GAME_STATE["COMPANION"]}")
                 input()
                 print("You nod in agreement and start to plan your next move.")
                 input()
@@ -1497,7 +616,7 @@ def chapter_5():
                 input()
         #loops again to the goblin chief question
             elif goblin_choice2.strip().lower() == "attack":
-                print(f"You and {COMPANION} decide to attack the goblin chief.")
+                print(f"You and {GAME_STATE["COMPANION"]} decide to attack the goblin chief.")
                 input()
                 print("The goblin chief fights back fiercely, " \
                       "but you manage to defeat him after a tough battle.")
@@ -1505,8 +624,9 @@ def chapter_5():
                 print("You search the goblin chief's hut and find a map " \
                       "that leads to the next dungeon.")
                 input()
-                print(f"You and {COMPANION} take the map and prepare to continue your journey.")
-                save_game()
+                print(f"You and {GAME_STATE["COMPANION"]} take the map and"
+                      "prepare to continue your journey.")
+                utils.save_game()
                 chapter_6()
                 return
          #Goes to next chapter after you attack him
@@ -1523,10 +643,10 @@ def chapter_5():
             input()
             print("You find a small windmill with a sign that reads 'Storage Space'.")
             input()
-            print(GOBLIN_HUT)
+            print(ascii_art.GOBLIN_HUT)
             goblin_choice3 = input("Do you want to enter the windmill? (Yes/No): ")
             if goblin_choice3.strip().lower() == "yes":
-            #Saves the PLAYER's input as goblin_choice3
+            #Saves the GAME_STATE["PLAYER"]'s input as goblin_choice3
                 while True:
                     input()
                     print("You enter the hut and find a chest in the corner.")
@@ -1535,17 +655,17 @@ def chapter_5():
                     input()
                     print("You take the map and return to the main camp area.")
                     input()
-                    print(f"You find {COMPANION} waiting for you, looking relieved.")
+                    print(f"You find {GAME_STATE["COMPANION"]} waiting for you, looking relieved.")
                     input()
                     print(f"I was worried about you."
-                          f"Did you find anything useful? :{COMPANION}")
+                          f"Did you find anything useful? :{GAME_STATE["COMPANION"]}")
                     input()
-                    print(f"You show {COMPANION} the map you found in the hut.")
+                    print(f"You show {GAME_STATE["COMPANION"]} the map you found in the hut.")
                     input()
-                    print(f"{COMPANION} looks at the map"
+                    print(f"{GAME_STATE["COMPANION"]} looks at the map"
                           "This looks like to the next dungeon"
-                          f"It might help us find the key! :{COMPANION}")
-                    save_game()
+                          f"It might help us find the key! :{GAME_STATE["COMPANION"]}")
+                    utils.save_game()
                     chapter_6()
                     break
             #Goes to the dungeon
@@ -1555,15 +675,16 @@ def chapter_5():
                 print("You wander around, but you don't find anything else of interest.")
                 input()
                 print("You return to the main camp area,"
-                      f"where you find {COMPANION} waiting for you.")
+                      f"where you find {GAME_STATE["COMPANION"]} waiting for you.")
                 input()
-                print(f"Did you find anything useful? :{COMPANION}")
+                print(f"Did you find anything useful? :{GAME_STATE["COMPANION"]}")
                 input()
-                print(f"You tell {COMPANION} that you didn't find anything,"
+                print(f"You tell {GAME_STATE["COMPANION"]} that you didn't find anything,"
                       "but you feel like you might have missed something important.")
                 input()
                 print("We should keep looking."
-                      f"The goblins might have more information about the key. :{COMPANION}")
+                      "The goblins might have more information"
+                      f"about the key. :{GAME_STATE["COMPANION"]}")
              #Loops again and goes back to the question
             else:
                 print("Invalid choice.")
@@ -1573,22 +694,21 @@ def chapter_5():
     else:
         print("Invalid choice.")
         return
-#If the PLAYER does not enter a valid choice
+#If the GAME_STATE["PLAYER"] does not enter a valid choice
 
 def chapter_6():
     """
     Introduces the second dungeon and the next boss
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_6"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_6"
     while True:
         print("***************************\n"
             "Chapter 6: The Crystal Dungeon\n"
               "***************************\n")
         input()
-        print(DUNGEON_2)
+        print(ascii_art.DUNGEON_2)
         input()
-        print(f"You and {COMPANION} arrive at the entrance of the lush green cavern,"
+        print(f"You and {GAME_STATE["COMPANION"]} arrive at the entrance of the lush green cavern,"
               "the second dungeon.")
         input()
         print("The air is thick with moisture, "
@@ -1598,7 +718,7 @@ def chapter_6():
               "the flickering light revealing jagged rocks and narrow passages.")
         input()
         print("Be careful. This place is known for its"
-              f"traps and dangerous creatures. :{COMPANION}")
+              f"traps and dangerous creatures. :{GAME_STATE["COMPANION"]}")
         input()
         print("You nod and start to explore the cavern, searching for the key.")
         input()
@@ -1608,7 +728,8 @@ def chapter_6():
         input()
         print("On the pedestal, you can see a glimmering blue key.")
         input()
-        print(f"You and {COMPANION} realize that this must be the second key you are looking for.")
+        print(f"You and {GAME_STATE["COMPANION"]} realize that this"
+              "must be the second key you are looking for.")
         input()
         print("Before either of you could react, " \
               "a giant beast emerges from the water, its eyes glowing with a menacing light.")
@@ -1618,25 +739,25 @@ def chapter_6():
         print("****************************\n"
               "Serpus The Beast of the Lake \n"
               "****************************\n")
-        print(SERPUS)
+        print(ascii_art.SERPUS)
         #Shows ascii art of the serpus
         input()
         print("Before either of you could move, Serpus strikes you both in the back.")
-        decrease_health()
-        print(f"{COMPANION}'s health is low")
+        utils.decrease_health()
+        print(f"{GAME_STATE["COMPANION"]}'s health is low")
         input()
         serpent_choice = input("Serpus is charging up it's next attack, (Attack/Dodge): ")
         #User's input is stored as serpent_choice
         if serpent_choice.strip().lower() == "attack":
             print("Serpus strikes you in the stomach and injures you.")
             input()
-            decrease_health()
-            print(f"{COMPANION}'s health is low")
+            utils.decrease_health()
+            print(f"{GAME_STATE["COMPANION"]}'s health is low")
             input()
-            print(f"You and {COMPANION} are both injured"
+            print(f"You and {GAME_STATE["COMPANION"]} are both injured"
                   "and need to find a way to defeat Serpus before it attacks again.")
             input()
-            save_game()
+            utils.save_game()
             serpus_fight3()
         #Goes to next the final sequence
         elif serpent_choice.strip().lower() == "dodge":
@@ -1646,40 +767,39 @@ def chapter_6():
             input()
             print("The serpent staggers back,"
                   "but it is not defeated yet."
-                  f"You and {COMPANION} must work together to defeat it.")
+                  f"You and {GAME_STATE["COMPANION"]} must work together to defeat it.")
             input()
-            save_game()
+            utils.save_game()
             serpus_fight2()
         #Goes to the next sequence
         else:
             print("Invalid choice. Serpus attacks you again!")
-            death()
-        #Kills the PLAYER since they didn't respond properly
+            utils.death()
+        #Kills the GAME_STATE["PLAYER"] since they didn't respond properly
 
 def serpus_fight2():
     """    
     Continues the fight with Serpus
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "serpus_fight2"
+    GAME_STATE["CURRENT_CHAPTER"] = "serpus_fight2"
     while True:
         serpent_choice2 = input("You can either type 'Attack' to attack Serpus"
-                                f"or type 'Heal' to heal yourself and {COMPANION}: ")
+                                f"or type 'Heal' to heal yourself and {GAME_STATE["COMPANION"]}: ")
         #User's input is stored as serpentchoice2
         if serpent_choice2.strip().lower() == "attack":
-            print(f"You and {COMPANION} attack Serpus with all your might,"
+            print(f"You and {GAME_STATE["COMPANION"]} attack Serpus with all your might,"
                   "striking it with your weapons.")
             input()
             print("Finally, with one last powerful blow, " \
                   "Serpus roars in pain and sinks back into the depths of the lake.")
             input()
-            print(f"You and {COMPANION} stand victorious,"
+            print(f"You and {GAME_STATE["COMPANION"]} stand victorious,"
                   "breathing heavily from the intense battle.")
             input()
             print("You search the serpent's remains and find a glimmering blue key " \
                   "that unlocks a hidden door in the cavern.")
             input()
-            print(f"You and {COMPANION} enter the hidden door,"
+            print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
                   "hoping to find the next key inside.")
             input()
             print("As you step through the door, " \
@@ -1690,16 +810,18 @@ def serpus_fight2():
             print("****************************\n"
                    "  2 Key Achieved 3 left. \n"
                   "****************************\n")
-            print(f"You and {COMPANION} take the key and prepare to continue your journey.")
+            print(f"You and {GAME_STATE["COMPANION"]} take the key and"
+                  "prepare to continue your journey.")
             input()
-            save_game()
-            dark_dagger_story()
+            utils.save_game()
+            input()
+            utils.dark_dagger_story()
             #Shows the dagger upgrade story
             return
         elif serpent_choice2.strip().lower() == "heal":
-            print(f"You use a healing potion to heal yourself and {COMPANION}.")
+            print(f"You use a healing potion to heal yourself and {GAME_STATE["COMPANION"]}.")
             input()
-            print(f"{COMPANION} is back in the fight!")
+            print(f"{GAME_STATE["COMPANION"]} is back in the fight!")
             input()
             print("You both attack Serpus together, striking it with all your might.")
             input()
@@ -1709,13 +831,14 @@ def serpus_fight2():
             input()
             print("Finally, with one last powerful blow, Serpus collapses to the ground, defeated.")
             input()
-            print(f"You and {COMPANION} stand victorious,"
+            print(f"You and {GAME_STATE["COMPANION"]} stand victorious,"
                   "breathing heavily from the intense battle.")
             input()
             print("You search Serpus's remains and find a mysterious " \
                   "blue key that unlocks a hidden door in the temple.")
             input()
-            print(f"You and {COMPANION} enter the hidden door, hoping to find the princess inside.")
+            print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
+                  "hoping to find the princess inside.")
             input()
             print("As you step through the door, you find yourselves "
                   "in a dimly lit chamber filled with ancient artifacts.")
@@ -1725,42 +848,42 @@ def serpus_fight2():
             print("****************************\n"
                    "  2 Key Achieved 3 left. \n"
                   "****************************\n")
-            print(f"You and {COMPANION} take the key and prepare to continue your journey...")
+            print(f"You and {GAME_STATE["COMPANION"]} take the key and"
+                  "prepare to continue " \
+                  "your journey...")
             input()
-            save_game()
-            dark_dagger_story()
+            utils.save_game()
+            utils.dark_dagger_story()
             #This shows the dagger upgrade story
             return
         else:
             print("Invalid choice. Serpus attacks you again!")
-            death()
+            utils.death()
             break
-        #This kills the PLAYER since they entered an invalid response
+        #This kills the GAME_STATE["PLAYER"] since they entered an invalid response
 
 def serpus_fight3():
     """
     Final fight sequence with Serpus
     """
-    global CURRENT_CHAPTER
-    # These are global variables for the saving function,
-    # PLAYER USERNAME, PLAYER stats, COMPANION USERNAME
-    # allowing for these functions to work within the different chapters
-    CURRENT_CHAPTER = "serpus_fight3"
+    GAME_STATE["CURRENT_CHAPTER"] = "serpus_fight3"
     #Saves curent chapter
     serpent_choice3 = input("Type 'Attack' to attack Serpus again or"
-                            f"type 'Heal' to heal yourself and {COMPANION}: ")
+                            f"type 'Heal' to heal yourself and {GAME_STATE["COMPANION"]}: ")
     if serpent_choice3.strip().lower() == "attack":
-        print(f"You and {COMPANION} attack Serpus's core with all your might,"
+        print(f"You and {GAME_STATE["COMPANION"]} attack Serpus's core with all your might,"
               "striking it with your weapons.")
         input()
         print("Serpus roars in pain, and it smashes into the ground, defeated.")
         input()
-        print(f"You and {COMPANION} stand victorious, breathing heavily from the intense battle.")
+        print(f"You and {GAME_STATE["COMPANION"]} stand victorious,"
+              "breathing heavily from the intense battle.")
         input()
         print("You search the serpent's remains and find a glimmering " \
               "blue key that unlocks a hidden door in the cavern.")
         input()
-        print(f"You and {COMPANION} enter the hidden door, hoping to find the next key inside.")
+        print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
+              "hoping to find the next key inside.")
         input()
         print("As you step through the door, you find yourselves "
               "in a dimly lit chamber filled with ancient artifacts.")
@@ -1770,39 +893,42 @@ def serpus_fight3():
         print("****************************\n"
               "  2 Key Achieved 3 left. \n"
               "****************************\n")
-        print(f"You and {COMPANION} take the key and prepare to continue your journey...")
+        print(f"You and {GAME_STATE["COMPANION"]} take the key"
+              "and prepare to continue your journey...")
         input()
-        save_game()
-        dark_dagger_story()
+        utils.save_game()
+        utils.dark_dagger_story()
         chapter_7()
+        return
             #This shows the dagger upgrade story
     elif serpent_choice3.strip().lower() == "heal":
-        print(f"You use a healing potion to heal yourself and {COMPANION}.")
+        print(f"You use a healing potion to heal yourself and {GAME_STATE["COMPANION"]}.")
         print("Serpus lunges at you before either of you could attack.")
-        death()
-        #This kills the PLAYER
+        utils.death()
+        return
+        #This kills the GAME_STATE["PLAYER"]
     else:
         print("Invalid choice. Serpus attacks you again!")
-        death()
-        #This kills the PLAYER since they entered an invalid response
+        utils.death()
+        return
+        #This kills the GAME_STATE["PLAYER"] since they entered an invalid response
 
 def chapter_7():
     """
     Introduces the next chapter and the next dungeon
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_7"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_7"
     print("***************************\n"
     "Chapter 7: The Path to the Fire Dungeon\n"
           "***************************\n")
     input()
-    print(f"You and {COMPANION} exit the jungle cavern and continue down the path,"
+    print(f"You and {GAME_STATE["COMPANION"]} exit the jungle cavern and continue down the path,"
           "the lush greenery giving way to rocky terrain.")
     input()
     print("The air grows hotter, and you can feel the heat radiating from the ground.")
     input()
     print("The next key is said to be hidden in a fire dungeon,"
-          f"deep within the mountains according to the map. :{COMPANION}")
+          f"deep within the mountains according to the map. :{GAME_STATE["COMPANION"]}")
     input()
     print("You nod in agreement, determined to find the next key and rescue the princess.")
     input()
@@ -1811,22 +937,25 @@ def chapter_7():
     print("The goblins are armed with crude weapons and look ready for a fight.")
     input()
     print("We need to be careful."
-          f"The goblins are known for their traps and ambushes. :{COMPANION}")
+          f"The goblins are known for their traps and ambushes. :{GAME_STATE["COMPANION"]}")
     input()
     goblin_offer = input("Do you want to fight the goblins "
                          "or try to reason with them? (Fight/Reason): ")
     if goblin_offer.strip().lower() == "fight":
-        print(f"You and {COMPANION} charge at the goblins, weapons drawn.")
+        print(f"You and {GAME_STATE["COMPANION"]} charge at the goblins, weapons drawn.")
         input()
         print("The goblins fight back fiercely,"
-              f"but you and {COMPANION} are able to defeat them after a tough battle.")
+              f"but you and {GAME_STATE["COMPANION"]} are able to"
+              "defeat them after a tough battle.")
         input()
         print("You search the goblins' remains and find a map that leads to the fire dungeon.")
         input()
-        print(f"You and {COMPANION} take the map and prepare to continue your journey.")
+        print(f"You and {GAME_STATE["COMPANION"]} take the map"
+              "and prepare to continue your journey.")
         input()
-        save_game()
+        utils.save_game()
         chapter_8()
+        return
         #This moves to the next chapter
     elif goblin_offer.strip().lower() == "reason":
         print("You try to reason with the goblins, " \
@@ -1834,43 +963,47 @@ def chapter_7():
         input()
         print("The goblins listen to your words, but they are still wary of you.")
         input()
-        print(f"{COMPANION} suggests that you offer them something in exchange for safe passage.")
+        print(f"{GAME_STATE["COMPANION"]} suggests that you offer"
+              "them something in exchange for safe passage.")
         input()
         goblin_offer2 = input("Do you want to offer them some of your supplies? (Yes/No): ")
         if goblin_offer2.strip().lower() == "yes":
             print("You offer the goblins some of your supplies, and they accept your offer.")
             input()
-            print(f"The goblins allow you and {COMPANION}"
+            print(f"The goblins allow you and {GAME_STATE["COMPANION"]}"
                   "to pass safely, and you continue on your journey.")
             input()
-            save_game()
+            utils.save_game()
             chapter_8()
+            return
         #This moves to the next chapter
         elif goblin_offer.strip().lower() == "no":
             print("The goblins refuse to let you pass without a fight.")
             input()
-            print(f"You and {COMPANION} are forced to fight the goblins,"
+            print(f"You and {GAME_STATE["COMPANION"]} are forced to fight the goblins,"
                    "but you are able to defeat them after a tough battle.")
             input()
-            decrease_health()
+            utils.decrease_health()
             input()
             print("You search the goblins' sacks and find a map that leads to the fire dungeon.")
             input()
-            print(f"You and {COMPANION} take the map and prepare to continue your journey.")
+            print(f"You and {GAME_STATE["COMPANION"]} take the map"
+                  "and prepare to continue your journey.")
             input()
-            save_game()
+            utils.save_game()
             chapter_8()
+            return
         #This moves to the next chapter
         else:
             print("Invalid choice. You continue down the path without making a decision.")
             input()
-            save_game()
+            utils.save_game()
             chapter_8()
             return
     else:
         print("Invalid choice. You continue down the path without making a decision.")
         input()
-        save_game()
+        utils.save_game()
         chapter_8()
         return
         #This moves to the next chapter
@@ -1879,20 +1012,19 @@ def chapter_8():
     """
     Introduces the fire dungeon and the next boss
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_8"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_8"
     print("***************************\n"
           "Chapter 8: The Fire Dungeon\n"
           "***************************\n")
     input()
-    print(DUNGEON_3)
+    print(ascii_art.DUNGEON_3)
     input()
-    print(f"You and {COMPANION} arrive at the entrance of the fire dungeon,"
+    print(f"You and {GAME_STATE["COMPANION"]} arrive at the entrance of the fire dungeon,"
           "a dark cave filled with molten lava and fire.")
     input()
     print("The heat is intense, and you can feel the sweat pouring down your face.")
     input()
-    print(f"Be careful. This place is known for its lava creatures :{COMPANION}")
+    print(f"Be careful. This place is known for its lava creatures :{GAME_STATE["COMPANION"]}")
     input()
     print("You nod and start to explore the dungeon, searching for the key.")
     input()
@@ -1902,7 +1034,8 @@ def chapter_8():
     input()
     print("On the pedestal, you can see a glowing red key.")
     input()
-    print(f"You and {COMPANION} realize that this must be the third key you are looking for.")
+    print(f"You and {GAME_STATE["COMPANION"]} realize that this"
+          "must be the third key you are looking for.")
     input()
     print("Before either of you could react, a giant beast emerges from the lava,"
           "its eyes glowing with a menacing light.")
@@ -1912,72 +1045,75 @@ def chapter_8():
     print("****************************\n"
           "  flame The Beast of Fire \n"
           "****************************\n")
-    print(FLAME)
+    print(ascii_art.FLAME)
     # This prints the ascii art for flame
     # Dragon choice is used as flame was originally a dragon
     # but was changed to a phoenix mid way through
     input()
     phoenix_choice = input("flame starts charging up it's attack! (Attack/Dodge): ")
     input()
-    decrease_health()
+    utils.decrease_health()
     input()
     if phoenix_choice.strip().lower() == "attack":
         print("flame breathes fire at you, before either of " \
               "you could attack scorching your skin and leaving you in pain.")
         input()
-        decrease_health()
-        print(f"{COMPANION}'s health is low")
+        utils.decrease_health()
+        print(f"{GAME_STATE["COMPANION"]}'s health is low")
         input()
-        print(f"You and {COMPANION} are both injured and need to"
+        print(f"You and {GAME_STATE["COMPANION"]} are both injured and need to"
               "find a way to defeat flame before it attacks again.")
         input()
         phoenix_choice2 = input("You can either type 'Attack' to attack"
-                                f"flame or type 'Heal' to heal yourself and {COMPANION}: ")
+                                "flame or type 'Heal' to"
+                                f"heal yourself and {GAME_STATE["COMPANION"]}: ")
         if phoenix_choice2.strip().lower() == "attack":
-            print(f"You and {COMPANION} attack flame with all your might,"
+            print(f"You and {GAME_STATE["COMPANION"]} attack flame with all your might,"
                   "striking it with your weapons.")
             input()
             print("flame roars in pain, but it is not defeated yet.")
             input()
             phoenix_choice3 = input("Type 'Attack' to attack flame again or"
-                                    f"type 'Heal' to heal yourself and {COMPANION}: ")
+                                    f"type 'Heal' to heal yourself and {GAME_STATE["COMPANION"]}: ")
             while True:
-            #A loop is used to allow the PLAYER to restart at select points
+            #A loop is used to allow the GAME_STATE["PLAYER"] to restart at select points
                 if phoenix_choice3.strip().lower() == "attack":
-                    print(f"You and {COMPANION} attack flame with all your might.")
+                    print(f"You and {GAME_STATE["COMPANION"]} attack flame with all your might.")
                     input()
                     print("flame roars in pain, but it is not defeated yet.")
                     input()
-                    print("flame spews out lava, and melts you and COMPANION")
+                    print(f"flame spews out lava, and melts you and {GAME_STATE["COMPANION"]}")
                     input()
-                    death()
+                    utils.death()
                     break
-                #This kills the PLAYER
+                #This kills the GAME_STATE["PLAYER"]
                 elif phoenix_choice3.strip().lower() == "heal":
-                    print(f"You use a healing potion to heal yourself and {COMPANION}.")
-                    increase_health(50)
+                    print("You use a healing potion to heal"
+                          f"yourself and {GAME_STATE["COMPANION"]}.")
+                    utils.increase_health(50)
                     input()
-                    print(f"{COMPANION} is back in the fight!")
+                    print(f"{GAME_STATE["COMPANION"]} is back in the fight!")
                     input()
                     print("You both attack flame together, striking it with all your might.")
                     input()
                     print("flame roars in pain, it's hardened feathers are " \
                           "starting to crack under your combined assault.")
                     phoenix_choice4 = input("Type 'Attack' to attack flame again or"
-                                            f"type 'Heal' to heal yourself and {COMPANION}: ")
+                                            "type 'Heal' to heal yourself"
+                                            f"and {GAME_STATE["COMPANION"]}: ")
                     if phoenix_choice4.strip().lower() == "attack":
-                        print(f"You and {COMPANION} attack flame's core"
+                        print(f"You and {GAME_STATE["COMPANION"]} attack flame's core"
                               "with all your might, striking it with your weapons.")
                         input()
                         print("flame roars in pain, and it crumbles to the ground, defeated.")
                         input()
-                        print(f"You and {COMPANION} stand victorious,"
+                        print(f"You and {GAME_STATE["COMPANION"]} stand victorious,"
                               "breathing heavily from the intense battle.")
                         input()
                         print("You search the dragon's remains and find a glowing " \
                               "red key that unlocks a hidden door in the dungeon.")
                         input()
-                        print(f"You and {COMPANION} enter the hidden door,"
+                        print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
                               "hoping to find the next key inside.")
                         input()
                         print("As you step through the door, you find yourselves "
@@ -1989,41 +1125,43 @@ def chapter_8():
                         print("****************************\n"
                                "  3 Key Achieved 2 left. \n"
                               "****************************\n")
-                        save_game()
+                        utils.save_game()
                         input()
-                        dark_sword_story()
+                        utils.dark_sword_story()
                         input()
                         chapter_9()
                         break
                 #This shows the sword upgrade story
                 #This moves to the next chapter
                 elif phoenix_choice3.strip().lower() == "heal":
-                    print(f"You use a healing potion to heal yourself and {COMPANION}.")
+                    print("You use a healing potion to heal"
+                          f"yourself and {GAME_STATE["COMPANION"]}.")
                     input()
-                    print(f"{COMPANION} is back in the fight!")
+                    print(f"{GAME_STATE["COMPANION"]} is back in the fight!")
                     input()
                     print("flame attacks you before you can attack again!")
                     input()
-                    print(f"You and {COMPANION} are both injured and"
+                    print(f"You and {GAME_STATE["COMPANION"]} are both injured and"
                           "need to find a way to defeat flame before it attacks again.")
-                    decrease_health(50)
+                    utils.decrease_health(50)
                     input()
-                    print(f"{COMPANION}'s health is low")
+                    print(f"{GAME_STATE["COMPANION"]}'s health is low")
                     input()
                     print("flame attacks you before you can attack again!")
-                    death()
+                    utils.death()
                     return
-                #This kills the PLAYER
+                #This kills the GAME_STATE["PLAYER"]
                 else:
                     print("Invalid choice. flame attacks you again!")
-                    death()
+                    utils.death()
                     return
-                #This kills the PLAYER since they didn't provide an appropriate response
+                #This kills the GAME_STATE["PLAYER"] since
+                # they didn't provide an appropriate response
         elif phoenix_choice2.strip().lower() == "heal":
-            print(f"You use a healing potion to heal yourself and {COMPANION}.")
-            increase_health(50)
+            print(f"You use a healing potion to heal yourself and {GAME_STATE["COMPANION"]}.")
+            utils.increase_health(50)
             input()
-            print(f"{COMPANION} is back in the fight!")
+            print(f"{GAME_STATE["COMPANION"]} is back in the fight!")
             input()
             print("You both attack flame together, striking it with all your might.")
             input()
@@ -2032,44 +1170,45 @@ def chapter_8():
             print("flame attacks you before you can attack again!")
             input()
             print("flame charges up another burst of fire,"
-                  f"and spews directly at you and {COMPANION}")
+                  f"and spews directly at you and {GAME_STATE["COMPANION"]}")
             input()
-            death()
+            utils.death()
             return
-            #This kills the PLAYER
+            #This kills the GAME_STATE["PLAYER"]
         else:
-            print(f"Invalid option, flame spews hot lava all over you and {COMPANION}.")
+            print("Invalid option, flame spews hot lava"
+                  f"all over you and {GAME_STATE["COMPANION"]}.")
             input()
-            death()
+            utils.death()
             return
-        #This kills the PLAYER as they entered the wrong input
+        #This kills the GAME_STATE["PLAYER"] as they entered the wrong input
     elif phoenix_choice.strip().lower() == "dodge":
         print("You quickly dodge flame's attack, narrowly avoiding its powerful strike.")
         input()
         print("You counterattack, striking flame with all your might.")
         input()
         print("The phoenix staggers back, but it is not defeated yet."
-              f"You and {COMPANION} must work together to defeat it.")
+              f"You and {GAME_STATE["COMPANION"]} must work together to defeat it.")
         input()
         while True:
             phoenix_choice5 = input("You can either type 'Attack' to attack"
                                     "flame again or type 'Heal' to heal"
-                                    f"yourself and {COMPANION}: ")
+                                    f"yourself and {GAME_STATE["COMPANION"]}: ")
             if phoenix_choice5.strip().lower() == "attack":
-                print(f"You and {COMPANION} attack flame with all your might.")
+                print(f"You and {GAME_STATE["COMPANION"]} attack flame with all your might.")
                 input()
-                print(f"You and {COMPANION} attack flame's core with all your might,"
+                print(f"You and {GAME_STATE["COMPANION"]} attack flame's core with all your might,"
                       "striking it with your weapons.")
                 input()
                 print("flame roars in pain, and it crumbles to the ground, defeated.")
                 input()
-                print(f"You and {COMPANION} stand victorious,"
+                print(f"You and {GAME_STATE["COMPANION"]} stand victorious,"
                       "breathing heavily from the intense battle.")
                 input()
                 print("You search the dragon's remains and find a " \
                       "glowing red key that unlocks a hidden door in the dungeon.")
                 input()
-                print(f"You and {COMPANION} enter the hidden door,"
+                print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
                       "hoping to find the next key inside.")
                 input()
                 print("As you step through the door, " \
@@ -2080,61 +1219,60 @@ def chapter_8():
                 print("****************************\n"
                        "  3 Key Achieved 2 left. \n"
                       "****************************\n")
-                save_game()
+                utils.save_game()
                 input()
-                dark_sword_story()
+                utils.dark_sword_story()
                 #Displays the sword upgrade story
                 input()
                 chapter_9()
                 break
             #This shows the sword upgrade story
             elif phoenix_choice5.strip().lower() == "heal":
-                print(f"You use a healing potion to heal yourself and {COMPANION}")
+                print(f"You use a healing potion to heal yourself and {GAME_STATE["COMPANION"]}")
                 input()
                 print("But before either of you could attack again. flame attacks you both.")
-                death()
+                utils.death()
                 return
-            #This kills the PLAYER
+            #This kills the GAME_STATE["PLAYER"]
             else:
                 print("Invalid choice. flame attacks you again!")
-                death()
+                utils.death()
                 return
-            #This kills the PLAYER due to invalid input
-        #This kills the PLAYER due to invalid input
+            #This kills the GAME_STATE["PLAYER"] due to invalid input
+        #This kills the GAME_STATE["PLAYER"] due to invalid input
     else:
         print("Invalid choice. flame attacks you again!")
-        death()
+        utils.death()
         return
-    #This kills the PLAYER due to invalid input
+    #This kills the GAME_STATE["PLAYER"] due to invalid input
 
 def chapter_9():
     """
     Introduces the next chapter and the next dungeon
     """
-    global  CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_9"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_9"
     print('***************************\n'
     "Chapter 9: The Path to the Ice Dungeon\n"
           '***************************\n')
     input()
-    print(f"You and {COMPANION} exit the fire dungeon and continue down a path,"
+    print(f"You and {GAME_STATE["COMPANION"]} exit the fire dungeon and continue down a path,"
           "the heat giving way to a more relaxed meadow atmosphere.")
     input()
     print("You spot a small village in the distance, and you can decide " \
           "to stop there to rest and gather supplies.")
     input()
-    print(SMALL_VILLAGE)
+    print(ascii_art.SMALL_VILLAGE)
     input()
     village_choice = input("Do you want to stop at the village? (Yes/No): ")
     if village_choice.strip().lower() == "yes":
-        print(f"You and {COMPANION} decide to stop at the village.")
+        print(f"You and {GAME_STATE["COMPANION"]} decide to stop at the village.")
         input()
         print("Before you you approach the villagers, you notice a " \
               "small shop selling potions and supplies.")
         input()
         print("You decide to enter the shop and see what they have to offer.")
         input()
-        print(f"{COMPANION} says, 'Hello, shopkeeper!"
+        print(f"{GAME_STATE["COMPANION"]} says, 'Hello, shopkeeper!"
               "Do you have any potions or supplies that could help us on our journey?'")
         input()
         print("The shopkeeper nods and shows you a selection of potions and supplies.")
@@ -2149,11 +1287,11 @@ def chapter_9():
         map_choice = input("You can buy a map for 20 gold coins. Do you want to buy it? (Yes/No): ")
         #User input is stored as mapchoice
         if map_choice.strip().lower() == "yes":
-            print(f"You buy the map and give to {COMPANION} to analyze")
+            print(f"You buy the map and give to {GAME_STATE["COMPANION"]} to analyze")
             input()
-            decrease_gold(20)
+            utils.decrease_gold(20)
             input()
-            save_game()
+            utils.save_game()
             input()
             village()
             return
@@ -2161,18 +1299,16 @@ def chapter_9():
         else:
             print("You decide not to buy the map and continue down the path without it.")
             input()
-            save_game()
+            utils.save_game()
             input()
             village()
             return
         #This stops at the village without buying
     elif village_choice.strip().lower() == "no":
-        print(f"You and {COMPANION} decide to continue down the path"
+        print(f"You and {GAME_STATE["COMPANION"]} decide to continue down the path"
               "without stopping at the village.")
         input()
-        save_game()
-        input()
-        save_game()
+        utils.save_game()
         input()
         chapter_9part2()
         return
@@ -2180,9 +1316,7 @@ def chapter_9():
     else:
         print("Invalid choice. You continue down the path without stopping at the village.")
         input()
-        save_game()
-        input()
-        save_game()
+        utils.save_game()
         input()
         chapter_9part2()
         return
@@ -2191,25 +1325,24 @@ def chapter_9():
 
 def village():
     """
-    Resets the PLAYER's health and sets a checkpoint in the village
+    Resets the GAME_STATE["PLAYER"]'s health and sets a checkpoint in the village
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "village"
+    GAME_STATE["CURRENT_CHAPTER"] = "village"
     print("As you enter the village, you are greeted by friendly " \
           "villagers who offer you food and shelter.")
     input()
     print("This is a nice place to rest and"
-          f"gather supplies before we continue our journey. :{COMPANION}")
+          f"gather supplies before we continue our journey. :{GAME_STATE["COMPANION"]}")
     input()
     print("You spend some time in the village, " \
           "resting and preparing for the next part of your journey.")
     input()
-    reset_health()
+    utils.reset_health()
     print("You feel refreshed and ready to continue your journey.")
     input()
     print("You thank the villagers for their hospitality and prepare to leave the village.")
     input()
-    save_game()
+    utils.save_game()
     input()
     chapter_9part2()
 #This is for the village bit which resets the PLAYERs health and sets a checkpoint
@@ -2218,44 +1351,46 @@ def chapter_9part2():
     """
     Introduces the next part of chapter 9 and the next dungeon
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_9part2"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_9part2"
     print("***************************\n"
      "Chapter 9 Part 2: The Journey Continues\n"
           "***************************\n")
     input()
-    print(f"You and {COMPANION} follow the map's directions, navigating through the mountains.")
+    print(f"You and {GAME_STATE["COMPANION"]} follow the map's directions,"
+          "navigating through the mountains.")
     input()
-    print(DUNGEON_4)
+    print(ascii_art.DUNGEON_4)
     input()
     print("After a long journey, you arrive at a crossroad.")
     input()
-    print(f"{COMPANION} says, 'Where do we go now?'")
+    print(f"{GAME_STATE["COMPANION"]} says, 'Where do we go now?'")
     crossroad_choice = input("Do you want to go left (snowy mountains) "
                              "or right (icy cave)? (Left/Right): ")
     match crossroad_choice.strip().lower().strip():
         case "left":
-            print(f"You and {COMPANION} decide to go left towards the snowy mountains.")
+            print(f"You and {GAME_STATE["COMPANION"]} decide"
+                  "to go left towards the snowy mountains.")
             input()
             print("The temperature drops and you can see your breath in the cold air.")
             input()
-            print(f"{COMPANION} says, 'We must be close to the ice dungeon.'")
+            print(f"{GAME_STATE["COMPANION"]} says, 'We must be close to the ice dungeon.'")
             input()
             print("As you continue, the ground shakes and you are buried under a pile of snow.")
-            death()
+            utils.death()
         #death due to avalanche
         case "right":
-            print(f"You and {COMPANION} decide to go right towards the icy cave.")
+            print(f"You and {GAME_STATE["COMPANION"]} decide to go right towards the icy cave.")
             input()
             print("Entering the cave, the temperature drops further "
                   "and icicles hang from the ceiling.")
             input()
-            print(f"This must be the ice dungeon. We need to be careful. :{COMPANION}")
+            print("This must be the ice dungeon."
+                  f"We need to be careful. :{GAME_STATE["COMPANION"]}")
             input()
             print("You explore the cave and find a locked underground chamber; " \
                   "you need a key to open it.")
             input()
-            print(f"We must find the key to unlock this door. :{COMPANION}")
+            print(f"We must find the key to unlock this door. :{GAME_STATE["COMPANION"]}")
             input()
             print("Searching the chamber, you discover 2 small chests hidden behind a pile of ice.")
             input()
@@ -2267,17 +1402,18 @@ def chapter_9part2():
                     case "left":
                         print("You open the left chest and find a shiny key inside!")
                         input()
-                        print(f"This must be the door key! :{COMPANION}")
+                        print(f"This must be the door key! :{GAME_STATE["COMPANION"]}")
                         input()
                         print("You insert the key into the lock and " \
                               "the door creaks open, revealing the next part of the dungeon.")
                         input()
-                        print(f"You and {COMPANION} step through, ready for further challenges.")
+                        print(f"You and {GAME_STATE["COMPANION"]} step through,"
+                              "ready for further challenges.")
                         input()
                         print("An icicle hits you on the head, and you black out.")
                         input()
                         print("When you wake up, you're in a giant icy cavern"
-                              f"and {COMPANION} is missing as well as your sword.")
+                              f"and {GAME_STATE["COMPANION"]} is missing as well as your sword.")
                         input()
                         print("A dirty rag in the corner starts moving, "
                               "and a ghoulish creature emerges.")
@@ -2286,11 +1422,11 @@ def chapter_9part2():
                                   "Morjun the Ice wraith\n"
                               "*****************************\n")
                         input()
-                        print(WRAITH)
+                        print(ascii_art.WRAITH)
                         input()
                         print("Morjun lunges at you, slashing with icy claws.")
                         input()
-                        decrease_health()
+                        utils.decrease_health()
                         input()
                         print("Stumbling back, you notice a rusty sword nearby.")
                         input()
@@ -2315,22 +1451,24 @@ def chapter_9part2():
                                             print("You search Morjun's remains and " \
                                                   "find a glowing ice key that unlocks a door.")
                                             input()
-                                            print(f"You open a door and spot {COMPANION}"
-                                                    "in a cage.")
+                                            print("You open a door and spot"
+                                                  f"{GAME_STATE["COMPANION"]} in a cage.")
                                             input()
-                                            print(f"You free {COMPANION} from the cage and carry"
-                                                  "them out of the cavern.")
+                                            print(f"You free {GAME_STATE["COMPANION"]}"
+                                                  "from the cage and carry them out of the cavern.")
                                             input()
-                                            print(f"You and {COMPANION} step out of the cavern"
-                                                  "through another door into a dimly lit maze.")
+                                            print(f"You and {GAME_STATE["COMPANION"]} step"
+                                                  "out of the cavern through another door " \
+                                                  "into a dimly lit maze.")
                                             input()
                                             maze_choice = input("Would you like to explore " \
                                                                 "the maze or return to the cavern? "
                                                                 "(Explore/Return): ")
                                             match maze_choice.strip().lower().strip():
                                                 case "explore":
-                                                    print(f"You and {COMPANION} decide to explore"
-                                                          "the maze for a way out.")
+                                                    print(f"You and {GAME_STATE["COMPANION"]}"
+                                                          "decide to explore the maze for " \
+                                                          "a way out.")
                                                     input()
                                                     maze_choice2 = input("Do you want to go" \
                                                                          "left or right? "
@@ -2348,7 +1486,7 @@ def chapter_9part2():
                                                                      "4 Key Achieved 1 left.\n"
                                                                   "****************************\n")
                                                             input()
-                                                            save_game()
+                                                            utils.save_game()
                                                             input()
                                                             chapter_10()
                                                             break
@@ -2365,7 +1503,7 @@ def chapter_9part2():
                                                             return
                                                     #Goes back to question
                                                 case "return":
-                                                    print(f"You and {COMPANION}"
+                                                    print(f"You and {GAME_STATE["COMPANION"]}"
                                                           "return to the cavern.")
                                             #Goes back to cavern and repeats
                                                 case _:
@@ -2376,36 +1514,35 @@ def chapter_9part2():
                                         case "heal":
                                             print("You use a healing potion to heal yourself.")
                                             input()
-                                            increase_health(50)
+                                            utils.increase_health(50)
                                             input()
                                             print("Unfortunately, you trip and fall leaving " \
                                                   "you in the cave forever.")
                                             input()
-                                            death()
+                                            utils.death()
                                             return
                                         #death
                                         case _:
                                             print("Invalid choice.")
-                                            break
                                     #Repeats the question
                             case "escape":
                                 print("You try escaping but Morjun possesses you.")
                                 input()
-                                death()
+                                utils.death()
                                 return
                             #death
                             case _:
                                 print("Invalid choice. You trip over a rock.")
                                 input()
-                                death()
+                                utils.death()
                                 return
                             #Gets killed by a rock
                     case "right":
                         print("You open the right chest and find a pile of gold coins.")
                         input()
-                        increase_gold(50)
+                        utils.increase_gold(50)
                         input()
-                        print(f"Nice find, but we still need the key. :{COMPANION}")
+                        print(f"Nice find, but we still need the key. :{GAME_STATE["COMPANION"]}")
                         input()
                         #Collects coins then loops the question
                     case _:
@@ -2421,45 +1558,46 @@ def chapter_10():
     """
     Introduces the next chapter and the final dungeon
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_10"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_10"
     print("***************************\n"
     "Chapter 10: The Path to the Final Dungeon\n"
           "***************************\n")
     input()
-    print(f"You and {COMPANION} exit the ice dungeon and continue towards the last dungeon,"
+    print(f"You and {GAME_STATE["COMPANION"]} exit the ice dungeon"
+          "and continue towards the last dungeon,"
           "the icy terrain giving way to rocky cliffs.")
     input()
     print("The air grows colder, and you can see your breath in the frigid air.")
     input()
     print("The final key is said to be hidden in a dark dungeon,"
-          f"deep within the mountains according to the map. :{COMPANION}")
+          f"deep within the mountains according to the map. :{GAME_STATE["COMPANION"]}")
     input()
     print("You nod in agreement, determined to find the final key and rescue the princess.")
     input()
     print("As you continue down the path, you come across a group of trolls blocking your way.")
     input()
-    print(TROLL)
+    print(ascii_art.TROLL)
     input()
     print("The trolls are armed with large clubs and look ready for a fight.")
     input()
-    print(f"{COMPANION} whispers, 'We need to be careful."
+    print(f"{GAME_STATE["COMPANION"]} whispers, 'We need to be careful."
           "The trolls are known for their brute"
           "strength and cunning traps.'")
     input()
     troll_choice = input("Do you want to fight the trolls or try " \
                          "to reason with them? (Fight/Reason): ")
     if troll_choice.strip().lower() == "fight":
-        print(f"You and {COMPANION} charge at the trolls, weapons drawn.")
+        print(f"You and {GAME_STATE["COMPANION"]} charge at the trolls, weapons drawn.")
         input()
-        print(f"The trolls fight back fiercely, but you and {COMPANION}"
+        print(f"The trolls fight back fiercely, but you and {GAME_STATE["COMPANION"]}"
               "are able to defeat them after a tough battle.")
         input()
         print("You search the trolls' remains and find a map that leads to the final dungeon.")
         input()
-        print(f"You and {COMPANION} take the map and prepare to continue your journey.")
+        print(f"You and {GAME_STATE["COMPANION"]} take the map and"
+              "prepare to continue your journey.")
         input()
-        save_game()
+        utils.save_game()
         input()
         chapter_11()
         input()
@@ -2470,7 +1608,7 @@ def chapter_10():
         input()
         print("The trolls try listening to your words, yet they don't speak English.")
         input()
-        death()
+        utils.death()
         return
     #death due to language barrier
 
@@ -2478,21 +1616,20 @@ def chapter_11():
     """
     Introduces the final dungeon and the final boss
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_11"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_11"
     print("***************************\n"
           "Chapter 11: The Final Dungeon\n"
           "***************************\n")
-    print(f"You and {COMPANION} arrive at the entrance of the final dungeon,"
+    print(f"You and {GAME_STATE["COMPANION"]} arrive at the entrance of the final dungeon,"
           "a dark cave filled with ominous shadows.")
     input()
-    print(DUNGEON_5)
+    print(ascii_art.DUNGEON_5)
     input()
     print("The air is thick with tension, and you can feel the weight of " \
           "the final challenge ahead.")
     input()
     print("This is it. The final key is said to"
-          f"be hidden in this dungeon, guarded by a powerful monster. :{COMPANION}")
+          f"be hidden in this dungeon, guarded by a powerful monster. :{GAME_STATE["COMPANION"]}")
     input()
     print("You nod, determined to find the final key and rescue the princess.")
     input()
@@ -2510,38 +1647,40 @@ def chapter_11():
             "  Desbio the Dark Beast \n"
           "****************************\n")
     input()
-    print(DESBIO)
+    print(ascii_art.DESBIO)
     #Prints ascii for boss
     input()
     beast_choice = input("Before either of you could move, " \
                          "Desbio strikes you both in the back, (Attack/Dodge): ")
     input()
-    decrease_health()
+    utils.decrease_health()
     input()
     if beast_choice.strip().lower() == "attack":
         print("Desbio lunges at you, its claws slashing through the air.")
         input()
-        decrease_health()
+        utils.decrease_health()
         #Lowers health randomly
-        print(f"{COMPANION}'s health is low")
+        print(f"{GAME_STATE["COMPANION"]}'s health is low")
         input()
-        print(f"You and {COMPANION} are both injured and need to find a way"
-              "to defeat desbio before it attacks again.")
+        print(f"You and {GAME_STATE["COMPANION"]} are both injured and need to find a way"
+              "to defeat Desbio before it attacks again.")
         input()
         beast_choice2 = input("You can either type 'Attack' to attack desbio or"
-                              f"type 'Heal' to heal yourself and {COMPANION} (Attack/Heal): ")
+                              f"type 'Heal' to heal yourself and {GAME_STATE["COMPANION"]}"
+                              "(Attack/Heal): ")
         if beast_choice2.strip().lower() == "attack":
-            print(f"You and {COMPANION} attack desbio with all your might,"
+            print(f"You and {GAME_STATE["COMPANION"]} attack Desbio with all your might,"
                   "striking it with your weapons.")
             input()
             print("Desbio roars in pain, but it is not defeated yet.")
             input()
             beast_choice3 = input("Type 'Attack' to attack desbio again or"
-                                  f"type 'Heal' to heal yourself and {COMPANION} (Attack/Heal): ")
+                                  f"type 'Heal' to heal yourself and {GAME_STATE["COMPANION"]}"
+                                  "(Attack/Heal): ")
             while True:
             #These are for loops
                 if beast_choice3.strip().lower() == "attack":
-                    print(f"You and {COMPANION} attack desbio with all your might.")
+                    print(f"You and {GAME_STATE["COMPANION"]} attack desbio with all your might.")
                     input()
                     print("Desbio roars in pain, but it is not defeated yet.")
                     input()
@@ -2549,11 +1688,12 @@ def chapter_11():
                           "weaken it before you can defeat it.")
                     input()
                 elif beast_choice3.strip().lower() == "heal":
-                    print(f"You use a healing potion to heal yourself and {COMPANION}.")
-                    increase_health(50)
+                    print("You use a healing potion to heal yourself"
+                          f"and {GAME_STATE["COMPANION"]}.")
+                    utils.increase_health(50)
                     #Increases health
                     input()
-                    print(f"{COMPANION} is back in the fight!")
+                    print(f"{GAME_STATE["COMPANION"]} is back in the fight!")
                     input()
                     print("You both attack desbio together, striking it with all your might.")
                     input()
@@ -2562,20 +1702,20 @@ def chapter_11():
                     input()
                     beast_choice4 = input("Type 'Attack' to attack desbio"
                                          "again or type 'Heal' to heal"
-                                         f"yourself and {COMPANION} (Attack/Heal): ")
+                                         f"yourself and {GAME_STATE["COMPANION"]} (Attack/Heal): ")
                     if beast_choice4.strip().lower() == "attack":
-                        print(f"You and {COMPANION} attack desbio's core"
+                        print(f"You and {GAME_STATE["COMPANION"]} attack desbio's core"
                               "with all your might, striking it with your weapons.")
                         input()
                         print("Desbio roars in pain, and it crumbles to the ground, defeated.")
                         input()
-                        print(f"You and {COMPANION} stand victorious, breathing"
+                        print(f"You and {GAME_STATE["COMPANION"]} stand victorious, breathing"
                               "heavily from the intense battle.")
                         input()
                         print("You search the beast's remains and find a " \
                               "glowing black key that unlocks a hidden door in the dungeon.")
                         input()
-                        print(f"You and {COMPANION} enter the hidden door,"
+                        print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
                               "hoping to find the princess inside.")
                         input()
                         print("As you step through the door, you find yourselves "
@@ -2589,8 +1729,8 @@ def chapter_11():
                               "****************************\n")
                         print("You take the key and prepare to rescue the princess.")
                         input()
-                        save_game()
-                        dark_shield_story()
+                        utils.save_game()
+                        utils.dark_shield_story()
                         input()
                         chapter_12()
                         return
@@ -2598,38 +1738,38 @@ def chapter_11():
                     elif beast_choice4.strip().lower() == "heal":
                         print("Desbio lunges at you before you could " \
                               "move and summons a portal of darkness under you.")
-                        death()
+                        utils.death()
                         return
                     #death
                     else:
-                        death()
+                        utils.death()
                         return
                 else:
                     print("Invalid choice. desbio attacks you again!")
-                    death()
+                    utils.death()
                     return
              #death due to invalid option
         elif beast_choice2.strip().lower() == "heal":
-            print(f"You use a healing potion to heal yourself and {COMPANION}.")
+            print(f"You use a healing potion to heal yourself and {GAME_STATE["COMPANION"]}.")
             input()
-            increase_health(50)
-            print(f"{COMPANION} is back in the fight!")
+            utils.increase_health(50)
+            print(f"{GAME_STATE["COMPANION"]} is back in the fight!")
             input()
             print("Desbio attacks you before you can attack again!")
             input()
-            print(f"You and {COMPANION} are both injured and need to"
+            print(f"You and {GAME_STATE["COMPANION"]} are both injured and need to"
                   "find a way to defeat desbio before it attacks again.")
-            decrease_health(50)
+            utils.decrease_health()
             input()
-            print(f"{COMPANION}'s health is low")
+            print(f"{GAME_STATE["COMPANION"]}'s health is low")
             input()
             print("Desbio attacks you before you can attack again!")
-            death()
+            utils.death()
             return
         #death
         else:
             print("Invalid choice. desbio attacks you again!")
-            death()
+            utils.death()
             return
         #death due to invalid option
     elif beast_choice.strip().lower() == "dodge":
@@ -2638,27 +1778,27 @@ def chapter_11():
         print("You counterattack, striking desbio with all your might.")
         input()
         print("The beast staggers back, but it is not defeated yet."
-              f"You and {COMPANION} must work together to defeat it.")
+              f"You and {GAME_STATE["COMPANION"]} must work together to defeat it.")
         input()
         while True:
             beast_choice5 = input("You can either type 'Attack' to"
                                   "attack desbio again or type 'Heal' to"
-                                  f"heal yourself and {COMPANION} (Attack/Heal): ")
+                                  f"heal yourself and {GAME_STATE["COMPANION"]} (Attack/Heal): ")
             if beast_choice5.strip().lower() == "attack":
-                print(f"You and {COMPANION} attack desbio with all your might.")
+                print(f"You and {GAME_STATE["COMPANION"]} attack desbio with all your might.")
                 input()
-                print(f"You and {COMPANION} attack desbio's core"
+                print(f"You and {GAME_STATE["COMPANION"]} attack desbio's core"
                       "with all your might, striking it with your weapons.")
                 input()
                 print("Desbio roars in pain, and it crumbles to the ground, defeated.")
                 input()
-                print(f"You and {COMPANION} stand victorious,"
+                print(f"You and {GAME_STATE["COMPANION"]} stand victorious,"
                       "breathing heavily from the intense battle.")
                 input()
                 print("You search the beast's remains and find a " \
                       "glowing black key that unlocks a hidden door in the dungeon.")
                 input()
-                print(f"You and {COMPANION} enter the hidden door,"
+                print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
                       "hoping to find the princess inside.")
                 input()
                 print("As you step through the door, you find yourselves "
@@ -2670,18 +1810,18 @@ def chapter_11():
                       "  5 Keys Achieved None left. \n"
                       "****************************\n")
                 input()
-                save_game()
+                utils.save_game()
                 input()
-                dark_shield_story()
+                utils.dark_shield_story()
                 input()
                 chapter_12()
                 return
             #Shows the shield upgrade story and continues to the next chapter
             elif beast_choice5.strip().lower() == "heal":
-                print(f"You use a healing potion to heal yourself and {COMPANION}.")
-                increase_health(50)
+                print(f"You use a healing potion to heal yourself and {GAME_STATE["COMPANION"]}.")
+                utils.increase_health(50)
                 input()
-                print(f"{COMPANION} is back in the fight!")
+                print(f"{GAME_STATE["COMPANION"]} is back in the fight!")
                 input()
                 print("You both attack Desbio together, striking it with all your might.")
                 input()
@@ -2690,19 +1830,19 @@ def chapter_11():
                 print("Desbio attacks you before you can attack again!")
                 input()
                 print("Desbio charges up another burst of dark energy,"
-                      f"and spews directly at you and {COMPANION}")
+                      f"and spews directly at you and {GAME_STATE["COMPANION"]}")
                 input()
-                death()
+                utils.death()
                 break
             #Gets killed
             else:
                 print("Invalid choice. Desbio attacks you again!")
-                death()
+                utils.death()
                 return
             #Gets killed by invalid option
     else:
         print("Invalid choice. Desbio attacks you again!")
-        death()
+        utils.death()
         return
     #Gets killed by invalid option
 
@@ -2710,26 +1850,26 @@ def chapter_12():
     """
     Introduces the next chapter and the abandoned village
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_12"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_12"
     print("***************************\n"
       "Chapter 12: The Calm Before The Storm"
           "***************************\n")
     input()
-    print(f"You and {COMPANION} continue down the path, now with no clue where to go...")
+    print(f"You and {GAME_STATE["COMPANION"]} continue down the path,"
+          "now with no clue where to go...")
     input()
     print("I've heard rumours of the final"
-          f"beast that captured the princess, but never the location... :{COMPANION}")
+          f"beast that captured the princess, but never the location... :{GAME_STATE["COMPANION"]}")
     input()
     print("We may need to camp near a village for a few days as"
-          f"I try to gather some info, I'm also quite tired... :{COMPANION}")
+          f"I try to gather some info, I'm also quite tired... :{GAME_STATE["COMPANION"]}")
     input()
-    print(f"Wait {USERNAME}!, I see another village"
-          f"over the in the horizon. Let's go! :{COMPANION}")
+    print(f"Wait {GAME_STATE["USERNAME"]}!, I see another village"
+          f"over the in the horizon. Let's go! :{GAME_STATE["COMPANION"]}")
     input()
-    print(f"You and {COMPANION} approach the village, but it looks off...")
+    print(f"You and {GAME_STATE["COMPANION"]} approach the village, but it looks off...")
     input()
-    print(ABANDONED_VILLAGE)
+    print(ascii_art.ABANDONED_VILLAGE)
     input()
     print("There are no villagers in sight, it was abandoned quite " \
           "a few months ago by the looks of it...")
@@ -2737,12 +1877,13 @@ def chapter_12():
     abandoned_village_choice = input("Would you like to stay or " \
                                      "leave to find another village? (Stay/Leave): ")
     if abandoned_village_choice.strip().lower() == "stay":
-        print(f"Ok, {USERNAME} let's stay, we can gather info later! :{COMPANION}")
+        print(f"Ok, {GAME_STATE["USERNAME"]} let's stay, we can gather"
+              f"info later! :{GAME_STATE["COMPANION"]}")
         chapter_12part2()
         return
     #Continues to the next chapter
     else:
-        print(f"Ok, let's go, I'm kinda tired though... :{COMPANION}")
+        print(f"Ok, let's go, I'm kinda tired though... :{GAME_STATE["COMPANION"]}")
         input()
         print("You both travel along the path and reach a river...")
         input()
@@ -2758,11 +1899,11 @@ def chapter_12part2():
     """
     Introduces the next part of chapter 12
     """
-    global  CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_12part2"
-    print(f"{COMPANION} approaches one of the abandoned houses and pulls out some goods")
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_12part2"
+    print(f"{GAME_STATE["COMPANION"]} approaches one of the"
+          "abandoned houses and pulls out some goods")
     input()
-    print(f"You set up the fire! :{COMPANION}")
+    print(f"You set up the fire! :{GAME_STATE["COMPANION"]}")
     input()
     print("You oblige and went to go get firewood nearby")
     input()
@@ -2794,61 +1935,64 @@ def chapter_12part2():
         print("Not collected")
     print("You return to the camp carrying all the wood...")
     input()
-    print(f"{COMPANION} appears around a corner carrying a stack of books and yells at you")
+    print(f"{GAME_STATE["COMPANION"]} appears around a corner"
+          "carrying a stack of books and yells at you")
     input()
-    print(f"Come here {USERNAME} :{COMPANION}")
+    print(f"Come here {GAME_STATE["USERNAME"]} :{GAME_STATE["COMPANION"]}")
     input()
     print("I've analyzed the keys."
           "I believe the final creature could be dungeon somewhere underneath Fargon,"
-          f"potentially underneath the capital :{COMPANION}")
+          f"potentially underneath the capital :{GAME_STATE["COMPANION"]}")
     input()
     print("The capital? You ask")
     input()
     print("Yeah, according to this book,"
-          f"there's a city called the capital located somewhere around here... :{COMPANION}")
+          "there's a city called the capital located"
+          f"somewhere around here... :{GAME_STATE["COMPANION"]}")
     input()
     print("It's guarded by a forcefield, with 5 ancient machines guarding it")
     input()
     print("We should go find it, huh? Sounds like the princess could be located there!")
     input()
-    print(f"You and {COMPANION} rest the night and leave tomorrow")
+    print(f"You and {GAME_STATE["COMPANION"]} rest the night and leave tomorrow")
     input()
-    print(f"You and {COMPANION} sleep the night")
+    print(f"You and {GAME_STATE["COMPANION"]} sleep the night")
     time.sleep(10)
-    reset_health()
+    utils.reset_health()
     chapter_13()
+    return
     #This resets the PLAYERs health to 100 and continues to the next chapter
 
 def chapter_13():
     """
     Introduces the next chapter and the capital
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_13"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_13"
     print("***************************\n"
             "Chapter 13: The capital"
           "***************************\n")
     input()
-    print(f"You and {COMPANION} set off from the abandoned village...")
+    print(f"You and {GAME_STATE["COMPANION"]} set off from the abandoned village...")
     input()
-    print(f"Towards where {COMPANION} thinks where the capital is...")
+    print(f"Towards where {GAME_STATE["COMPANION"]} thinks where the capital is...")
     input()
-    print(f"You and {COMPANION} walk for days")
+    print(f"You and {GAME_STATE["COMPANION"]} walk for days")
     time.sleep(6)
-    reset_health()
-    print(f"{COMPANION} looks around, 'We should be here' :{COMPANION}")
+    utils.reset_health()
+    print(f"{GAME_STATE["COMPANION"]} looks around, 'We should be here' :{GAME_STATE["COMPANION"]}")
     input()
     print("What, you reply, there's nothing here")
     input()
     print("All of a sudden, the ground beneath began to shake and split open")
     input()
-    print(f"You and {COMPANION} drop into the cavern below")
+    print(f"You and {GAME_STATE["COMPANION"]} drop into the cavern below")
     input()
-    decrease_health()
+    utils.decrease_health()
     input()
-    print(f"You and {COMPANION} faint")
+    print(f"You and {GAME_STATE["COMPANION"]} faint")
     time.sleep(10)
-    print("When you wake up you notice, that COMPANION disappeared. In front of you is 5 tunnels")
+    print(f"When you wake up you notice, that {GAME_STATE["COMPANION"]}"
+          "disappeared. In front of you is 5 tunnels")
     while True:
         try:
             tunnel_choice = int(input("Which tunnel would you proceed down (1-5): "))
@@ -2863,9 +2007,9 @@ def chapter_13():
                 print("You reach a dead end...")
                 input()
                 print("All of a sudden a skeleton attacks you from behind...")
-                print(SKELETON)
+                print(ascii_art.SKELETON)
                 input()
-                death()
+                utils.death()
                 break
             case 2:
                 print("You walk into the darkness of the tunnel...")
@@ -2875,43 +2019,45 @@ def chapter_13():
                 print("Your deadly thirsty and drank from the fountain...")
                 input()
                 print("The fountain water was poisoned.")
-                death()
+                utils.death()
                 break
             case 3:
                 print("You walk into the darkness of the tunnel...")
                 input()
-                print(f"You notice, a shadow up ahead, it could be {COMPANION}...")
+                print(f"You notice, a shadow up ahead, it could be {GAME_STATE["COMPANION"]}...")
                 input()
                 print("You run towards the shadow...")
                 input()
                 print("You walk right past the shadow...")
                 input()
-                print(f"You arrive back at the village, alone, with no {COMPANION} in sight...")
+                print("You arrive back at the village, alone,"
+                      f"with no {GAME_STATE["COMPANION"]} in sight...")
                 input()
                 print("You died of loneliness and despair")
                 input()
-                death()
+                utils.death()
                 break
             case 4:
                 print("You walk into the darkness of the tunnel...")
                 input()
-                print(f"You notice a shadow up ahead, it could be {COMPANION}...")
+                print(f"You notice a shadow up ahead, it could be {GAME_STATE["COMPANION"]}...")
                 input()
-                print(f"Hey, come {USERNAME}! :{COMPANION}")
+                print(f"Hey, come {GAME_STATE["USERNAME"]}! :{GAME_STATE["COMPANION"]}")
                 input()
                 print("You run towards the shadow...")
                 input()
-                print(f"You arrive at {COMPANION} and hug them tightly")
+                print(f"You arrive at {GAME_STATE["COMPANION"]} and hug them tightly")
                 input()
-                print(f"{COMPANION} says, 'I thought I lost you!'")
+                print(f"{GAME_STATE["COMPANION"]} says, 'I thought I lost you!'")
                 input()
                 print("You realise that there was a blue misty wall at the " \
                       "end of the tunnel blocking your way further...")
                 input()
-                print(f"You and {COMPANION} then spot another tunnel to the"
+                print(f"You and {GAME_STATE["COMPANION"]} then spot another tunnel to the"
                       "right of the blue wall...")
                 input()
-                print(f"You and {COMPANION} walk down the tunnel, hoping to find to the capital")
+                print(f"You and {GAME_STATE["COMPANION"]} walk down the tunnel,"
+                      "hoping to find to the capital")
                 input()
                 chapter_14()
                 break
@@ -2936,7 +2082,7 @@ def chapter_13():
                 input()
                 print("After a few hours, you hear a voice calling your name...")
                 input()
-                print(f"It sounds like {COMPANION}, yet it doesn't!")
+                print(f"It sounds like {GAME_STATE["COMPANION"]}, yet it doesn't!")
                 input()
                 print("You stand up and walk towards the voice...")
                 input()
@@ -2949,19 +2095,20 @@ def chapter_13():
                       "  The Shadowy Figure \n"
                       "****************************\n")
                 input()
-                print(MYSTERIOUS_CHARACTER)
+                print(ascii_art.MYSTERIOUS_CHARACTER)
                 input()
                 print("You have come far, but you will not find the princess here. " \
                       ":Mysterious Figure")
                 input()
-                print(f"You ask the figure where the princess and {COMPANION} is,"
+                print(f"You ask the figure where the princess and {GAME_STATE["COMPANION"]} is,"
                       "but it only laughs.")
                 input()
                 print("The figure lunges at you, its claws slashing through the air.")
                 input()
                 print("You try to dodge the attack, but the figure is too fast.")
                 input()
-                print(f"You've came far, yet this is where it ends for you, {USERNAME}.")
+                print("You've came far, yet this is where"
+                      f"it ends for you, {GAME_STATE["USERNAME"]}.")
                 input()
                 print("The figure strikes you down, and you fall to the ground, defeated.")
                 input()
@@ -2970,38 +2117,37 @@ def chapter_13():
                 print("This creature was not the final beast, " \
                       "but a mere shadow of what is to come.")
                 input()
-                death()
+                utils.death()
                 break
-            #This kills the PLAYER
+            #This kills the GAME_STATE["PLAYER"]
             case _:
                 print("Enter a valid number")
                 return
-            #This loops until the PLAYER enters a valid number
+            #This loops until the GAME_STATE["PLAYER"] enters a valid number
 
 def chapter_14():
     """
     Introduces the first machine and the first guardian fight
     """
-    global  CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_14"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_14"
     print("***************************\n"
           "Chapter 14: The First Machine\n"
           "***************************\n")
     input()
-    print(f"You and {COMPANION} arrive at the first machine,"
+    print(f"You and {GAME_STATE["COMPANION"]} arrive at the first machine,"
           "a massive structure made of stone and metal.")
     input()
     print("The machine is covered in strange symbols and runes, "
           "and it seems to be powered by some kind of dark energy.")
     input()
-    print(f"This must be one of the machines that guard the capital. :{COMPANION}")
+    print(f"This must be one of the machines that guard the capital. :{GAME_STATE["COMPANION"]}")
     input()
     print("You nod in agreement, determined to find a way to disable the machine.")
     input()
     print("As you approach the machine, you notice a small" \
           "panel on the side with a glowing red button.")
     input()
-    print(f"We need to find a way to activate this button. :{COMPANION}")
+    print(f"We need to find a way to activate this button. :{GAME_STATE["COMPANION"]}")
     input()
     print("You search the area around the machine and find a small lever hidden behind some rocks.")
     input()
@@ -3015,9 +2161,10 @@ def chapter_14():
     print("Suddenly, a massive door opens in the side of the machine, " \
           "revealing a dark chamber inside.")
     input()
-    print(f"We need to go inside and see what we can find. :{COMPANION}")
+    print(f"We need to go inside and see what we can find. :{GAME_STATE["COMPANION"]}")
     input()
-    print(f"You and {COMPANION} enter the chamber, weapons drawn, ready for whatever lies ahead.")
+    print(f"You and {GAME_STATE["COMPANION"]} enter the chamber,"
+          "weapons drawn, ready for whatever lies ahead.")
     input()
     print("Inside the chamber, you find a series of strange machines "
           "and devices, all connected to a button on a pedestal in the center of the room.")
@@ -3027,9 +2174,9 @@ def chapter_14():
     print("All of a sudden, you feel a strange urge " \
           "to press the button, as if it is calling to you.")
     input()
-    print(f"We need to be careful. This could be a tra.. :{COMPANION}")
+    print(f"We need to be careful. This could be a tra.. :{GAME_STATE["COMPANION"]}")
     input()
-    print(f"But before {COMPANION} can finish their sentence, you press the button.")
+    print(f"But before {GAME_STATE["COMPANION"]} can finish their sentence, you press the button.")
     input()
     print("The machine shudders and shakes, and you can feel the ground beneath you tremble.")
     input()
@@ -3038,7 +2185,7 @@ def chapter_14():
     input()
     print("You hear a loud rumbling noise, and the machines begin to open a trapdoor in the floor.")
     input()
-    print(f"You and {COMPANION} look at each other, unsure of what to do next.")
+    print(f"You and {GAME_STATE["COMPANION"]} look at each other, unsure of what to do next.")
     input()
     print("*****************************\n"
            "     The First guardian \n"
@@ -3051,8 +2198,7 @@ def guardian1():
     """
     Introduces the first guardian fight
     """
-    global  CURRENT_CHAPTER
-    CURRENT_CHAPTER = "guardian1"
+    GAME_STATE["CURRENT_CHAPTER"] = "guardian1"
     print("Suddenly, a massive mechanical guardian emerges from the trapdoor, " \
           "its eyes glowing with a menacing light.")
     input()
@@ -3061,7 +2207,8 @@ def guardian1():
     input()
     print("It raises its massive fists, ready to attack.")
     input()
-    print(f"You and {COMPANION} prepare for battle, your weapons drawn and ready to fight.")
+    print(f"You and {GAME_STATE["COMPANION"]} prepare for battle,"
+          "your weapons drawn and ready to fight.")
     input()
     print("The guardian lunges at you, its fists swinging through the air.")
     input()
@@ -3072,7 +2219,7 @@ def guardian1():
     guardian_choice = input("Do you want to attack the guardian again or try " \
                             "to find a way to disable the machines? (Attack/Disable): ")
     if guardian_choice.strip().lower() == "attack":
-        print(f"You and {COMPANION} attack the guardian with all your might,"
+        print(f"You and {GAME_STATE["COMPANION"]} attack the guardian with all your might,"
               "striking it with your weapons.")
         input()
         print("The guardian roars in pain, but it is not defeated yet.")
@@ -3083,77 +2230,79 @@ def guardian1():
         disable_choice = input("Do you want to try to disable the machines "
                                "or keep attacking the guardian? (Disable/Attack): ")
         if disable_choice.strip().lower() == "disable":
-            print(f"You and {COMPANION} search the room for a way to disable the machines.")
+            print(f"You and {GAME_STATE["COMPANION"]}"
+                  "search the room for a way to disable the machines.")
             input()
             print("You find a control panel on the wall with a series of buttons and switches.")
             input()
             print("You quickly figure out how to disable the machines, "
                   "and they all shut down, leaving the guardian vulnerable.")
             input()
-            print(f"You and {COMPANION} attack the guardian one last time,"
+            print(f"You and {GAME_STATE["COMPANION"]} attack the guardian one last time,"
                   "striking it down and defeating it.")
             input()
             print("You search the guardian's remains and find a glowing red " \
                   "key that unlocks a hidden door in the machine.")
             input()
-            print(f"You and {COMPANION} enter the hidden door,"
+            print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
                   "hoping to find more clues about the final beast.")
             input()
             chapter_15()
         #This goes to chapter 15
         elif disable_choice.strip().lower() == "attack":
-            print(f"You and {COMPANION} keep attacking the guardian, but it is too strong.")
+            print(f"You and {GAME_STATE["COMPANION"]} keep attacking the guardian,"
+                  "but it is too strong.")
             input()
             print("The guardian strikes you down, and you fall to the ground, defeated.")
             input()
-            death()
+            utils.death()
             return
         #death
         else:
             print("The guardian doesn't hesitate to attack back")
-            death()
-        #This kills the PLAYER due to invalid response
+            utils.death()
+        #This kills the GAME_STATE["PLAYER"] due to invalid response
     elif guardian_choice.strip().lower() == "disable":
-        print(f"You and {COMPANION} search the room for a way to disable the machines.")
+        print(f"You and {GAME_STATE["COMPANION"]} search"
+              "the room for a way to disable the machines.")
         input()
         print("You find a control panel on the wall with a series of buttons and switches.")
         input()
         print("You quickly figure out how to disable the machines, "
               "and they all shut down, leaving the guardian vulnerable.")
         input()
-        print(f"You and {COMPANION} attack the guardian one last time,"
+        print(f"You and {GAME_STATE["COMPANION"]} attack the guardian one last time,"
               "striking it down and defeating it.")
         input()
         print("You search the guardian's remains and find a glowing red key " \
               "that unlocks a hidden door in the machine.")
         input()
-        print(f"You and {COMPANION} enter the hidden door, hoping to"
+        print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door, hoping to"
               "find more clues about the final beast.")
         input()
         chapter_15()
     #This goes to the nest chapter
     else:
         print("The guardian lumbers over towards you and crushes you")
-        death()
+        utils.death()
 
 def chapter_15():
     """
     Introduces the second machine and the second guardian fight
     """
-    global  CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_15"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_15"
     print("***************************\n"
           "Chapter 15: The Second Machine\n"
           "***************************\n")
     input()
-    print(f"You and {COMPANION} enter the second machine,"
+    print(f"You and {GAME_STATE["COMPANION"]} enter the second machine,"
           "a massive structure filled with gears and machinery.")
     input()
     print("The air is thick with the smell of rusty metal, "
           "and you can hear the sound of machinery whirring to life.")
     input()
     print("We need to find a way to"
-          f"shut down this machine before it activates. :{COMPANION}")
+          f"shut down this machine before it activates. :{GAME_STATE["COMPANION"]}")
     input()
     print("You nod in agreement, determined to stop the machine and find the final beast.")
     input()
@@ -3180,8 +2329,7 @@ def guardian2():
     """
     Introduces the second guardian fight
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "guardian2"
+    GAME_STATE["CURRENT_CHAPTER"] = "guardian2"
     print("The guardian lunges at you, its fists swinging through the air.")
     input()
     print("You dodge the attack and strike back, hitting the guardian in the side.")
@@ -3191,7 +2339,7 @@ def guardian2():
     guardian_choice = input("Do you want to attack the guardian again or try " \
                             "to find a way to disable the machines? (Attack/Disable): ")
     if guardian_choice.strip().lower() == "attack":
-        print(f"You and {COMPANION} attack the guardian with all your might,"
+        print(f"You and {GAME_STATE["COMPANION"]} attack the guardian with all your might,"
               "striking it with your weapons.")
         input()
         print("The guardian roars in pain, but it is not defeated yet.")
@@ -3202,63 +2350,66 @@ def guardian2():
         disable_choice = input("Do you want to try to disable the machines "
                                "or keep attacking the guardian? (Disable/Attack): ")
         if disable_choice.strip().lower() == "disable":
-            print(f"You and {COMPANION} search the room for a way to disable the machines.")
+            print(f"You and {GAME_STATE["COMPANION"]}"
+                  "search the room for a way to disable the machines.")
             input()
             print("You find a control panel on the wall with a series of buttons and switches.")
             input()
             print("You quickly figure out how to disable the machines, "
                   "and they all shut down, leaving the guardian vulnerable.")
             input()
-            print(f"You and {COMPANION} attack the guardian one last time,"
+            print(f"You and {GAME_STATE["COMPANION"]} attack the guardian one last time,"
                   "striking it down and defeating it.")
             input()
             print("You search the guardian's remains and find a glowing " \
                   "blue key that unlocks a hidden door in the machine.")
             input()
-            print(f"You and {COMPANION} enter the hidden door,"
+            print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
                   "hoping to find more clues about the final beast.")
             input()
             final_machine()
         #Goes to next chapter
         elif disable_choice.strip().lower() == "attack":
-            print(f"You and {COMPANION} keep attacking the guardian, but it is too strong.")
+            print(f"You and {GAME_STATE["COMPANION"]} keep"
+                  "attacking the guardian, but it is too strong.")
             input()
             print("The guardian strikes you down, and you fall to the ground, defeated.")
             input()
-            death()
-        #kills the PLAYER
+            utils.death()
+        #kills the GAME_STATE["PLAYER"]
         else:
             print("The guardian suddenly stops moving")
             input()
-            print(f"You and {COMPANION} stare bewildered")
+            print(f"You and {GAME_STATE["COMPANION"]} stare bewildered")
             input()
             print("Suddenly, the guardian explodes")
             input()
             print("All those years being inactive and inside this humid room " \
                   "must have rusted something")
-            death()
+            utils.death()
             return
     elif guardian_choice.strip().lower() == "disable":
-        print(f"You and {COMPANION} search the room for a way to disable the machines.")
+        print(f"You and {GAME_STATE["COMPANION"]} search the"
+              "room for a way to disable the machines.")
         input()
         print("You find a control panel on the wall with a series of buttons and switches.")
         input()
         print("You quickly figure out how to disable the machines, "
               "and they all shut down, leaving the guardian vulnerable.")
         input()
-        print(f"You and {COMPANION} attack the guardian one last time,"
+        print(f"You and {GAME_STATE["COMPANION"]} attack the guardian one last time,"
               "striking it down and defeating it.")
         input()
         print("You search the guardian's remains and find a glowing " \
               "blue key that unlocks a hidden door in the machine.")
         input()
-        print(f"You and {COMPANION} enter the hidden door,"
+        print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
               "hoping to find more clues about the final beast.")
         input()
         final_machine()
     else:
         print("The guardian swings it huge arms at you")
-        death()
+        utils.death()
         return
     #Goes to next chapter
 
@@ -3266,19 +2417,18 @@ def final_machine():
     """
     Introduces the final machine
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "final_machine"
+    GAME_STATE["CURRENT_CHAPTER"] = "final_machine"
     print("***************************\n"
           "Chapter 16: The Final Machine\n"
           "***************************\n")
     input()
-    print(f"You and {COMPANION} enter the final machine,"
+    print(f"You and {GAME_STATE["COMPANION"]} enter the final machine,"
           "a massive structure filled with gears and machinery.")
     input()
     print("The air is thick with the smell of rusty metal, "
           "and you can hear the sound of machinery whirring to life.")
     input()
-    print(f"This is it. The final machine that guards the capital. :{COMPANION}")
+    print(f"This is it. The final machine that guards the capital. :{GAME_STATE["COMPANION"]}")
     input()
     print("You nod in agreement, determined to find a way to " \
           "shut down the machine and rescue the princess.")
@@ -3290,7 +2440,7 @@ def final_machine():
     print("You hear a loud rumbling noise, and the machines" \
           " begin to shut down the forcefield that surrounds the capital.")
     input()
-    print(f"With the forcefield down, you and {COMPANION} rush out"
+    print(f"With the forcefield down, you and {GAME_STATE["COMPANION"]} rush out"
           "of the machine rooms and make your way to the heart of the capital.")
     chapter_16()
 #This goes to the next chapter after disabling the forcefield
@@ -3299,21 +2449,20 @@ def chapter_16():
     """
     Introduces the final chapter and the final boss fight
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_16"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_16"
     print("***************************\n"
           "Chapter 16: The Final Showdown\n"
           "***************************\n")
     input()
-    print(f"You and {COMPANION} enter the capital,"
+    print(f"You and {GAME_STATE["COMPANION"]} enter the capital,"
           "a grand city filled with towering buildings and bustling streets.")
     input()
-    print(NECRON)
+    print(ascii_art.NECRON)
     input()
     print("But something is off. The streets are eerily quiet, "
           "and you can feel a dark presence lurking in the shadows.")
     input()
-    print(f"We need to find the final beast and rescue the princess. :{COMPANION}")
+    print(f"We need to find the final beast and rescue the princess. :{GAME_STATE["COMPANION"]}")
     input()
     print("You nod in agreement, determined to find the final beast and rescue the princess.")
     input()
@@ -3328,9 +2477,9 @@ def chapter_16():
     print("These symbols seem to pulse with a dark energy, "
           "and you can feel their power as you pass by.")
     input()
-    print(f"{COMPANION} says, 'These symbols must be connected to the final beast.'")
+    print(f"{GAME_STATE["COMPANION"]} says, 'These symbols must be connected to the final beast.'")
     input()
-    print(f"You and {COMPANION} continue to explore the capital,"
+    print(f"You and {GAME_STATE["COMPANION"]} continue to explore the capital,"
           "searching for any clues that might lead you to the final beast.")
     input()
     print("As you venture deeper into the capital, " \
@@ -3345,12 +2494,12 @@ def chapter_16():
     print("The figure is a giant shadow beast, its eyes glowing with a menacing light.")
     input()
     print("****************************\n"
-    "   necron The Beast of Eternal Doom \n"
+    "   Necron The Beast of Eternal Doom \n"
           "****************************\n")
     input()
-    print(NECRON)
+    print(ascii_art.NECRON)
     input()
-    save_game()
+    utils.save_game()
     necron_fight()
 #This starts the boss fight
 
@@ -3358,8 +2507,7 @@ def necron_fight():
     """
     Introduces the first part of the necron fight
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "Necron_fight"
+    GAME_STATE["CURRENT_CHAPTER"] = "Necron_fight"
     print("The beast lunges at you, its claws slashing through the air.")
     input()
     print("You dodge the attack and strike back, hitting the beast in the side.")
@@ -3368,7 +2516,7 @@ def necron_fight():
     input()
     necron_choice = input("Do you want to attack the beast again or heal? (Attack/Heal): ")
     if necron_choice.strip().lower() == "attack":
-        print(f"You and {COMPANION} attack the beast with all your might,"
+        print(f"You and {GAME_STATE["COMPANION"]} attack the beast with all your might,"
               "striking it with your weapons.")
         input()
         print("The beast roars in pain, but it is not defeated yet.")
@@ -3379,7 +2527,8 @@ def necron_fight():
         disable_choice = input("Do you want to try to disable the machines "
                                "or keep attacking the beast? (Heal/Attack): ")
         if disable_choice.strip().lower() == "heal":
-            print(f"You and {COMPANION} search the cavern for a way to heal yourselves.")
+            print(f"You and {GAME_STATE["COMPANION"]} search the"
+                  "cavern for a way to heal yourselves.")
             input()
             print("You find a stash of healing potions and quickly use them " \
                   "to restore your health.")
@@ -3389,11 +2538,12 @@ def necron_fight():
             necron_fight2()
         #Goes to the second part of the fight
         elif disable_choice.strip().lower() == "attack":
-            print(f"You and {COMPANION} keep attacking the beast, but it is too strong.")
+            print(f"You and {GAME_STATE["COMPANION"]} keep"
+                  "attacking the beast, but it is too strong.")
             input()
             print("The beast strikes you down, and you fall to the ground, defeated.")
             input()
-            death()
+            utils.death()
         #Death
         else:
             print("Invalid choice. You continue to attack the beast without healing.")
@@ -3401,7 +2551,7 @@ def necron_fight():
             necron_fight2()
         #Goes to the second part of the fight without heal
     elif necron_choice.strip().lower() == "heal":
-        print(f"You and {COMPANION} search the cavern for a way to heal yourselves.")
+        print(f"You and {GAME_STATE["COMPANION"]} search the cavern for a way to heal yourselves.")
         input()
         print("You find a stash of healing potions and quickly use them to restore your health.")
         input()
@@ -3413,7 +2563,7 @@ def necron_fight():
         print("Invalid choice. necron casts a dark spell, "
               "and you feel your strength draining away.")
         input()
-        death()
+        utils.death()
         return
     #death
 
@@ -3421,13 +2571,12 @@ def necron_fight2():
     """
     Introduces the second sequence of the necron fight
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "Necron_fight2"
+    GAME_STATE["CURRENT_CHAPTER"] = "Necron_fight2"
     print("AHHHHHH, LIGHT WILL NEVER COME OVER THIS WORLD, " \
           "YOU CAN'T STOP ME YOU PUNY LITTLE INSECTS! necron yells")
     necron_choice2 = input("Do you want to attack the beast again or heal? (Attack/Heal): ")
     if necron_choice2.strip().lower() == "attack":
-        print(f"You and {COMPANION} attack the beast with all your might,"
+        print(f"You and {GAME_STATE["COMPANION"]} attack the beast with all your might,"
               "striking it with your weapons.")
         input()
         print("The beast roars in pain, but it is not defeated yet.")
@@ -3439,7 +2588,8 @@ def necron_fight2():
         disable_choice2 = input("Do you want to try to disable the machines "
                                 "or keep attacking the beast? (Disable/Attack): ")
         if disable_choice2.strip().lower() == "disable":
-            print(f"You and {COMPANION} search the cavern for a way to disable the machines.")
+            print(f"You and {GAME_STATE["COMPANION"]}"
+                  "search the cavern for a way to disable the machines.")
             input()
             print("You find a control panel on the wall with a series of " \
                   "buttons and switches and a book full of unknown letters.")
@@ -3452,20 +2602,21 @@ def necron_fight2():
             machines1()
         #Goes to next part
         elif disable_choice2.strip().lower() == "attack":
-            print(f"You and {COMPANION} keep attacking the beast, but it is too strong.")
+            print(f"You and {GAME_STATE["COMPANION"]}"
+                  "keep attacking the beast, but it is too strong.")
             input()
             print("The beast strikes you down, and you fall to the ground, defeated.")
             input()
-            death()
+            utils.death()
             return
         #death
         else:
             print("Necron suddenly slams into the cavern causing it to"
-                  f"collapse on top of you and {COMPANION}")
-            death()
+                  f"collapse on top of you and {GAME_STATE["COMPANION"]}")
+            utils.death()
             return
     elif necron_choice2.strip().lower() == "heal":
-        print(f"You and {COMPANION} search the cavern for a way to heal yourselves.")
+        print(f"You and {GAME_STATE["COMPANION"]} search the cavern for a way to heal yourselves.")
         input()
         print("You find a stash of healing potions and quickly use them to restore your health.")
         input()
@@ -3474,17 +2625,17 @@ def necron_fight2():
         necron_fight3()
     #Starts next sequence of the boss fight
     else:
-        print(f"Necron summons a stack of playing cards on top of you and {COMPANION},"
+        print("Necron summons a stack of playing cards"
+              f"on top of you and {GAME_STATE["COMPANION"]},"
               "crushing you both")
-        death()
+        utils.death()
         return
 
 def necron_fight3():
     """
     Introduces the third sequence of the necron fight
     """
-    global  CURRENT_CHAPTER
-    CURRENT_CHAPTER = "Necron_fight3"
+    GAME_STATE["CURRENT_CHAPTER"] = "Necron_fight3"
     print("Necron roars in anger, its eyes glowing with a menacing light.")
     input()
     print("The beast lunges at you, its claws slashing through the air.")
@@ -3496,7 +2647,7 @@ def necron_fight3():
     necron_choice3 = input("Do you want to attack the beast again or " \
                            "destroy the machines? (Attack/Destroy): ")
     if necron_choice3.strip().lower() == "attack":
-        print(f"You and {COMPANION} attack the beast with all your might,"
+        print(f"You and {GAME_STATE["COMPANION"]} attack the beast with all your might,"
               "striking it with your weapons.")
         input()
         print("The beast roars in pain, but it is not defeated yet.")
@@ -3507,7 +2658,8 @@ def necron_fight3():
         destroy_choice = input("Do you want to try to destroy the machines "
                                "or keep attacking the beast? (Destroy/Attack): ")
         if destroy_choice.strip().lower() == "destroy":
-            print(f"You and {COMPANION} search the cavern for a way to destroy the machines.")
+            print(f"You and {GAME_STATE["COMPANION"]} search the"
+                  "cavern for a way to destroy the machines.")
             input()
             print("You find a control panel on the wall with a series of " \
                   "buttons and switches and a book full of unknown letters.")
@@ -3519,22 +2671,24 @@ def necron_fight3():
             input()
             machines1()
         elif destroy_choice.strip().lower() == "attack":
-            print(f"You and {COMPANION} keep attacking the beast, but it is too strong.")
+            print(f"You and {GAME_STATE["COMPANION"]} keep attacking the beast,"
+                  "but it is too strong.")
             input()
             print("The beast strikes you down, and you fall to the ground, defeated.")
             input()
-            death()
+            utils.death()
         #Gets killed
         else:
-            print(f"You and {COMPANION} look in dread as necron summons a hoard of goblins")
+            print(f"You and {GAME_STATE["COMPANION"]} look in dread"
+                  "as necron summons a hoard of goblins")
             input()
-            print(f"The disoriented goblins start swarming you and {COMPANION}")
+            print(f"The disoriented goblins start swarming you and {GAME_STATE["COMPANION"]}")
             input()
-            death()
+            utils.death()
             return
     elif necron_choice3.strip().lower() == "destroy":
         print("You search the cavern for a way to destroy the machines"
-              f"while {COMPANION} distracts Necrom.")
+              f"while {GAME_STATE["COMPANION"]} distracts Necrom.")
         input()
         print("You find a control panel on the wall with a series of buttons "
               "and switches and a book full of unknown letters.")
@@ -3552,8 +2706,7 @@ def machines1():
     """
     Introduces the first machine and the first destroy sequence
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "machines1"
+    GAME_STATE["CURRENT_CHAPTER"] = "machines1"
     print("You spot the first machine, a massive structure made of stone and metal.")
     input()
     destroy1 = input("To destroy it type (XYSDFBA): ")
@@ -3563,7 +2716,7 @@ def machines1():
         print("You search the machine's remains and find a glowing " \
               "red key that unlocks a hidden door in the capital.")
         input()
-        print(f"You and {COMPANION} enter the hidden door,"
+        print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
               "hoping to find more clues about the final beast.")
         input()
         machines2()
@@ -3581,8 +2734,7 @@ def machines2():
     """
     Introduces the second machine and the second destroy sequence
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "machines2"
+    GAME_STATE["CURRENT_CHAPTER"] = "machines2"
     print("You spot the second machine, a massive structure made of sharpened serpent scales.")
     input()
     destroy2 = input("To destroy it type (DNQEJJ): ")
@@ -3592,7 +2744,7 @@ def machines2():
         print("You search the machine's remains and find a glowing " \
               "red key that unlocks a hidden door in the capital.")
         input()
-        print(f"You and {COMPANION} enter the hidden door,"
+        print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
               "hoping to find more clues about the final beast.")
         input()
         machines3()
@@ -3610,8 +2762,7 @@ def machines3():
     """
     Introduces the third machine and the third destroy sequence
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "machines3"
+    GAME_STATE["CURRENT_CHAPTER"] = "machines3"
     print("You spot the third machine, a massive structure made of solidified lava.")
     input()
     destroy3 = input("To destroy it type (FNJREWNFJ): ")
@@ -3621,7 +2772,7 @@ def machines3():
         print("You search the machine's remains and find a glowing " \
               "red key that unlocks a hidden door in the capital.")
         input()
-        print(f"You and {COMPANION} enter the hidden door,"
+        print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
               "hoping to find more clues about the final beast.")
         input()
         machines4()
@@ -3639,8 +2790,7 @@ def machines4():
     """
     Introduces the fourth machine and the fourth destroy sequence
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "machines4"
+    GAME_STATE["CURRENT_CHAPTER"] = "machines4"
     print("You spot the fourth machine, a massive structure made of pure packed ice.")
     input()
     destroy4 = input("To destroy it type (FNJQNRE): ")
@@ -3650,7 +2800,7 @@ def machines4():
         print("You search the machine's remains and find a glowing " \
               "red key that unlocks a hidden door in the capital.")
         input()
-        print(f"You and {COMPANION} enter the hidden door,"
+        print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
               "hoping to find more clues about the final beast.")
         input()
         machines5()
@@ -3668,8 +2818,7 @@ def machines5():
     """
     Introduces the fifth machine and the fifth destroy sequence
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "machines5"
+    GAME_STATE["CURRENT_CHAPTER"] = "machines5"
     print("You spot the final machine, a massive structure made of pure refined darkness.")
     input()
     destroy5 = input("To destroy it type (JDEIJDU): ")
@@ -3678,7 +2827,7 @@ def machines5():
         input()
         print("Just in time, you turn around and see necron, the final beast, charging at you.")
         input()
-        print(f"{COMPANION} is nowhere to be seen,"
+        print(f"{GAME_STATE["COMPANION"]} is nowhere to be seen,"
               "and you realize that you are alone in this fight.")
         input()
         necron_fight4()
@@ -3696,8 +2845,7 @@ def necron_fight4():
     """
     Introduces the final sequence of the necron fight
     """
-    global  CURRENT_CHAPTER
-    CURRENT_CHAPTER = "Necron_fight4"
+    GAME_STATE["CURRENT_CHAPTER"] = "Necron_fight4"
     print("Necron roars in anger, its eyes glowing with a darker menacing light.")
     input()
     print("Necron shrieks another battle cry, "
@@ -3707,7 +2855,7 @@ def necron_fight4():
 "      necronom The Final Bringer of Eternal Darkness \n"
           "************************************\n")
     input()
-    print(NECRON_SECOND_FORM)
+    print(ascii_art.NECRON_SECOND_FORM)
     input()
     print("The dragon lunges at you, its claws slashing through the air.")
     input()
@@ -3718,7 +2866,7 @@ def necron_fight4():
     dragon_choice = input("Do you want to attack the dragon again or heal? (Attack/Heal): ")
     #Saves input as dragon_choice
     if dragon_choice.strip().lower() == "attack":
-        print(f"You and {COMPANION} attack the dragon with all your might,"
+        print(f"You and {GAME_STATE["COMPANION"]} attack the dragon with all your might,"
               "striking it with your weapons.")
         input()
         print("The dragon roars in pain, but it is not defeated yet.")
@@ -3732,7 +2880,7 @@ def necron_fight4():
             print("You grab the book and quickly flip through the pages, " \
                   "searching for a spell that can help you defeat the dragon.")
             input()
-            print(DARK_BOOK)
+            print(ascii_art.DARK_BOOK)
             input()
             print("You find a spell that seems to describe the dragon, "
                   "and you quickly memorize it.")
@@ -3752,38 +2900,38 @@ def necron_fight4():
             print("You search the dragon's remains and find a glowing " \
                   "purple key that unlocks a hidden door in the chamber.")
             input()
-            print(f"You and {COMPANION} enter the hidden door,"
+            print(f"You and {GAME_STATE["COMPANION"]} enter the hidden door,"
                   "hoping to find more clues about the final beast.")
             input()
             companion_fight()
         #Continues to next chapter
         elif disable_choice.strip().lower() == "attack":
-            print(f"You and {COMPANION} keep attacking the dragon, but it is too strong.")
+            print(f"You and {GAME_STATE["COMPANION"]} keep"
+                  "attacking the dragon, but it is too strong.")
             input()
             print("The dragon strikes you down, and you fall to the ground, defeated.")
             input()
-            death()
+            utils.death()
         #death
         else:
             print("Invalid choice. The dragon strikes you down, "
                   "and you fall to the ground, defeated.")
             input()
-            death()
+            utils.death()
         #death due to invalid response
     elif dragon_choice.strip().lower() == "heal":
         print("Necronom charges into you and picks you up high before dropping you")
-        death()
+        utils.death()
     else:
-        print("Necronom strikes you and COMPANION")
-        death()
+        print(f"Necronom strikes you and {GAME_STATE["COMPANION"]}")
+        utils.death()
 
 
 def companion_fight():
     """
     Introduces the companion fight
     """
-    global  CURRENT_CHAPTER
-    CURRENT_CHAPTER = "companion_fight"
+    GAME_STATE["CURRENT_CHAPTER"] = "companion_fight"
     print("As you enter the hidden door, you find yourself in a " \
           "large chamber filled with darkness.")
     input()
@@ -3791,126 +2939,128 @@ def companion_fight():
     input()
     print("But before you can approach the pedestal, you hear a voice calling your name.")
     input()
-    print(f"You turn around to look at {COMPANION} but he looks off")
+    print(f"You turn around to look at {GAME_STATE["COMPANION"]} but he looks off")
     input()
     print("Their eyes are glowing with a dark energy.")
     input()
-    print(f"{COMPANION} says, 'You have come far, but you will not find the princess here.'")
+    print("You have come far,but you will not"
+          f"find the princess here. :{GAME_STATE["COMPANION"]}")
     input()
     print("The voice is distorted and twisted,"
-          f"and you can feel a dark presence emanating from {COMPANION}.")
+          f"and you can feel a dark presence emanating from {GAME_STATE["COMPANION"]}.")
     input()
     print("****************************\n"
-            "  Corrupted COMPANION \n"
+         f"  Corrupted {GAME_STATE["COMPANION"]} \n"
           "****************************\n")
     input()
-    print(f"You realize that {COMPANION} has been corrupted by"
+    print(f"You realize that {GAME_STATE["COMPANION"]} has been corrupted by"
           "the dark energy of necron, and you must fight them to save the princess.")
     input()
-    companion_choice = input(f"Do you want to attack {COMPANION} or"
+    companion_choice = input(f"Do you want to attack {GAME_STATE["COMPANION"]} or"
                              "try to reason with them? (Attack/Reason): ")
     if companion_choice.strip().lower() == "reason":
-        print(f"You try to reason with {COMPANION},"
+        print(f"You try to reason with {GAME_STATE["COMPANION"]},"
               "but they are too far gone.")
         input()
-        print(f"The corrupted {COMPANION} is strong,"
+        print(f"The corrupted {GAME_STATE["COMPANION"]} is strong,"
               "but you are determined to save them.")
         input()
-        print(f"Too late, the corrupted {COMPANION} lunges at you,"
+        print(f"Too late, the corrupted {GAME_STATE["COMPANION"]} lunges at you,"
               "their claws slashing through the air.")
         input()
-        print(f" {COMPANION} manages to strike you down,"
+        print(f" {GAME_STATE["COMPANION"]} manages to strike you down,"
               "and you fall to the ground, defeated.")
         input()
-        print(f"I'm sorry, {USERNAME}, but I cannot let you find the princess,"
-              f"their voice distorted and twisted. :{COMPANION}")
+        print(f"I'm sorry, {GAME_STATE["USERNAME"]}, but I cannot let you find the princess,"
+              f"their voice distorted and twisted. :{GAME_STATE["COMPANION"]}")
         input()
-        print(f"{COMPANION} leaves you lying on the ground, defeated,"
+        print(f"{GAME_STATE["COMPANION"]} leaves you lying on the ground, defeated,"
               "and walks away into the darkness.")
         input()
-        print(f"You've made it far, but this is where it ends for you. :{COMPANION}")
+        print(f"You've made it far, but this is where it ends for you. :{GAME_STATE["COMPANION"]}")
         input()
-        print(f"You hear the corrupted {COMPANION}"
+        print(f"You hear the corrupted {GAME_STATE["COMPANION"]}"
               "laugh as they disappear into the shadows.")
-        death()
+        utils.death()
         return
     elif companion_choice.strip().lower() == "attack":
-        print(f"You lunge at {COMPANION},"
+        print(f"You lunge at {GAME_STATE["COMPANION"]},"
               "your eyes filled with tears yet your heart filled with determination.")
         input()
-        print(f"{COMPANION} tries to dodge your attack,"
+        print(f"{GAME_STATE["COMPANION"]} tries to dodge your attack,"
               "but you manage to hit them in the side.")
         input()
-        print(f"Wait, {USERNAME}, I can still be saved! "
-              f"their voice filled with pain. :{COMPANION}")
+        print(f"Wait, {GAME_STATE["USERNAME"]}, I can still be saved! "
+              f"their voice filled with pain. :{GAME_STATE["COMPANION"]}")
         input()
-        companion_choice2 = input(f"Would you like to continue attacking {COMPANION}"
+        companion_choice2 = input(f"Would you like to continue attacking {GAME_STATE["COMPANION"]}"
                                   "or try to save them? (Attack/Save): ")
         input()
         if companion_choice2.strip().lower() == "save":
             print("Fine, you reply")
             input()
-            print(f"Thank you, {USERNAME}, I knew you would come to save me!"
-                  f"their voice filled with hope. :{COMPANION}")
+            print(f"Thank you, {GAME_STATE["USERNAME"]}, I knew you would come to save me!"
+                  f"their voice filled with hope. :{GAME_STATE["COMPANION"]}")
             input()
-            print(f"You help {COMPANION} to their feet,"
+            print(f"You help {GAME_STATE["COMPANION"]} to their feet,"
                   "and they look at you with gratitude in their eyes.")
             input()
-            print(f"'Come let's go, we need to get out of here', you say to {COMPANION}")
+            print("Come let's go, we need to get out of here,"
+                  f"you say to {GAME_STATE["COMPANION"]}")
             input()
             print("We need to go find the princ...")
             input()
-            print(f"{COMPANION} striked you in the bag,"
+            print(f"{GAME_STATE["COMPANION"]} striked you in the bag,"
                   "their eyes glowing with a dark energy once again.")
             input()
             print("You really thought I was going to let you save me?"
-                  f"{COMPANION} says, their voice distorted and twisted.")
+                  f"{GAME_STATE["COMPANION"]} says, their voice distorted and twisted.")
             input()
-            print(f"Bye bye, {USERNAME}, I hope you enjoy your"
-                  f"stay in the darkness, {COMPANION} says with a sinister laugh.")
-            death()
+            print(f"Bye bye, {GAME_STATE["USERNAME"]}, I hope you enjoy your"
+                  f"stay in the darkness, {GAME_STATE["COMPANION"]} says with a sinister laugh.")
+            utils.death()
             return
         elif companion_choice2.strip().lower() == "attack":
-            print(f"You keep attacking {COMPANION},"
+            print(f"You keep attacking {GAME_STATE["COMPANION"]},"
                   "determined to defeat them and save the princess.")
             input()
-            print(f"The corrupted {COMPANION} fights back with all their might,"
+            print(f"The corrupted {GAME_STATE["COMPANION"]} fights back with all their might,"
                   "but you are relentless in your attack.")
             input()
             print("Finally, after a long and grueling battle,"
-                  f"{COMPANION} surrenders.")
+                  f"{GAME_STATE["COMPANION"]} surrenders.")
             input()
-            print(f"Fine, I'm sorry, {USERNAME}, I didn't mean to hurt you,"
-                  f"their voice filled with pain. :{COMPANION}")
+            print(f"Fine, I'm sorry, {GAME_STATE["USERNAME"]}, I didn't mean to hurt you,"
+                  f"their voice filled with pain. :{GAME_STATE["COMPANION"]}")
             input()
             print("No, you replied, you were corrupted by the dark energy of necron, "
                    "and you must be stopped.")
             input()
-            print(f"You hoist your sword towards {COMPANION},"
+            print(f"You hoist your sword towards {GAME_STATE["COMPANION"]},"
                   "ready to strike the final blow.")
             input()
             print("But before you can strike, you remember"
-                  f"all the fond memories you had with {COMPANION}.")
+                  f"all the fond memories you had with {GAME_STATE["COMPANION"]}.")
             input()
             print("You remember the times you laughed together, " \
                   "the times you fought side by side, all the dungeons you faced together.")
             input()
-            print(f"You realize that you cannot bring yourself to kill {COMPANION},"
+            print(f"You realize that you cannot bring yourself to kill {GAME_STATE["COMPANION"]},"
                   "even if they corrupted, but yet he could still hurt you.")
             input()
-            companion_choice3 = input(f"Do you want to spare {COMPANION} or"
+            companion_choice3 = input(f"Do you want to spare {GAME_STATE["COMPANION"]} or"
                                       "finish them off? (Spare/Finish): ")
             if companion_choice3.strip().lower() == "spare":
                 print("You lower your sword, tears streaming down your face.")
                 input()
-                print(f"I can't do it, {COMPANION},"
+                print(f"I can't do it, {GAME_STATE["COMPANION"]},"
                       "I can't do it, you say, your voice filled with emotion.")
                 input()
-                print(f"{COMPANION} looks at you with gratitude in their eyes,"
+                print(f"{GAME_STATE["COMPANION"]} looks at you with gratitude in their eyes,"
                       "and they fall to their knees, their eyes filled with tears.")
                 input()
-                print(f"Thank you, {USERNAME}, I knew you would come to save me,"
-                      f"their voice filled with hope. :{COMPANION}")
+                print(f"Thank you, {GAME_STATE["USERNAME"]}, I knew you would come to save me,"
+                      f"their voice filled with hope. :{GAME_STATE["COMPANION"]}")
                 input()
                 print("I can't kill you, even if you are corrupted, " \
                       "you say, your voice filled with emotion.")
@@ -3920,21 +3070,22 @@ def companion_fight():
                 print("All of a sudden, it opens and frees from your " \
                       "clutches and begins to float in the air.")
                 input()
-                print(f"{COMPANION} begins to float in the air alongside the book")
+                print(f"{GAME_STATE["COMPANION"]} begins to float in the air alongside the book")
                 input()
-                print(f"Suddenly, lightning strikes {COMPANION}"
+                print(f"Suddenly, lightning strikes {GAME_STATE["COMPANION"]}"
                       "and they collapse to the ground, weak but you feel " \
                       "that the dark energy is gone.")
                 chapter_17()
             elif companion_choice3.strip().lower() == "finish":
-                print(f"You raise your sword and deliver the final blow to {COMPANION},"
+                print("You raise your sword and deliver the"
+                      f"final blow to {GAME_STATE["COMPANION"]},"
                       "ending their corrupted existence.")
                 input()
-                print(f"With their last breath, {COMPANION} looks at you"
+                print(f"With their last breath, {GAME_STATE["COMPANION"]} looks at you"
                       "with a mix of gratitude and sorrow.")
                 input()
-                print(f"Thank you for freeing me, {USERNAME}, {COMPANION}"
-                      "whispers before fading away.")
+                print("Thank you for freeing"
+                      f"me, {GAME_STATE["USERNAME"]} :{GAME_STATE["COMPANION"]}")
                 input()
                 print("You look down at the remains of your once beloved Companion, your " \
                        "heart heavy with sorrow.")
@@ -3947,66 +3098,67 @@ def companion_fight():
                 print("You faint and collapse")
                 input()
                 print("You died, due to loneliness and sorrow")
-                death()
+                utils.death()
                 return
             else:
-                print(f"Invalid choice. The corrupted {COMPANION} strikes you down,"
+                print(f"Invalid choice. The corrupted {GAME_STATE["COMPANION"]} strikes you down,"
                       "and you fall to the ground, defeated.")
                 input()
-                death()
+                utils.death()
         else:
-            print(f"Invalid choice. The corrupted {COMPANION} strikes you down,"
+            print(f"Invalid choice. The corrupted {GAME_STATE["COMPANION"]} strikes you down,"
                   "and you fall to the ground, defeated.")
             input()
-            death()
+            utils.death()
     else:
-        print(f"Invalid choice. The corrupted {COMPANION} strikes you down,"
+        print(f"Invalid choice. The corrupted {GAME_STATE["COMPANION"]} strikes you down,"
               "and you fall to the ground, defeated.")
         input()
-        death()
+        utils.death()
 
 def chapter_17():
     """
     Introduces the aftermath of the necron fight and the companion's recovery
     """
-    global  CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_17"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_17"
     print("***************************\n"
             "Chapter 17: The Princess?\n"
           "***************************\n")
     input()
-    print(f"Uhhh, where am I?? {COMPANION} says, as they slowly regain consciousness. :{COMPANION}")
+    print(f"Uhhh, where am I?? {GAME_STATE["COMPANION"]} says, as"
+          f"they slowly regain consciousness. :{GAME_STATE["COMPANION"]}")
     input()
-    print(f"What happened?, {COMPANION} asks, looking around the abandoned house.")
+    print(f"What happened?, {GAME_STATE["COMPANION"]} asks, looking around the abandoned house.")
     input()
-    print(f"You explain to {COMPANION} that you defeated necron and"
+    print(f"You explain to {GAME_STATE["COMPANION"]} that you defeated necron and"
           "saved them from the dark energy that corrupted them.")
     input()
-    print(f"{COMPANION} looks at you with gratitude in their eyes, and"
+    print(f"{GAME_STATE["COMPANION"]} looks at you with gratitude in their eyes, and"
           "they fall to their knees, their eyes filled with tears.")
     input()
-    print(f"Thank you, {USERNAME}, I knew you would come to save me,"
-          f" their voice filled with hope. :{COMPANION}")
+    print(f"Thank you, {GAME_STATE["USERNAME"]}, I knew you would come to save me,"
+          f" their voice filled with hope. :{GAME_STATE["COMPANION"]}")
     input()
-    print(f"You help {COMPANION} to their feet, and they look at you with gratitude in their eyes.")
+    print(f"You help {GAME_STATE["COMPANION"]} to their feet,"
+          "and they look at you with gratitude in their eyes.")
     input()
-    print(f"'Come let's go, we need to find the princess', you say to {COMPANION}")
+    print(f"'Come let's go, we need to find the princess', you say to {GAME_STATE["COMPANION"]}")
     input()
-    print(f"You and {COMPANION} leave the abandoned house and"
+    print(f"You and {GAME_STATE["COMPANION"]} leave the abandoned house and"
           "make your way to the heart of the capital.")
     input()
     print("As you walk through the empty streets, " \
           "you once again notice the strange symbols etched into the walls " \
           "but now they've seem to be faded away.")
     input()
-    print(f"I want to get out of here, their voice filled with determination :{COMPANION}")
+    print(f"I want to get out of here, :{GAME_STATE["COMPANION"]}")
     input()
     print("You nod in agreement, determined to find the princess and escape the capital.")
     input()
     print("At the center of the capital, lies the princess's castle,"
-          f" 'It's most likely she's trapped in there. :{COMPANION}")
+          f" 'It's most likely she's trapped in there. :{GAME_STATE["COMPANION"]}")
     input()
-    print(f"You and {COMPANION} make your way to the castle,"
+    print(f"You and {GAME_STATE["COMPANION"]} make your way to the castle,"
           "hoping to find the princess and escape the capital.")
     chapter_18()
 
@@ -4015,19 +3167,18 @@ def chapter_18():
     Introduces the castle and the corrupted princess
     """
     #Docstring to describe the chapter
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_18"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_18"
     print("***************************\n"
           "Chapter 18: The Castle\n"
           "***************************\n")
     input()
-    print(f"You and {COMPANION} arrive at the castle,"
+    print(f"You and {GAME_STATE["COMPANION"]} arrive at the castle,"
           "a grand gothic structure filled with towering walls and ornate decorations.")
     input()
     print("But something is off. The castle is eerily quiet, "
           "and you can feel a dark presence lurking in the shadows.")
     input()
-    print(f"We need to find the princess and escape this place. :{COMPANION}")
+    print(f"We need to find the princess and escape this place. :{GAME_STATE["COMPANION"]}")
     input()
     print("You nod in agreement, determined to find the princess and escape the capital.")
     input()
@@ -4059,7 +3210,7 @@ def chapter_18():
     if princess_choice.strip().lower() == "reason":
         print("You try to reason with the princess, but she is too far gone.")
         input()
-        death()
+        utils.death()
         return
     elif princess_choice.strip().lower() == "attack":
         print("You draw your weapon and prepare to fight the corrupted princess.")
@@ -4074,13 +3225,13 @@ def chapter_18():
               "and you quickly search the chamber for a way to " \
               "disable the dark energy that is corrupting her.")
         input()
-        print(f"Before either you or {COMPANION} can react,"
+        print(f"Before either you or {GAME_STATE["COMPANION"]} can react,"
                "the corrupted princess lunges at you again, her claws slashing through the air.")
         input()
         princess_choice2 = input("Do you want to attack the " \
                                  "princess again or try to run away? (Attack/Run): ")
         if princess_choice2.strip().lower() == "attack":
-            print(f"You and {COMPANION} attack the corrupted princess"
+            print(f"You and {GAME_STATE["COMPANION"]} attack the corrupted princess"
                   "with all your might, striking her with your weapons.")
             input()
             print("The corrupted princess roars in pain, but she is not defeated yet.")
@@ -4100,17 +3251,17 @@ def chapter_18():
             print("But before you can finish the spell, " \
                   "she lunges at you again, her claws slashing through the air.")
             input()
-            death()
+            utils.death()
             return
         elif princess_choice2.strip().lower() == "run":
-            print(f"You and {COMPANION} try to run away from the corrupted princess,"
+            print(f"You and {GAME_STATE["COMPANION"]} try to run away from the corrupted princess,"
                   "dodging her attacks.")
             input()
-            print(f"INCOMING ATTACK!!, :{COMPANION}")
+            print(f"INCOMING ATTACK!!, :{GAME_STATE["COMPANION"]}")
             input()
             princess_choice3 = input("Type 'DUCK' to dodge the attack: ")
             if princess_choice3.strip().lower() == "duck":
-                print(f"You and {COMPANION} duck just in time,"
+                print(f"You and {GAME_STATE["COMPANION"]} duck just in time,"
                       "avoiding the corrupted princess's attack.")
                 input()
                 print("You quickly search the chamber for a way to disable " \
@@ -4147,30 +3298,29 @@ def chapter_18():
                 print("You fail to dodge the attack, the " \
                       "corrupted princess strikes you down, and you fall to the ground, defeated.")
                 input()
-                death()
+                utils.death()
                 return
         else:
             print("Invalid choice. The corrupted princess strikes you down, "
                  "and you fall to the ground, defeated.")
             input()
-            death()
+            utils.death()
     else:
         print("Invalid choice. The corrupted princess strikes you down, "
               "and you fall to the ground, defeated.")
         input()
-        death()
+        utils.death()
 
 def chapter_19():
     """
     Introduces the aftermath of the corrupted princess fight and the princess's recovery
     """
-    global  CURRENT_CHAPTER
-    CURRENT_CHAPTER = "chapter_19"
+    GAME_STATE["CURRENT_CHAPTER"] = "chapter_19"
     print("***************************\n"
           "Chapter 19: The Aftermath\n"
           "***************************\n")
     input()
-    print(f"You and {COMPANION} stand over the defeated corrupted princess,"
+    print(f"You and {GAME_STATE["COMPANION"]} stand over the defeated corrupted princess,"
           "her body lying motionless on the ground.")
     input()
     print("You realize that you have defeated the final beast,"
@@ -4191,16 +3341,18 @@ def chapter_19():
     input()
     print("The princess looks at you with gratitude in her eyes.")
     input()
-    print(f"Thank you, {USERNAME}, I knew you would come to save me. :Princess Violet")
+    print(f"Thank you, {GAME_STATE["USERNAME"]},"
+          "I knew you would come to save me. :Princess Violet")
     input()
     print("You help the princess to her feet, and she looks at you with a newfound determination.")
     input()
-    print(f"Now, me and {COMPANION} really need to get out of here, you say to the princess.")
+    print(f"Now, me and {GAME_STATE["COMPANION"]}"
+          "really need to get out of here, you say to the princess.")
     input()
-    print(f"Yeah, I would like to get out of here too, :{COMPANION}"
+    print(f"Yeah, I would like to get out of here too, :{GAME_STATE["COMPANION"]}"
           "their voice still filled with pain.")
     input()
-    print(f"You and {COMPANION} leave the chamber with the princess towards"
+    print(f"You and {GAME_STATE["COMPANION"]} leave the chamber with the princess towards"
           "one of the castle's dungeon rooms")
     the_end()
 #Goes to the end
@@ -4209,41 +3361,41 @@ def the_end():
     """
     Introduces the end of the game and the final choices
     """
-    global CURRENT_CHAPTER
-    CURRENT_CHAPTER = "the_end"
+    GAME_STATE["CURRENT_CHAPTER"] = "the_end"
     print("***************************\n"
                    "The End\n"
           "***************************\n")
     input()
-    print(f"You,{COMPANION} and the princess reach the portal that"
+    print(f"You,{GAME_STATE["COMPANION"]} and the princess reach the portal that"
           "leads out of Fargon towards where you came from")
     input()
     print("The magnificent green portal is glowing with a bright light,"
           "and you can feel its power coursing through your veins.")
     input()
-    print(f"Well, this is it, you and {COMPANION}"
+    print(f"Well, this is it, you and {GAME_STATE["COMPANION"]}"
           "say to the princess.")
     input()
     print("This is goodbye")
     input()
-    print(f"Suddenly, the princess pulls you and {COMPANION} into a tight embrace.")
+    print(f"Suddenly, the princess pulls you and {GAME_STATE["COMPANION"]} into a tight embrace.")
     input()
-    print(f"Thank you, {USERNAME} and {COMPANION},"
+    print(f"Thank you, {GAME_STATE["USERNAME"]} and {GAME_STATE["COMPANION"]},"
           "for saving me and for everything you have done. :Princess Violet")
     input()
     print("Fargon will never forget your bravery and heroism. :Princess Violet")
     input()
-    print(f"You and {COMPANION} nod in agreement, grateful for the princess's kind words.")
+    print(f"You and {GAME_STATE["COMPANION"]} nod in agreement,"
+          "grateful for the princess's kind words.")
     input()
     print("Suddenly you feel a strange sensation in your chest, "
           "and you realize that you've survived so many days in Fargon")
     input()
     final_choice = input("Do you want to stay in Fargon or return home? (Stay/Return): ")
     if final_choice.strip().lower() == "stay":
-        print(f"You and {COMPANION} decide to stay in Fargon,"
+        print(f"You and {GAME_STATE["COMPANION"]} decide to stay in Fargon,"
               "determined to continue your adventures and protect the realm.")
         input()
-        print(f"You and {COMPANION} are now the heroes of Fargon,"
+        print(f"You and {GAME_STATE["COMPANION"]} are now the heroes of Fargon,"
               "and your legend will live on for generations to come.")
         input()
         end_credits()
@@ -4252,18 +3404,19 @@ def the_end():
         end_credits()
     #Returns home and goes to credits
     else:
-        print(f"Invalid choice, You and {COMPANION} decide to return home,"
+        print(f"Invalid choice, You and {GAME_STATE["COMPANION"]} decide to return home,"
               "grateful for the adventures you have had in Fargon.")
         input()
         print("You say goodbye to the princess,"
               "promising to never forget your time in Fargon.")
         input()
-        print(f"You and {COMPANION} step through the portal, ready to return to your world.")
+        print(f"You and {GAME_STATE["COMPANION"]} step through the portal,"
+              "ready to return to your world.")
         input()
-        print(f"You and {COMPANION} are now the heroes of Fargon,"
+        print(f"You and {GAME_STATE["COMPANION"]} are now the heroes of Fargon,"
               "and your legend will live on for generations to come.")
         input()
-        save_game()
+        utils.save_game()
         end_credits()
     #Goes to credits
 
@@ -4275,7 +3428,7 @@ def end_credits():
           "         Credits\n"
           "***************************\n")
     input()
-    print(CREDIT_ROLL)
+    print(ascii_art.CREDIT_ROLL)
     input()
     print("Game made by: Eric")
     input()
@@ -4288,7 +3441,8 @@ def end_credits():
               "***************************\n")
         #Seperate ending
         input()
-        print(f"You and your COMPANION, {COMPANION}, decide to take a different path.")
+        print(f"You and your {GAME_STATE["COMPANION"]}, {GAME_STATE["COMPANION"]},"
+              "decide to take a different path.")
         input()
         print("Instead of returning home, you choose to explore the dark side of Fargon.")
         input()
