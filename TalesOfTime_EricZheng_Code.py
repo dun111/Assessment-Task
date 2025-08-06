@@ -599,6 +599,7 @@ def chapter_1():
         print(f"You acquired {GAME_STATE["COMPANION"]}'s trusty dagger.")
         input()
         print(ascii_art.SPECIAL_DAGGER)
+        #Ascii.art used as ascii art is in another module
         chapter_2()
         return
     # This continues the game since the GAME_STATE["PLAYER"] wants to help GAME_STATE["COMPANION"]
@@ -607,7 +608,10 @@ def chapter_1():
             "Too bad, I guess you don't want to leave"
             f"this place... :{GAME_STATE["COMPANION"]} PLEASE WAIT"
         )
+        #Game_state companion used in place of {Companion} due to the removal of globals
+        #for more professional code
         time.sleep(10)
+        #Wait 10 seconds
         print(
             f"{GAME_STATE["COMPANION"]} turns away and "
             f"walks off into the darkness, leaving you alone."
@@ -2874,6 +2878,7 @@ def chapter_12part2():
             print("Collected")
             break
             # This shows the collecting stick sequence
+            # This prepares the player for the Machines/Guardian chapters
         else:
             print("Not collected")
         stick2 = input("Under a piece of bark you find a piece. Type 'Two' to pick up: ")
